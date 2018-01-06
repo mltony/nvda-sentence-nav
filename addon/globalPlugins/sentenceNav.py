@@ -1,4 +1,5 @@
 import api
+import bisect
 import controlTypes
 import config
 import ctypes
@@ -55,17 +56,24 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     LOOK_BEHIND = nlb("\\s" + CAPITAL_LETTERS)
     LOOK_BEHIND += "".join([nlb(u"\\s" + abbr) for abbr in ABBREVIATIONS])
     SENTENCE_END_REGEX = LOOK_BEHIND + SENTENCE_END_REGEX
-    SENTENCE_END_REGEX = re_grp("^|" + SENTENCE_END_REGEX +  "|$")
+    SENTENCE_END_REGEX = re_grp("^|" + SENTENCE_END_REGEX +  "|\\s*$")
     SENTENCE_END_REGEX  = re.compile(SENTENCE_END_REGEX , re.UNICODE)
     
     def splitParagraphIntoSentences(self, text):
         #self.mylog(self.LOOK_BEHIND) 
         result = [m.end() for m in self.SENTENCE_END_REGEX  .finditer(text)]
+        # Sometimes the last position in the text will be matched twice, so filter duplicates.
+        result = sorted(list(set(result)))
         #ui.message(str(result))
         self.mylog(result)
+        self.mylog("'%s'" % text)
+        s = "\r\n"
+        r = re.compile("$")
+        rr = [m.end() for m in r.finditer(s)]
+        self.mylog("rr=%s" % str(rr))
         for i in xrange(1, len(result)):
             s = text[result[i-1]:result[i]]
-            self.mylog(s)
+            #self.mylog(s)
         return result
     
     def ifSentenceBreak(selfself, s, index):
@@ -115,8 +123,22 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         #if sentenceRe.search(text, ):
         
 
+    def find_gt(a, x):
+        'Find leftmost value greater than x'
+        i = bisect_right(a, x)
+        if i != len(a):
+            return a[i]
+        raise ValueError
+
     def script_nextSentence(self, gesture):
-        """."""
+        """Move to next sentence."""
+        self.move(1)
+        
+    def script_previousSentence(self, gesture):
+        """Move to previous sentence."""
+        self.move(-1)
+        
+    def move(self, increment):
         focus = api.getFocusObject()
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
@@ -125,34 +147,45 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         caretOffset = textInfo._getCaretOffset() 
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         caretIndex = caretOffset - textInfo._startOffset
+        #ui.message(str(caretIndex))
         while True:
             text = textInfo.text
             boundaries = self.splitParagraphIntoSentences(text)
-            self.mylog(boundaries)
-            for i in xrange(len(boundaries)):
-                if boundaries[i] > caretIndex:
-                    break
-            if i + 1 < len(boundaries):
+            #self.mylog(boundaries)
+            #ui.message("Len=%d" % len(text))
+            #ui.message(str(boundaries))
+            # Find the first index in boundaries that is strictly greater than caretIndex
+            j = bisect.bisect_right(boundaries, caretIndex)
+            i = j - 1            
+            # At this point boundaries[i] and boundaries[j] represent
+            # the boundaries of the current sentence.
+            
+            # Testing if we can move to previous/next sentence and still remain within the same paragraph.
+            n = len(boundaries)
+            if (0 <= i + increment < n) and (0 <= j + increment < n):
                 # Next sentence can be found within the same paragraph
+                i += increment
+                j += increment
                 textInfo.collapse()
                 textInfo2 = textInfo.copy()
                 result = textInfo.move(textInfos.UNIT_CHARACTER, boundaries[i])
-                assert(result != 0)
-                result2 = textInfo2.move(textInfos.UNIT_CHARACTER, boundaries[i + 1])
-                if result2 == 0:
-                    if boundaries[i + 1] == len(text):
-                        # It seems like we cannot move to the very last position in the document.
-                        # Do next best thing instead.
-                        result3 = textInfo2.move(textInfos.UNIT_CHARACTER, boundaries[i + 1] - 1)
-                        assert(result3 != 0)
+                assert((result != 0) or (boundaries[i] == 0))
+                # If we are moving to the very last sentence of the very last paragraph,
+                # then we cannot move textInfo2 to the end of the paragraph.
+                # Move to just one character before that, and then try to move one more character.
+                assert(boundaries[j] > 1)
+                result2 = textInfo2.move(textInfos.UNIT_CHARACTER, boundaries[j] - 1)
+                assert(result2 != 0)
+                textInfo2.move(textInfos.UNIT_CHARACTER, 1)
                 textInfo.setEndPoint(textInfo2, "endToStart")
                 textInfo.updateCaret()
                 ui.message(textInfo.text)
-                return  
-            else:
+                return
+            else:  
+                # We need to move to previous/next paragraph to find previous/next sentence.
                 tones.beep(440, 100)
                 while True:
-                    result = textInfo.move(textInfos.UNIT_PARAGRAPH, 1)
+                    result = textInfo.move(textInfos.UNIT_PARAGRAPH, increment)
                     if result == 0:
                         ui.message("No next sentence")
                         return
@@ -162,8 +195,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 textInfo.expand(textInfos.UNIT_PARAGRAPH)
                 # Imaginary caret just before this paragraph,
                 # so that the next iteration will pick the very first sentence of this paragraph.
-                caretIndex = -1  
+                if increment > 0:
+                    caretIndex = -1
+                else:
+                    caretIndex = len(textInfo.text) 
+                # Now control flow will takes us to another iteration of the outer while loop. 
         
     __gestures = {
         "kb:alt+DownArrow": "nextSentence",
+        "kb:alt+UpArrow": "previousSentence",
     }
