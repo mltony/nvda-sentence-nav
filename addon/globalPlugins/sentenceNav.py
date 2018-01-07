@@ -5,6 +5,7 @@ import config
 import ctypes
 import globalPluginHandler
 import NVDAHelper
+import NVDAObjects.window
 import operator
 import re 
 import speech
@@ -27,6 +28,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def describe(self, obj):
         self.mylog(str(obj))
         self.mylog(str(type(obj)))
+        self.mylog(str(type(obj).__bases__))
         for s in dir(obj):
             self.mylog(str(s))
 
@@ -140,6 +142,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
     def move(self, increment):
         focus = api.getFocusObject()
+        if isinstance(focus, NVDAObjects.window.winword.WordDocument):
+            if increment > 0:
+                focus.script_caret_nextSentence(None)
+            else:
+                focus.script_caret_previousSentence(None)    
+            return
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
         textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
