@@ -5,7 +5,7 @@ import config
 import ctypes
 import globalPluginHandler
 import NVDAHelper
-import NVDAObjects.window
+from NVDAObjects.window import winword
 import operator
 import re 
 import speech
@@ -14,6 +14,7 @@ import tones
 import ui
 import unicodedata
 
+wordDocumentClass = winword.WordDocument
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     MY_LOG_NAME = "C:\\Users\\tony\\1.txt" 
@@ -134,19 +135,31 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def script_nextSentence(self, gesture):
         """Move to next sentence."""
-        self.move(1)
+        self.move(gesture, 1)
         
     def script_previousSentence(self, gesture):
         """Move to previous sentence."""
-        self.move(-1)
+        self.move(gesture, -1)
         
-    def move(self, increment):
+    def move(self, gesture, increment):
         focus = api.getFocusObject()
-        if isinstance(focus, NVDAObjects.window.winword.WordDocument):
+        self.describe(gesture)
+        if isinstance(focus, winword.WordDocument):
             if increment > 0:
                 focus.script_caret_nextSentence(None)
             else:
                 focus.script_caret_previousSentence(None)    
+            return
+        ui.message(str(focus.role  ))
+        if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM]:
+            #ui.message("Hahaha")
+            #self.mylog(focus._gestureMap)
+            #self.describe(focus.treeInterceptor)
+            self.describe(focus)
+            try:
+                focus.script_collapseOrExpandControl(gesture)
+            except AttributeError:
+                focus.treeInterceptor.script_collapseOrExpandControl(gesture)
             return
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
