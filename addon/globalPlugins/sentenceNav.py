@@ -9,6 +9,7 @@ from NVDAObjects.window import winword
 import operator
 import re 
 import speech
+import struct
 import textInfos
 import tones
 import ui
@@ -150,12 +151,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             else:
                 focus.script_caret_previousSentence(None)    
             return
-        ui.message(str(focus.role  ))
+        #ui.message(str(focus.role  ))
         if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM]:
             #ui.message("Hahaha")
             #self.mylog(focus._gestureMap)
             #self.describe(focus.treeInterceptor)
-            self.describe(focus)
+            #self.describe(focus)
             try:
                 focus.script_collapseOrExpandControl(gesture)
             except AttributeError:
@@ -204,7 +205,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 return
             else:  
                 # We need to move to previous/next paragraph to find previous/next sentence.
-                tones.beep(440, 100)
+                self.fancyBeep()
                 while True:
                     result = textInfo.move(textInfos.UNIT_PARAGRAPH, increment)
                     if result == 0:
@@ -222,6 +223,28 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     caretIndex = len(textInfo.text) 
                 # Now control flow will takes us to another iteration of the outer while loop. 
         
+    def fancyBeep(self):
+        beepLen = 100 
+        freqs = [400,500, 600]
+        intSize = 8 # bytes
+        bufSize = max([NVDAHelper.generateBeep(None,freq, beepLen, 50, 50) for freq in freqs])
+        if bufSize % intSize != 0:
+            bufSie +=intSize
+            bufSize -= (bufSize % intSize)
+        tones.player.stop()
+        bbs = []
+        result = [0] * (bufSize/intSize)
+        for freq in freqs:
+            buf = ctypes.create_string_buffer(bufSize)
+            NVDAHelper.generateBeep(buf, freq, beepLen, 50, 50)
+            bytes = bytearray(buf)
+            
+            unpacked = struct.unpack("<%dQ" % (bufSize / intSize), bytes)
+            result = map(operator.add, result, unpacked)
+        maxInt = 1 << (8 * intSize)
+        result = map(lambda x : x %maxInt, result)
+        packed = struct.pack("<%dQ" % (bufSize / intSize), *result)
+        tones.player.feed(packed)
     __gestures = {
         "kb:alt+DownArrow": "nextSentence",
         "kb:alt+UpArrow": "previousSentence",
