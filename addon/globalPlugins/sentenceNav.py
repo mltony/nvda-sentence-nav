@@ -15,8 +15,6 @@ import tones
 import ui
 import unicodedata
 
-wordDocumentClass = winword.WordDocument
-
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     MY_LOG_NAME = "C:\\Users\\tony\\1.txt" 
     open(MY_LOG_NAME, "w").close()
@@ -34,9 +32,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         for s in dir(obj):
             self.mylog(str(s))
 
-    SENTENCE_BREAKERS = set(list(".!?"))
-    EMPTY_CHARACTERS = set(list(" \t\r\n"))
-    
     def re_grp(s):
         return "(?:%s)" % s        
     
@@ -64,76 +59,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SENTENCE_END_REGEX  = re.compile(SENTENCE_END_REGEX , re.UNICODE)
     
     def splitParagraphIntoSentences(self, text):
-        #self.mylog(self.LOOK_BEHIND) 
         result = [m.end() for m in self.SENTENCE_END_REGEX  .finditer(text)]
         # Sometimes the last position in the text will be matched twice, so filter duplicates.
         result = sorted(list(set(result)))
-        #ui.message(str(result))
-        self.mylog(result)
-        self.mylog("'%s'" % text)
-        s = "\r\n"
-        r = re.compile("$")
-        rr = [m.end() for m in r.finditer(s)]
-        self.mylog("rr=%s" % str(rr))
-        for i in xrange(1, len(result)):
-            s = text[result[i-1]:result[i]]
-            #self.mylog(s)
         return result
     
-    def ifSentenceBreak(selfself, s, index):
-        if s[index] not in self.SENTENCE_BREAKERS:
-            return False
-        try:
-            nextChar = s[index+1]
-        except IndexError:
-            return True
-        return nextChar in EMPTY_CHARACTERS
-
-    def isSkippable(self, c):
-        return unicodedata.category(c)[0] in "CPZ"
-    
-    def skipClass(self, s, i, unicodeClass):
-        while (i < len(s)) and (unicodedata.category(s[i])[0] in unicodeClass):
-            i += 1
-        return i 
-    
-    """
-    def splitParagraphIntoSentences(self, text):
-        #begin = textInfo._startOffset
-        #end = textInfo._endOffset
-        #text = textInfo.text
-        boundaries = [0]
-        for i in xrange(len(text)):
-            if text[i] not in self.SENTENCE_BREAKERS:
-                continue
-            # We just found the end of one sentence.
-            # Lets move a little forward to find the beginning of the next one.
-            i = self.skipClass(text, i, "P") # Skip all punctuation
-            i2 = self.skipClass(text, i, "CZ") # Skip all whitespaces
-            whitespaces = i2 - i
-            i = i2
-            if whitespaces > 0:
-                boundaries.append(i)
-        if boundaries[-1] !=len(text):
-            boundaries.append(len(text))  
-        return boundaries
-    """
-    
-    def findEndOfSentence(self, textInfo, offset):
-        text = textInfo.text 
-        index = offset - textInfo._startOffset
-        assert(index >= 0)
-        #sentenceRe = re.compile("([.?!]\\B|$)")
-        #if sentenceRe.search(text, ):
-        
-
-    def find_gt(a, x):
-        'Find leftmost value greater than x'
-        i = bisect_right(a, x)
-        if i != len(a):
-            return a[i]
-        raise ValueError
-
     def script_nextSentence(self, gesture):
         """Move to next sentence."""
         self.move(gesture, 1)
@@ -144,19 +74,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
     def move(self, gesture, increment):
         focus = api.getFocusObject()
-        self.describe(gesture)
         if isinstance(focus, winword.WordDocument):
             if increment > 0:
                 focus.script_caret_nextSentence(None)
             else:
                 focus.script_caret_previousSentence(None)    
             return
-        #ui.message(str(focus.role  ))
         if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM]:
-            #ui.message("Hahaha")
-            #self.mylog(focus._gestureMap)
-            #self.describe(focus.treeInterceptor)
-            #self.describe(focus)
             try:
                 focus.script_collapseOrExpandControl(gesture)
             except AttributeError:
@@ -165,17 +89,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
         textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
-        #self.describe(textInfo)
         caretOffset = textInfo._getCaretOffset() 
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         caretIndex = caretOffset - textInfo._startOffset
-        #ui.message(str(caretIndex))
         while True:
             text = textInfo.text
             boundaries = self.splitParagraphIntoSentences(text)
-            #self.mylog(boundaries)
-            #ui.message("Len=%d" % len(text))
-            #ui.message(str(boundaries))
             # Find the first index in boundaries that is strictly greater than caretIndex
             j = bisect.bisect_right(boundaries, caretIndex)
             i = j - 1            
@@ -215,8 +134,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     if not speech.isBlank(textInfo.text):
                         break
                 textInfo.expand(textInfos.UNIT_PARAGRAPH)
-                # Imaginary caret just before this paragraph,
-                # so that the next iteration will pick the very first sentence of this paragraph.
+                # Imaginary caret just before (if moving forward) or just after (if moving backward) this paragraph,
+                # so that the next iteration will pick the very first or the very last sentence of this paragraph.
                 if increment > 0:
                     caretIndex = -1
                 else:
@@ -238,7 +157,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             buf = ctypes.create_string_buffer(bufSize)
             NVDAHelper.generateBeep(buf, freq, beepLen, 50, 50)
             bytes = bytearray(buf)
-            
             unpacked = struct.unpack("<%dQ" % (bufSize / intSize), bytes)
             result = map(operator.add, result, unpacked)
         maxInt = 1 << (8 * intSize)
