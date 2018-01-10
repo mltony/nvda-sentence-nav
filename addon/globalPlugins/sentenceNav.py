@@ -39,10 +39,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                          + u"\u3002" # Chinese full stop
                          + u"\uFF01" # Chinese exclamation mark
                          + u"\uFF1F" # Chinese question mark 
-                         ) 
+                         )
+    SKIPPABLE_PUNCTUATION =(u'")'
+                            + u"\u201D" # Right double quotation amrk
+                            )  
     WIKIPEDIA_REFERENCE = re_grp("\\[[\\w\\s]+\\]")
-    SENTENCE_END_REGEX = u"[{br}]+{wiki}*\\s+".format(br=SENTENCE_BREAKERS ,
-                                                 wiki=WIKIPEDIA_REFERENCE)
+    SENTENCE_END_REGEX = u"[{br}]+[{skip}]*{wiki}*\\s+".format(
+        br=SENTENCE_BREAKERS ,
+        wiki=WIKIPEDIA_REFERENCE,
+        skip = SKIPPABLE_PUNCTUATION)
     CAPITAL_LETTERS = ("[A-Z"
                        + "\u0410-\u042F" # Cyrillic capital letters
                        + "]")
@@ -124,7 +129,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 return
             else:  
                 # We need to move to previous/next paragraph to find previous/next sentence.
-                self.fancyBeep()
+                self.fancyBeep("AC#EG#", 50)
                 while True:
                     result = textInfo.move(textInfos.UNIT_PARAGRAPH, increment)
                     if result == 0:
@@ -142,11 +147,27 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     caretIndex = len(textInfo.text) 
                 # Now control flow will takes us to another iteration of the outer while loop. 
         
-    def fancyBeep(self):
-        beepLen = 100 
-        freqs = [400,500, 600]
+    NOTES = "A,B,H,C,C#,D,D#,E,F,F#,G,G#".split(",")
+    NOTE_RE = re.compile("[A-H][#]?")
+    BASE_FREQ = 220 
+    def getChordFrequencies(self, chord):
+        assert(len(self.NOTES) == 12)
+        prev = -1
+        result = []
+        for m in self.NOTE_RE.finditer(chord):
+            s = m.group()
+            i =self.NOTES.index(s) 
+            while i < prev:
+                i += 12
+            result.append(int(self.BASE_FREQ * (2 ** (i / 12.0))))
+            prev = i
+        return result            
+    
+    def fancyBeep(self, chord, length, left=10, right=10):
+        beepLen = length 
+        freqs = self.getChordFrequencies(chord)
         intSize = 8 # bytes
-        bufSize = max([NVDAHelper.generateBeep(None,freq, beepLen, 50, 50) for freq in freqs])
+        bufSize = max([NVDAHelper.generateBeep(None,freq, beepLen, right, left) for freq in freqs])
         if bufSize % intSize != 0:
             bufSie +=intSize
             bufSize -= (bufSize % intSize)
@@ -155,7 +176,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         result = [0] * (bufSize/intSize)
         for freq in freqs:
             buf = ctypes.create_string_buffer(bufSize)
-            NVDAHelper.generateBeep(buf, freq, beepLen, 50, 50)
+            NVDAHelper.generateBeep(buf, freq, beepLen, right, left)
             bytes = bytearray(buf)
             unpacked = struct.unpack("<%dQ" % (bufSize / intSize), bytes)
             result = map(operator.add, result, unpacked)
