@@ -1,11 +1,16 @@
 import api
 import bisect
+import browseMode
 import controlTypes
 import config
 import ctypes
 import globalPluginHandler
 import NVDAHelper
+from NVDAObjects.IAccessible import IAccessible 
+from NVDAObjects.IAccessible import mozilla
 from NVDAObjects.window import winword
+
+from NVDAObjects.UIA.wordDocument import WordDocument
 import operator
 import re 
 import speech
@@ -15,7 +20,101 @@ import tones
 import ui
 import unicodedata
 
+MY_LOG_NAME = "C:\\Users\\tony\\1.txt" 
+open(MY_LOG_NAME, "w").close()
+
+def mylog(s):
+    f = open(MY_LOG_NAME, "a")
+    f.write(unicode(s).encode('utf8'))
+    f.write("\n")        
+    f.close()
+
+def describe(obj):
+    mylog(str(obj))
+    mylog(str(type(obj)))
+    import inspect
+    mylog(inspect.getmro(type(obj)))
+    for s in dir(obj):
+        try:
+            value = eval("obj.%s" % s)
+            value = str(value)
+        except:
+            value = "."
+        mylog("%s = %s" % (str(s), value))
+
+
+
+ctr = 0
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+    browserNames = set("firefox,chrome,iexplore,microsoftedge".split(","))
+    cc = set()
+    appNames = set()
+    def chooseNVDAObjectOverlayClasses (self, obj, clsList):
+        """
+        for c in clsList:
+            if issubclass(c, browseMode.BrowseModeDocumentTreeInterceptor):
+                tones.beep(200, 50)
+        
+        if isinstance(obj, browseMode.BrowseModeDocumentTreeInterceptor):
+            tones.beep(200, 50)
+        try:
+            if obj.treeInterceptor is not None:
+                if isinstance(obj.treeInterceptor, browseMode.BrowseModeDocumentTreeInterceptor):
+                    tones.beep(200, 50)
+        except:
+            pass
+"""  
+        if obj.appModule.appName in self.browserNames:
+            #tones.beep(200, 50)
+            clsList.insert (0, SentenceNavigator)
+            return
+        
+        
+        self.appName = str(obj.appModule.appName)
+        self.appNames.add(obj.appModule.appName) 
+        if mozilla.Mozilla in clsList: 
+            #tones.beep(200, 50)
+            pass
+        if WordDocument in clsList:
+            tones.beep(200, 100)
+        if winword.WordDocument in clsList:
+            for c in clsList:
+                #describe(c)
+                pass
+            tones.beep(800, 100)
+            return
+        try:
+            self.obj = obj
+            self.appName = obj.IA2Attributes
+            #tones.beep(200, 10)
+        except:
+            self.appName = None
+            
+        #focus = api.getFocusObject()
+        if obj.windowClassName == "NetUIHWND":
+            #tones.beep(1000, 50)
+            pass
+        #if isinstance(focus, winword.WordDocument):
+            #return
+
+        if obj.role == controlTypes.ROLE_EDITABLETEXT or mozilla.BrokenFocusedState in clsList:
+            #mozilla.Mozilla
+            #            mozilla.BrokenFocusedState
+            #mozilla.Document
+            clsList.insert (0, SentenceNavigator)
+            
+    def script_status(self, gesture):
+        ui.message(self.appName)
+        for appName in self.appNames:
+            mylog(appName)
+            
+    __gestures = {
+        "kb:NVDA+Control+X": "status",
+        }
+
+            
+class SentenceNavigator(IAccessible): 
     MY_LOG_NAME = "C:\\Users\\tony\\1.txt" 
     open(MY_LOG_NAME, "w").close()
     
@@ -163,7 +262,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         result = map(lambda x : x %maxInt, result)
         packed = struct.pack("<%dQ" % (bufSize / intSize), *result)
         tones.player.feed(packed)
+
     __gestures = {
         "kb:alt+DownArrow": "nextSentence",
         "kb:alt+UpArrow": "previousSentence",
     }
+    
+    def initOverlayClass (self): 
+        for key, value in self.__gestures.iteritems():
+            self.bindGesture (key, value) 
