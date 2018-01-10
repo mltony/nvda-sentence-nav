@@ -1,7 +1,6 @@
 import api
 import bisect
 import controlTypes
-import config
 import ctypes
 import globalPluginHandler
 import NVDAHelper
@@ -13,7 +12,6 @@ import struct
 import textInfos
 import tones
 import ui
-import unicodedata
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def re_grp(s):
