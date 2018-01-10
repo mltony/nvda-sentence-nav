@@ -1,3 +1,9 @@
+#A part of the SentenceNav addon for NVDA
+#Copyright (C) 2018 Tony Malykh
+#This file is covered by the GNU General Public License.
+#See the file LICENSE  for more details.
+
+import addonHandler
 import api
 import bisect
 import controlTypes
@@ -12,6 +18,8 @@ import struct
 import textInfos
 import tones
 import ui
+
+addonHandler.initTranslation()
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def re_grp(s):
@@ -113,11 +121,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 return
             else:  
                 # We need to move to previous/next paragraph to find previous/next sentence.
-                self.fancyBeep("AC#EG#", 50)
+                self.fancyBeep("AC#EG#", 30, 5, 5)
                 while True:
                     result = textInfo.move(textInfos.UNIT_PARAGRAPH, increment)
                     if result == 0:
-                        ui.message("No next sentence")
+                        self.fancyBeep("HF", 100, 50, 50)
                         return
                     textInfo.expand(textInfos.UNIT_PARAGRAPH)
                     if not speech.isBlank(textInfo.text):
@@ -153,7 +161,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         intSize = 8 # bytes
         bufSize = max([NVDAHelper.generateBeep(None,freq, beepLen, right, left) for freq in freqs])
         if bufSize % intSize != 0:
-            bufSie +=intSize
+            bufSize += intSize
             bufSize -= (bufSize % intSize)
         tones.player.stop()
         bbs = []
