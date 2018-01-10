@@ -16,33 +16,19 @@ import ui
 import unicodedata
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-    MY_LOG_NAME = "C:\\Users\\tony\\1.txt" 
-    open(MY_LOG_NAME, "w").close()
-    
-    def mylog(self, s):
-        f = open(self.MY_LOG_NAME, "a")
-        f.write(unicode(s).encode('utf8'))
-        f.write("\n")        
-        f.close()
-    
-    def describe(self, obj):
-        self.mylog(str(obj))
-        self.mylog(str(type(obj)))
-        self.mylog(str(type(obj).__bases__))
-        for s in dir(obj):
-            self.mylog(str(s))
-
     def re_grp(s):
         return "(?:%s)" % s        
     
-    SENTENCE_BREAKERS =( ".?!"
-                         + u"\u3002" # Chinese full stop
-                         + u"\uFF01" # Chinese exclamation mark
-                         + u"\uFF1F" # Chinese question mark 
-                         )
-    SKIPPABLE_PUNCTUATION =(u'")'
-                            + u"\u201D" # Right double quotation amrk
-                            )  
+    SENTENCE_BREAKERS = (
+        ".?!"
+        + u"\u3002" # Chinese full stop
+        + u"\uFF01" # Chinese exclamation mark
+        + u"\uFF1F" # Chinese question mark 
+        )
+    SKIPPABLE_PUNCTUATION = (
+        u'")'
+        + u"\u201D" # Right double quotation amrk
+        )  
     WIKIPEDIA_REFERENCE = re_grp("\\[[\\w\\s]+\\]")
     SENTENCE_END_REGEX = u"[{br}]+[{skip}]*{wiki}*\\s+".format(
         br=SENTENCE_BREAKERS ,
