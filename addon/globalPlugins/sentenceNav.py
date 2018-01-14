@@ -81,7 +81,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             try:
                 focus.script_collapseOrExpandControl(gesture)
             except AttributeError:
-                focus.treeInterceptor.script_collapseOrExpandControl(gesture)
+                errorMsg = _(
+                    "This keystroke doesn't work here because of SentenceNav add-on running. "
+                    + "You can either disable SentenceNav add-on in NVDA settings, "
+                    + "or press Enter Instead to open a combo box."
+                    )
+                ui.message(errorMsg)
+                return
             return
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
