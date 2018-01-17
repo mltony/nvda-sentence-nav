@@ -1,7 +1,7 @@
 #A part of the SentenceNav addon for NVDA
 #Copyright (C) 2018 Tony Malykh
 #This file is covered by the GNU General Public License.
-#See the file LICENSE  for more details.
+#See the file COPYING.txt for more details.
 
 import addonHandler
 import api
