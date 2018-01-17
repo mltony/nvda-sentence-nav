@@ -79,15 +79,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM]:
             try:
+                # The following line will only succeed in BrowserMode.
                 focus.script_collapseOrExpandControl(gesture)
             except AttributeError:
-                errorMsg = _(
-                    "This keystroke doesn't work here because of SentenceNav add-on running. "
-                    + "You can either disable SentenceNav add-on in NVDA settings, "
-                    + "or press Enter Instead to open a combo box."
-                    )
-                ui.message(errorMsg)
-                return
+                gesture.send()
             return
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
