@@ -33,7 +33,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         )
     SKIPPABLE_PUNCTUATION = (
         u'")'
-        + u"\u201D" # Right double quotation amrk
+        + u"\u201D" # Right double quotation mark
         )  
     WIKIPEDIA_REFERENCE = re_grp("\\[[\\w\\s]+\\]")
     SENTENCE_END_REGEX = u"[{br}]+[{skip}]*{wiki}*\\s+".format(
