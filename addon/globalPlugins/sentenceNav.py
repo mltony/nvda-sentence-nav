@@ -23,8 +23,20 @@ addonHandler.initTranslation()
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def re_grp(s):
+        """Wraps a string with a non-capturing group for use in regular expressions."""
         return "(?:%s)" % s        
     
+    # Description of end of sentence regular expression in human language: 
+    # End of sentence regular expression SENTENCE_END_REGEX  matches either:
+    # 1. Beginning or end of the string.  
+    # 2.Sentence breaker punctuation marks (such as period, question or exclamation mark) SENTENCE_BREAKERS  (one or more), that is both:
+    # 2.1. Followed by all of:
+    # 2.1.1. Optionally skippable punctuation marks (such as closing right bracket or right double quote mark) SKIPPABLE_PUNCTUATION (zero or more)
+    # 2.1.2.Optionally Wikipedia-style reference (such as [1], or [Citation Needed]) WIKIPEDIA_REFERENCE  (zero or more)     
+    # 2.1.3. One or more whitespaces or whitespace-like characters \\s
+    # 2.2. And (defined in LOOK_BEHIND ) not preceded by:
+    # 2.2.1. Common abbreviations (defined in ABBREVIATIONS ), such as Mr., Ms., Dr., etc, followed by period.   
+    # 2.2.2. Single letter abbreviations (defined in CAPITAL_LETTERS ), such as initials, followed by a period. 
     SENTENCE_BREAKERS = (
         ".?!"
         + u"\u3002" # Chinese full stop
