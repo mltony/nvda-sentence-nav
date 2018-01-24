@@ -40,9 +40,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         br=SENTENCE_BREAKERS ,
         wiki=WIKIPEDIA_REFERENCE,
         skip = SKIPPABLE_PUNCTUATION)
-    CAPITAL_LETTERS = ("[A-Z"
-                       + "\u0410-\u042F" # Cyrillic capital letters
-                       + "]")
+    CAPITAL_LETTERS = (
+        "[A-Z"
+        # Cyrillic capital letters:
+        + u"".join(
+            map(unichr,
+                xrange(0x0410, 0x0430) 
+            ))
+        + "]")
     ABBREVIATIONS = "Mr|Ms|Mrs|Dr|St".split("|")
     def nlb(s):
         """Forms a negative look-behind regexp clause to prevent certain expressions like "Mr." from ending the sentence.
