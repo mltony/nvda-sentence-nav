@@ -11,6 +11,10 @@ Current stable release: [SentenceNav v1.0](https://github.com/mltony/nvda-senten
 Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
 
 ## Release history
+* v1.1 - In development
+  * Bug fixes
+      * Sentence navigation now works in WordPad and other rich text edit fields.
+      * Works better with Chinese language.
 * [v1.0](https://github.com/mltony/nvda-sentence-nav/raw/master/releases/SentenceNav-1.0.nvda-addon)
   * Initial release.
 
