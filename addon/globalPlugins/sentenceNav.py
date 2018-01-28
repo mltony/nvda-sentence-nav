@@ -88,7 +88,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
     def move(self, gesture, increment):
         focus = api.getFocusObject()
-        if isinstance(focus, winword.WordDocument):
+        if (
+            isinstance(focus, winword.WordDocument)
+            or (
+                True #"Dynamic_IAccessibleRichEdit" in str(type(focus)) 
+                and  hasattr(focus, "script_caret_nextSentence")
+                and hasattr(focus, "script_caret_previousSentence")  
+                )
+            ):
             if increment > 0:
                 focus.script_caret_nextSentence(None)
             else:
