@@ -37,12 +37,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     # 2.2. And (defined in LOOK_BEHIND ) not preceded by:
     # 2.2.1. Common abbreviations (defined in ABBREVIATIONS ), such as Mr., Ms., Dr., etc, followed by period.   
     # 2.2.2. Single letter abbreviations (defined in CAPITAL_LETTERS ), such as initials, followed by a period. 
-    SENTENCE_BREAKERS = (
-        ".?!"
+    # 3. Wide character punctuation marks (defined in CHINESE_SENTENCE_BREAKERS)
+    SENTENCE_BREAKERS = ".?!"
+    CHINESE_SENTENCE_BREAKERS = ("["
         + u"\u3002" # Chinese full stop
         + u"\uFF01" # Chinese exclamation mark
-        + u"\uFF1F" # Chinese question mark 
-        )
+        + u"\uFF1F" # Chinese question mark
+        + "]+") 
+
     SKIPPABLE_PUNCTUATION = (
         u'")'
         + u"\u201D" # Right double quotation mark
@@ -69,7 +71,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     LOOK_BEHIND = nlb("\\s" + CAPITAL_LETTERS)
     LOOK_BEHIND += "".join([nlb(u"\\s" + abbr) for abbr in ABBREVIATIONS])
     SENTENCE_END_REGEX = LOOK_BEHIND + SENTENCE_END_REGEX
-    SENTENCE_END_REGEX = re_grp("^|" + SENTENCE_END_REGEX +  "|\\s*$")
+    SENTENCE_END_REGEX = re_grp("^|" + SENTENCE_END_REGEX + "|" + CHINESE_SENTENCE_BREAKERS + "|\\s*$")
     SENTENCE_END_REGEX  = re.compile(SENTENCE_END_REGEX , re.UNICODE)
     
     def splitParagraphIntoSentences(self, text):
