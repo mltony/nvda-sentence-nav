@@ -91,15 +91,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if (
             isinstance(focus, winword.WordDocument)
             or (
-                True #"Dynamic_IAccessibleRichEdit" in str(type(focus)) 
+                "Dynamic_IAccessibleRichEdit" in str(type(focus)) 
                 and  hasattr(focus, "script_caret_nextSentence")
                 and hasattr(focus, "script_caret_previousSentence")  
                 )
             ):
             if increment > 0:
-                focus.script_caret_nextSentence(None)
+                focus.script_caret_nextSentence(gesture)
             else:
-                focus.script_caret_previousSentence(None)    
+                focus.script_caret_previousSentence(gesture)    
             return
         if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM]:
             try:
