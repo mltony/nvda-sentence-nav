@@ -104,14 +104,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 focus.script_caret_previousSentence(gesture)    
             return
         if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM]:
-            # For debug purposes only do gesture.send()
-            tones.beep(100, 200)
-            gesture.send()
-            return
-
             try:
                 # The following line will only succeed in BrowserMode.
-                focus.script_collapseOrExpandControl(gesture)
+                focus.treeInterceptor.script_collapseOrExpandControl(gesture)
             except AttributeError:
                 gesture.send()
             return
