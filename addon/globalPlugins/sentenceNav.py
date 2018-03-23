@@ -188,7 +188,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             distance += 1
             textInfo.expand(textInfos.UNIT_PARAGRAPH)
             text = textInfo.text
-            boundaries = self.splitParagraphIntoSentences(text)
+            
+            # Small hack: our regex always matches the end of the string, since any sentence must end at the end of the paragraph.
+            # In this case, however, we need to figure out if the sentence really ends with a full stop or other sentence breaker at the end.
+            # So we add a random word in the end of the string and see if there is any other sentence boundaries besides the beginning and the end of the string.
+            text2 = text + " FinalWord"
+            boundaries = self.splitParagraphIntoSentences(text2)
             if len(boundaries) >= 3:
                 textInfo.collapse()
                 textInfo.updateCaret()
