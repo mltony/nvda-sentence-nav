@@ -88,6 +88,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         """Move to previous sentence."""
         self.move(gesture, -1)
         
+    def script_nextText(self, gesture):
+        """Move to next paragraph that contains text."""
+        self.moveToText(gesture, 1)
+
+    def script_previousText(self, gesture):
+        """Move to previous paragraph that contains text."""
+        self.moveToText(gesture, -1)
+
     def move(self, gesture, increment):
         focus = api.getFocusObject()
         if (
@@ -165,7 +173,29 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 else:
                     caretIndex = len(textInfo.text) 
                 # Now control flow will takes us to another iteration of the outer while loop. 
-        
+
+    def moveToText(self, gesture, increment):
+        focus = api.getFocusObject()
+        if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
+            focus = focus.treeInterceptor
+        textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
+        distance = 0
+        while True:
+            result =textInfo.move(textInfos.UNIT_PARAGRAPH, increment)
+            if result == 0:
+                self.fancyBeep("HF", 100, 50, 50)
+                return
+            distance += 1
+            textInfo.expand(textInfos.UNIT_PARAGRAPH)
+            text = textInfo.text
+            boundaries = self.splitParagraphIntoSentences(text)
+            if len(boundaries) >= 3:
+                textInfo.collapse()
+                textInfo.updateCaret()
+                self.simpleCrackle(distance)
+                ui.message(text)
+                break
+
     NOTES = "A,B,H,C,C#,D,D#,E,F,F#,G,G#".split(",")
     NOTE_RE = re.compile("[A-H][#]?")
     BASE_FREQ = 220 
@@ -203,7 +233,49 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         result = map(lambda x : x %maxInt, result)
         packed = struct.pack("<%dQ" % (bufSize / intSize), *result)
         tones.player.feed(packed)
+
+    def uniformSample(self, a, m):
+        n = len(a)
+        if n <= m:
+            return a
+        # Here assume n > m
+        result = []
+        for i in xrange(0, m*n, n):
+            result.append(a[i  / m])
+        return result
+    
+    BASE_FREQ = speech.IDT_BASE_FREQUENCY
+    def getPitch(self, indent):
+        return self.BASE_FREQ*2**(indent/24.0) #24 quarter tones per octave.
+
+    BEEP_LEN = 10 # millis
+    PAUSE_LEN = 5 # millis
+    MAX_CRACKLE_LEN = 400 # millis
+    MAX_BEEP_COUNT = MAX_CRACKLE_LEN / (BEEP_LEN + PAUSE_LEN)
+        
+    def fancyCrackle(self, levels):
+        levels = self.uniformSample(levels, self.MAX_BEEP_COUNT )
+        beepLen = self.BEEP_LEN 
+        pauseLen = self.PAUSE_LEN
+        pauseBufSize = NVDAHelper.generateBeep(None,self.BASE_FREQ,pauseLen,0, 0)
+        beepBufSizes = [NVDAHelper.generateBeep(None,self.getPitch(l), beepLen, 50, 50) for l in levels]
+        bufSize = sum(beepBufSizes) + len(levels) * pauseBufSize
+        buf = ctypes.create_string_buffer(bufSize)
+        bufPtr = 0
+        for l in levels:
+            bufPtr += NVDAHelper.generateBeep(
+                ctypes.cast(ctypes.byref(buf, bufPtr), ctypes.POINTER(ctypes.c_char)), 
+                self.getPitch(l), beepLen, 50, 50)
+            bufPtr += pauseBufSize # add a short pause
+        tones.player.stop()
+        tones.player.feed(buf.raw)
+
+    def simpleCrackle(self, n):
+        return self.fancyCrackle([0] * n)
+
     __gestures = {
         "kb:alt+DownArrow": "nextSentence",
         "kb:alt+UpArrow": "previousSentence",
+        "kb:alt+shift+DownArrow": "nextText",
+        "kb:alt+shift+UpArrow": "previousText",
     }
