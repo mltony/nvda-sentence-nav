@@ -182,6 +182,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             else:
                 offset = ti._startOffset - 1
             return self.findCurrentSentence(context, offset, regex)
+        # We need to move to previous/next paragraphs
+        self.chimeCrossParagraphBorder()
         while True:
             paragraph = self.nextParagraph(paragraph, direction)
             if paragraph is None:
@@ -198,6 +200,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
     def chimeNoNextSentence(self):
         self.fancyBeep("HF", 100, 50, 50)
+        
+    def chimeCrossParagraphBorder(self):
+        self.fancyBeep("AC#EG#", 30, 5, 5)
         
     def script_nextSentence(self, gesture):
         """Move to next sentence."""
