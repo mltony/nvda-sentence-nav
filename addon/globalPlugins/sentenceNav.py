@@ -21,6 +21,11 @@ import ui
 
 addonHandler.initTranslation()
 
+class Context:
+    def __init__(self, textInfo):
+        self.texts = [textInfo.text]
+        self.textInfos = [textInfo]
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def re_grp(s):
         """Wraps a string with a non-capturing group for use in regular expressions."""
@@ -74,12 +79,126 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     SENTENCE_END_REGEX = re_grp("^|" + SENTENCE_END_REGEX + "|" + CHINESE_SENTENCE_BREAKERS + "|\\s*$")
     SENTENCE_END_REGEX  = re.compile(SENTENCE_END_REGEX , re.UNICODE)
     
-    def splitParagraphIntoSentences(self, text):
-        result = [m.end() for m in self.SENTENCE_END_REGEX  .finditer(text)]
+    def splitParagraphIntoSentences(self, text, regex=None):
+        if regex is None:
+            regex = self.SENTENCE_END_REGEX
+        result = [m.end() for m in regex.finditer(text)]
         # Sometimes the last position in the text will be matched twice, so filter duplicates.
         result = sorted(list(set(result)))
         return result
+        
+    def findCurrentSentence(self, context, offset, regex):
+        texts = context.texts
+        tis = context.textInfos
+        n = len(texts)
+        assert(n == len(tis))
+        #Step 1. Identify which paragraph offset belongs to.
+        curParIndex = -1
+        for i in xrange(n):
+            textInfo = tis[i]
+            if textInfo._startOffset <= offset < textInfo._endOffset:
+                curParIndex = i
+                break
+        if curParIndex == -1:
+            raise RuntimeError("Offset is not within this paragraph.")
+        joinString = " "
+        s = joinString.join(texts)
+        index = offset - tis[0]._startOffset + len(joinString) * curParIndex
+        parStartIndices = [] # Denotes indices in s where new paragraphs start
+        for i in xrange(n):
+            parStartIndices.append(tis[i]._startOffset - tis[0]._startOffset + len(joinString) * i)
+        boundaries = self.splitParagraphIntoSentences(s, regex=regex)
+        # Find the first index in boundaries that is strictly greater than index
+        j = bisect.bisect_right(boundaries, index)
+        i = j - 1            
+        # At this point boundaries[i] and boundaries[j] represent
+        # the boundaries of the current sentence.
+        if len(boundaries) == 1:
+            # This must be an empty context/paragraph
+            j = i
+        sentenceStr = s[boundaries[i]:boundaries[j]]
+        
+        t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
+        t1 = tis[t1i].copy()
+        t1.collapse()
+        t1.move(textInfos.UNIT_CHARACTER, boundaries[i] - parStartIndices[t1i])
+        t2i = bisect.bisect_right(parStartIndices, boundaries[j]) - 1
+        t2 = tis[t2i].copy()
+        t2.collapse()
+        t2.move(textInfos.UNIT_CHARACTER, boundaries[j] - parStartIndices[t2i])
+        t1.setEndPoint(t2, "endToEnd")
+        return (sentenceStr, t1)
     
+    def nextParagraph(self, textInfo, direction):
+        ti = textInfo.copy()
+        ti.collapse()
+        result = ti.move(textInfos.UNIT_PARAGRAPH, direction)
+        if result == 0:
+            return None
+        ti.expand(textInfos.UNIT_PARAGRAPH)
+        return ti
+        
+    def getBoundaryOffset(self, textInfo, direction):
+        assert(direction != 0)
+        if direction > 0:
+            return textInfo._endOffset
+        else:
+            return textInfo._startOffset
+        
+    def expandSentence(self, context, offset, regex, direction):
+        if direction == 0:
+            # Expand both forward and backward
+            self.expandSentence(context, offset, regex, -1)
+            return self.expandSentence(context, offset, regex, 1)
+        elif direction > 0:
+            cindex = -1
+        else:
+            cindex = 0
+            
+        while True:
+            sentenceStr, ti = self.findCurrentSentence(context, offset, regex)
+            if self.getBoundaryOffset(ti, direction) != self.getBoundaryOffset(context.textInfos[cindex], direction):
+                return (sentenceStr, ti)
+            nextTextInfo = self.nextParagraph(context.textInfos[cindex], direction)
+            if nextTextInfo is None:
+                return (sentenceStr, ti)
+            nextText = nextTextInfo.text
+            if direction > 0:
+                context.textInfos.append(nextTextInfo)
+                context.texts.append(nextText)
+            else:
+                context.textInfos.insert(0, nextTextInfo)
+                context.texts.insert(0, nextText)
+    
+    def moveSimple(self, paragraph, offset, direction, regex):
+        context = Context(paragraph)
+        sentenceStr, ti = self.findCurrentSentence(context, offset, regex)
+        if direction == 0:
+            return sentenceStr, ti
+        if self.getBoundaryOffset(ti, direction) != self.getBoundaryOffset(paragraph, direction):
+            # Next sentence can be found within the same paragraph
+            if direction > 0:
+                offset = ti._endOffset
+            else:
+                offset = ti._startOffset - 1
+            return self.findCurrentSentence(context, offset, regex)
+        while True:
+            paragraph = self.nextParagraph(paragraph, direction)
+            if paragraph is None:
+                self.chimeNoNextSentence()
+                return (None, None)
+            if not speech.isBlank(paragraph.text):
+                break
+        context = Context(paragraph)
+        if direction > 0:
+            offset  = paragraph._startOffset
+        else:
+            offset = paragraph._endOffset - 1
+        return self.findCurrentSentence(context, offset, regex)
+        
+    def chimeNoNextSentence(self):
+        self.fancyBeep("HF", 100, 50, 50)
+        
     def script_nextSentence(self, gesture):
         """Move to next sentence."""
         self.move(gesture, 1)
@@ -87,6 +206,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def script_previousSentence(self, gesture):
         """Move to previous sentence."""
         self.move(gesture, -1)
+
+    def script_currentSentence(self, gesture):
+        """Speak current  sentence."""
+        self.move(gesture, 0)
+
         
     def script_nextText(self, gesture):
         """Move to next paragraph that contains text."""
@@ -108,8 +232,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             ):
             if increment > 0:
                 focus.script_caret_nextSentence(gesture)
-            else:
+            elif increment < 0:
                 focus.script_caret_previousSentence(gesture)    
+            else:
+                # increment == 0
+                pass
             return
         if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM]:
             try:
@@ -124,6 +251,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         caretOffset = textInfo._getCaretOffset() 
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         caretIndex = caretOffset - textInfo._startOffset
+        sentenceStr, ti = self.moveSimple(textInfo, caretOffset, increment, regex=self.SENTENCE_END_REGEX)
+        if ti is None:
+            return
+        ti.collapse()
+        if increment != 0:
+            ti.updateCaret()
+        speech.speakText(sentenceStr)
+        return
+        
         while True:
             text = textInfo.text
             boundaries = self.splitParagraphIntoSentences(text)
@@ -281,6 +417,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     __gestures = {
         "kb:alt+DownArrow": "nextSentence",
         "kb:alt+UpArrow": "previousSentence",
+        "kb:NVDA+Alt+S": "currentSentence",
         "kb:alt+shift+DownArrow": "nextText",
         "kb:alt+shift+UpArrow": "previousText",
     }
