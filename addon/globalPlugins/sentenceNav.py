@@ -198,6 +198,31 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             offset = paragraph._endOffset - 1
         return self.findCurrentSentence(context, offset, regex)
         
+    def moveExtended(self, paragraph, offset, direction, regex):
+        assert(direction != 0)
+        context = Context(paragraph)
+        sentenceStr, ti = self.expandSentence( context, offset, regex, direction)
+        if direction > 0:
+            cindex = -1
+        else:
+            cindex = 0
+        if self.getBoundaryOffset(ti, direction) == self.getBoundaryOffset(context.textInfos[cindex], direction):
+            paragraph = self.nextParagraph( context.textInfos[cindex], direction)
+            if paragraph is None:
+                self.chimeNoNextSentence()
+                return (None, None)
+            context = Context(paragraph)
+            if direction > 0:
+                offset = paragraph._startOffset
+            else:
+                offset = paragraph._endOffset - 1
+        else:
+            if direction > 0:
+                offset = ti._endOffset
+            else:
+                offset = ti._startOffset - 1
+        return self.expandSentence( context, offset, regex, direction)
+        
     def chimeNoNextSentence(self):
         self.fancyBeep("HF", 100, 50, 50)
         
@@ -216,7 +241,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         """Speak current  sentence."""
         self.move(gesture, 0)
 
+    def script_nextExtendedSentence(self, gesture):
+        """Move to next extended sentence."""
+        self.move(gesture, 1, extended=True)
         
+    def script_previousExtendedSentence(self, gesture):
+        """Move to previous extended sentence."""
+        self.move(gesture, -1, extended=True)
+
     def script_nextText(self, gesture):
         """Move to next paragraph that contains text."""
         self.moveToText(gesture, 1)
@@ -225,7 +257,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         """Move to previous paragraph that contains text."""
         self.moveToText(gesture, -1)
 
-    def move(self, gesture, increment):
+    def move(self, gesture, increment, extended=False):
         focus = api.getFocusObject()
         if (
             isinstance(focus, winword.WordDocument)
@@ -256,7 +288,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         caretOffset = textInfo._getCaretOffset() 
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         caretIndex = caretOffset - textInfo._startOffset
-        sentenceStr, ti = self.moveSimple(textInfo, caretOffset, increment, regex=self.SENTENCE_END_REGEX)
+        if extended:
+            sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=self.SENTENCE_END_REGEX)
+        else:
+            sentenceStr, ti = self.moveSimple(textInfo, caretOffset, increment, regex=self.SENTENCE_END_REGEX)
         if ti is None:
             return
         ti.collapse()
@@ -423,6 +458,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         "kb:alt+DownArrow": "nextSentence",
         "kb:alt+UpArrow": "previousSentence",
         "kb:NVDA+Alt+S": "currentSentence",
+        "kb:alt+Windows+DownArrow": "nextExtendedSentence",
+        "kb:alt+Windows+UpArrow": "previousExtendedSentence",
         "kb:alt+shift+DownArrow": "nextText",
         "kb:alt+shift+UpArrow": "previousText",
     }
