@@ -21,6 +21,15 @@ import ui
 
 addonHandler.initTranslation()
 
+f = open("C:\\users\\tony\\dropbox\\work\\1.txt", "w")
+def log(s):
+    print >>f, str(s)
+    f.flush()
+
+def myAssert(condition):
+    if not condition:
+        raise RuntimeError("Assertion failed")
+    
 class Context:
     def __init__(self, textInfo):
         self.texts = [textInfo.text]
@@ -91,7 +100,24 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         texts = context.texts
         tis = context.textInfos
         n = len(texts)
-        assert(n == len(tis))
+        myAssert(n == len(tis))
+        
+        # Checking that the state is valid
+        for i in xrange(n):
+            l1 = len(texts[i])
+            l2 = tis[i]._endOffset - tis[i]._startOffset
+            # Most of the times l1 == l2, however, sometimes l2 is greater by one.
+            # Check that no other condition is possible.
+            if l1 == l2:
+                continue
+            if l1 + 1 == l2:
+                continue
+            raise RuntimeError("Invalid state: l1=%d l2=%d" % (l1, l2))
+            
+        # Checking that textInfos in the context are adjacent
+        for i in xrange(1, n):
+            myAssert(tis[i-1]._endOffset == tis[i]._startOffset)
+        
         #Step 1. Identify which paragraph offset belongs to.
         curParIndex = -1
         for i in xrange(n):
@@ -115,7 +141,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # the boundaries of the current sentence.
         if len(boundaries) == 1:
             # This must be an empty context/paragraph
-            j = i
+            # j points to out of boundaries
+            log("empty paragraph")
+            t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
+            t1 = tis[t1i].copy()
+            t1.expand(textInfos.UNIT_PARAGRAPH)
+            return (t1.text, t1)
+        if j == len(boundaries):
+            # This can happen if the cursor is at the very last position in the document
+            ti = tis[-1].copy()
+            ti.collapse()
+            moveDistance = boundaries[i] - parStartIndices[-1]
+            ti.move(textInfos.UNIT_CHARACTER, moveDistance)
+            ti.setEndPoint(tis[-1], "endToEnd")
+            return ("", ti)
         sentenceStr = s[boundaries[i]:boundaries[j]]
         
         t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
@@ -124,9 +163,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         t1.move(textInfos.UNIT_CHARACTER, boundaries[i] - parStartIndices[t1i])
         t2i = bisect.bisect_right(parStartIndices, boundaries[j]) - 1
         t2 = tis[t2i].copy()
-        t2.collapse()
-        t2.move(textInfos.UNIT_CHARACTER, boundaries[j] - parStartIndices[t2i])
-        t1.setEndPoint(t2, "endToEnd")
+        moveDistance = boundaries[j] - parStartIndices[t2i]
+        if moveDistance < len(texts[t2i]):
+            t2.collapse()
+            result = t2.move(textInfos.UNIT_CHARACTER, moveDistance)
+            myAssert(result == moveDistance)
+            t1.setEndPoint(t2, "endToEnd")
+        elif moveDistance == len(texts[t2i]):
+            # Sometimes paragraphs contain an extra invisible character.
+            # We need to include it in the result textInfo, so handle this case in a special way.
+            t1.setEndPoint(t2, "endToEnd")
+        else:
+            raise RuntimeError("Unexpected condition.")
         return (sentenceStr, t1)
     
     def nextParagraph(self, textInfo, direction):
@@ -139,7 +187,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return ti
         
     def getBoundaryOffset(self, textInfo, direction):
-        assert(direction != 0)
+        myAssert(direction != 0)
         if direction > 0:
             return textInfo._endOffset
         else:
@@ -199,13 +247,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return self.findCurrentSentence(context, offset, regex)
         
     def moveExtended(self, paragraph, offset, direction, regex):
-        assert(direction != 0)
+        myAssert(direction != 0)
         context = Context(paragraph)
         sentenceStr, ti = self.expandSentence( context, offset, regex, direction)
         if direction > 0:
             cindex = -1
         else:
             cindex = 0
+        log("MoveExtended boundaries %d %d" % (self.getBoundaryOffset(ti, direction), self.getBoundaryOffset(context.textInfos[cindex], direction)))
         if self.getBoundaryOffset(ti, direction) == self.getBoundaryOffset(context.textInfos[cindex], direction):
             paragraph = self.nextParagraph( context.textInfos[cindex], direction)
             if paragraph is None:
@@ -318,13 +367,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 textInfo.collapse()
                 textInfo2 = textInfo.copy()
                 result = textInfo.move(textInfos.UNIT_CHARACTER, boundaries[i])
-                assert((result != 0) or (boundaries[i] == 0))
+                myAssert((result != 0) or (boundaries[i] == 0))
                 # If we are moving to the very last sentence of the very last paragraph,
                 # then we cannot move textInfo2 to the end of the paragraph.
                 # Move to just one character before that, and then try to move one more character.
-                assert(boundaries[j] > 1)
+                myAssert(boundaries[j] > 1)
                 result2 = textInfo2.move(textInfos.UNIT_CHARACTER, boundaries[j] - 1)
-                assert(result2 != 0)
+                myAssert(result2 != 0)
                 textInfo2.move(textInfos.UNIT_CHARACTER, 1)
                 textInfo.setEndPoint(textInfo2, "endToStart")
                 textInfo.updateCaret()
@@ -381,7 +430,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     NOTE_RE = re.compile("[A-H][#]?")
     BASE_FREQ = 220 
     def getChordFrequencies(self, chord):
-        assert(len(self.NOTES) == 12)
+        myAssert(len(self.NOTES) == 12)
         prev = -1
         result = []
         for m in self.NOTE_RE.finditer(chord):
