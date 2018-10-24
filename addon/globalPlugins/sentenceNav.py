@@ -193,7 +193,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         else:
             return textInfo._startOffset
         
-    def expandSentence(self, context, offset, regex, direction):
+    def expandSentence(self, context, offset, regex, direction, compatibilityFunc=None):
         if direction == 0:
             # Expand both forward and backward
             self.expandSentence(context, offset, regex, -1)
@@ -210,6 +210,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             nextTextInfo = self.nextParagraph(context.textInfos[cindex], direction)
             if nextTextInfo is None:
                 return (sentenceStr, ti)
+            if compatibilityFunc is not None:
+                if not compatibilityFunc(nextTextInfo, context.textInfos[cindex]):
+                    return (sentenceStr, ti)
             nextText = nextTextInfo.text
             if direction > 0:
                 context.textInfos.append(nextTextInfo)
@@ -246,10 +249,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             offset = paragraph._endOffset - 1
         return self.findCurrentSentence(context, offset, regex)
         
-    def moveExtended(self, paragraph, offset, direction, regex):
+    def moveExtended(self, paragraph, offset, direction, regex, reconstructMode="sameIndent"):
         myAssert(direction != 0)
+        if reconstructMode == "always":
+            compatibilityFunc = lambda x,y: True
+        elif reconstructMode == "sameIndent":
+            compatibilityFunc = lambda ti1, ti2: ti1.NVDAObjectAtStart.location[0] == ti2.NVDAObjectAtStart.location[0]
+        elif reconstructMode == "never":
+            compatibilityFunc = lambda x,y: False
+        else:
+            ValueError()
         context = Context(paragraph)
-        sentenceStr, ti = self.expandSentence( context, offset, regex, direction)
+        sentenceStr, ti = self.expandSentence( context, offset, regex, direction, compatibilityFunc=compatibilityFunc)
         if direction > 0:
             cindex = -1
         else:
@@ -270,7 +281,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 offset = ti._endOffset
             else:
                 offset = ti._startOffset - 1
-        return self.expandSentence( context, offset, regex, direction)
+        return self.expandSentence( context, offset, regex, direction, compatibilityFunc=compatibilityFunc)
         
     def chimeNoNextSentence(self):
         self.fancyBeep("HF", 100, 50, 50)
