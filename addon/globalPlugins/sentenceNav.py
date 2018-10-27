@@ -250,7 +250,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return self.findCurrentSentence(context, offset, regex)
         
     def moveExtended(self, paragraph, offset, direction, regex, reconstructMode="sameIndent"):
-        myAssert(direction != 0)
+        chimeIfAcrossParagraphs = False
         if reconstructMode == "always":
             compatibilityFunc = lambda x,y: True
         elif reconstructMode == "sameIndent":
@@ -261,27 +261,44 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             ValueError()
         context = Context(paragraph)
         sentenceStr, ti = self.expandSentence( context, offset, regex, direction, compatibilityFunc=compatibilityFunc)
-        if direction > 0:
+        if direction == 0:
+            return sentenceStr, ti
+        elif direction > 0:
             cindex = -1
         else:
             cindex = 0
-        log("MoveExtended boundaries %d %d" % (self.getBoundaryOffset(ti, direction), self.getBoundaryOffset(context.textInfos[cindex], direction)))
         if self.getBoundaryOffset(ti, direction) == self.getBoundaryOffset(context.textInfos[cindex], direction):
-            paragraph = self.nextParagraph( context.textInfos[cindex], direction)
-            if paragraph is None:
-                self.chimeNoNextSentence()
-                return (None, None)
+            # We need to look for the next sentence in the next paragraph.
+            paragraph = context.textInfos[cindex]
+            while True:
+                paragraph = self.nextParagraph(paragraph, direction)
+                if paragraph is None:
+                    self.chimeNoNextSentence()
+                    return (None, None)
+                if not speech.isBlank(paragraph.text):
+                    break
+            self.chimeCrossParagraphBorder()
             context = Context(paragraph)
             if direction > 0:
                 offset = paragraph._startOffset
             else:
                 offset = paragraph._endOffset - 1
         else:
+            # Next sentence can be found in the same context
+            # At least its beginning or ending - that sentence will be expanded.
             if direction > 0:
                 offset = ti._endOffset
             else:
                 offset = ti._startOffset - 1
-        return self.expandSentence( context, offset, regex, direction, compatibilityFunc=compatibilityFunc)
+            chimeIfAcrossParagraphs = True
+        resultSentenceStr, resultTi = self.expandSentence( context, offset, regex, direction, compatibilityFunc=compatibilityFunc)
+        if chimeIfAcrossParagraphs:
+            paragraphOffsets = [p._startOffset for p in context.textInfos]
+            index1 = bisect.bisect_right(paragraphOffsets, ti._startOffset)
+            index2 = bisect.bisect_right(paragraphOffsets, resultTi._startOffset)
+            if index1 != index2:
+                self.chimeCrossParagraphBorder()
+        return resultSentenceStr, resultTi
         
     def chimeNoNextSentence(self):
         self.fancyBeep("HF", 100, 50, 50)
