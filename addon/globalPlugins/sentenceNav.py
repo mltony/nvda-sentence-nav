@@ -258,7 +258,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         elif reconstructMode == "never":
             compatibilityFunc = lambda x,y: False
         else:
-            ValueError()
+            raise ValueError()
         context = Context(paragraph)
         sentenceStr, ti = self.expandSentence( context, offset, regex, direction, compatibilityFunc=compatibilityFunc)
         if direction == 0:
