@@ -53,22 +53,23 @@ def initConfiguration():
     "ru": "Тов тов"
 }
 """.replace("\n", " ")
-    capitalLettersRegex = """
+    capitalLetters = """
 {
-    "en": "[A-Z]",
-    "ru": "[А-Я]"
+    "en": "A-Z",
+    "ru": "А-Я"
 }
 """.replace("\n", " ")
 
     confspec = {
         "paragraphChimeVolume" : "integer( default=5, min=0, max=100)",
         "noNextSentenceChimeVolume" : "integer( default=50, min=0, max=100)",
+        "noNextSentenceMessage" : "boolean( default=False)",
         "breakOnWikiReferences" : "boolean( default=True)",
         "sentenceBreakers" : "string( default='.!?')",
-        "fullWidthSentenceBreakersRegex" : "string( default='[。！？]')",
+        "fullWidthSentenceBreakers" : "string( default='。！？')",
         "skippable" : "string( default='\"”’»)')",
         "exceptionalAbbreviations" : "string( default='%s')" % exceptionalAbbreviations,
-        "capitalLetterRegex" : "string( default='%s')" % capitalLettersRegex,
+        "capitalLetters" : "string( default='%s')" % capitalLetters,
     }
     config.conf.spec["sentencenav"] = confspec
     
@@ -83,7 +84,18 @@ def getConfig(key, lang=None):
         return dictionary[lang]
     except KeyError:
         return dictionary["en"]
+        
+def setConfig(key, value, lang):
+    fullValue = config.conf["sentencenav"][key]
+    fullValue = unicode(fullValue.decode("UTF-8"))
+    dictionary = json.loads(fullValue)
+    dictionary[lang] = value
+    config.conf["sentencenav"][key] = json.dumps(dictionary).encode("UTF-8")
 
+def getCurrentLanguage():
+    s = speech.getCurrentLanguage()
+    return s[:2]
+    
 addonHandler.initTranslation()
 initConfiguration()
 createMenu()
@@ -96,6 +108,7 @@ class SettingsDialog(gui.SettingsDialog):
         super(SettingsDialog, self).__init__(*args, **kwargs)
 
     def makeSettings(self, settingsSizer):
+        sHelper = gui.guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
       # paragraphChimeVolumeSlider
         sizer=wx.BoxSizer(wx.HORIZONTAL)
         # Translators: Paragraph crossing chime volume
@@ -118,6 +131,11 @@ class SettingsDialog(gui.SettingsDialog):
         settingsSizer.Add(sizer)
         self.noNextSentenceChimeVolumeSlider = slider
         
+      # Checkboxes
+        # Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
+        label = _("Speak message when no next sentence available in the document")
+        self.noNextSentenceMessageCheckbox = sHelper.addItem(wx.CheckBox(self, label=label))
+        self.noNextSentenceMessageCheckbox.Value = getConfig("noNextSentenceMessage")
       # Regex-related edit boxes
         # Translators: Label for sentence breakers edit box
         self.sentenceBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Sentence breakers"), wx.TextCtrl).control
@@ -125,15 +143,33 @@ class SettingsDialog(gui.SettingsDialog):
         # Translators: Label for skippable punctuation marks edit box
         self.skippableEdit = gui.guiHelper.LabeledControlHelper(self, _("Skippable punctuation marks"), wx.TextCtrl).control
         self.skippableEdit.Value = getConfig("skippable")
-
+        # Translators: Label for full width sentence breakers edit box
+        self.fullWidthSentenceBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Full width sentence breakers"), wx.TextCtrl).control
+        self.fullWidthSentenceBreakersEdit.Value = getConfig("fullWidthSentenceBreakers")
+        
+      # Regex-related language-specific edit boxes
+        lang = self.lang = getCurrentLanguage()
+        # Translators: Label for exceptional abbreviations edit box
+        label = _("Exceptional abbreviations, space separated, in language %s") % lang
+        self.exceptionalAbbreviationsEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
+        self.exceptionalAbbreviationsEdit.Value = getConfig("exceptionalAbbreviations", lang)
+        # Translators: Label for capital letters edit box
+        label = _("Capital letters with no spaces in language %s") % lang
+        self.capitalLettersEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
+        self.capitalLettersEdit.Value = getConfig("capitalLetters", lang)
 
         
 
     def onOk(self, evt):
         config.conf["sentencenav"]["paragraphChimeVolume"] = self.paragraphChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceChimeVolume"] = self.noNextSentenceChimeVolumeSlider.Value
+        config.conf["sentencenav"]["noNextSentenceMessage"] = self.noNextSentenceMessageCheckbox.Value
         config.conf["sentencenav"]["sentenceBreakers"] = self.sentenceBreakersEdit.Value
         config.conf["sentencenav"]["skippable"] = self.skippableEdit.Value
+        config.conf["sentencenav"]["fullWidthSentenceBreakers"] = self.fullWidthSentenceBreakersEdit.Value
+        setConfig("exceptionalAbbreviations", self.exceptionalAbbreviationsEdit.Value, self.lang)
+        setConfig("capitalLetters", self.capitalLettersEdit.Value, self.lang)
+        
         regexCache.clear()
         super(SettingsDialog, self).onOk(evt)
 
@@ -167,8 +203,8 @@ def getRegex(lang):
     except KeyError:
         pass
     regex = u""
-    regex += nlb(getConfig("capitalLetterRegex", lang))
-    for abbr in getConfig("exceptionalAbbreviations", lang).split():
+    regex += nlb(re_set(getConfig("capitalLetters", lang)))
+    for abbr in getConfig("exceptionalAbbreviations", lang).strip().split():
         regex += nlb(abbr)
     regex += re_set(getConfig("sentenceBreakers")) + "+"
     regex += re_set(getConfig("skippable")) + "*"
@@ -176,7 +212,7 @@ def getRegex(lang):
         wikiReference = re_grp("\\[[\\w\\s]+\\]")
         regex += wikiReference + "*"
     regex += "\\s+"
-    fullWidth = re_grp(getConfig("fullWidthSentenceBreakersRegex"))
+    fullWidth = re_set(getConfig("fullWidthSentenceBreakers"))
     regex = u"^|{regex}|{fullWidth}+|\\s*$".format(
         regex=regex,
         fullWidth=fullWidth)
@@ -380,7 +416,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         while True:
             paragraph = self.nextParagraph(paragraph, direction)
             if paragraph is None:
-                self.chimeNoNextSentence()
+                self.chimeNoNextSentence(direction)
                 return (None, None)
             if not speech.isBlank(paragraph.text):
                 break
@@ -415,7 +451,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             while True:
                 paragraph = self.nextParagraph(paragraph, direction)
                 if paragraph is None:
-                    self.chimeNoNextSentence()
+                    self.chimeNoNextSentence(direction)
                     return (None, None)
                 if not speech.isBlank(paragraph.text):
                     break
@@ -442,9 +478,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.chimeCrossParagraphBorder()
         return resultSentenceStr, resultTi
         
-    def chimeNoNextSentence(self):
+    def chimeNoNextSentence(self, direction):
         volume = config.conf["sentencenav"]["noNextSentenceChimeVolume"]
         self.fancyBeep("HF", 100, volume, volume)
+        if getConfig("noNextSentenceMessage"):
+            if direction > 0:
+                # Translators: Spoken message when no next sentence is available in the document
+                ui.message(_("No next sentence"))
+            else:
+                # Translators: Spoken message when no previous sentence is available in the document
+                ui.message(_("No previous sentence"))
         
     def chimeCrossParagraphBorder(self):
         volume = config.conf["sentencenav"]["paragraphChimeVolume"]
@@ -509,7 +552,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         caretOffset = textInfo._getCaretOffset() 
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         caretIndex = caretOffset - textInfo._startOffset
-        regex = getRegex(speech.getCurrentLanguage())
+        regex = getRegex(getCurrentLanguage())
         if extended:
             sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=regex)
         else:
