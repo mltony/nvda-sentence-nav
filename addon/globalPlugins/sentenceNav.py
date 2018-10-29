@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 #A part of the SentenceNav addon for NVDA
 #Copyright (C) 2018 Tony Malykh
 #This file is covered by the GNU General Public License.
@@ -6,9 +7,12 @@
 import addonHandler
 import api
 import bisect
+import config
 import controlTypes
 import ctypes
 import globalPluginHandler
+import gui
+import json
 import NVDAHelper
 from NVDAObjects.window import winword
 import operator
@@ -18,27 +22,170 @@ import struct
 import textInfos
 import tones
 import ui
+import wx
 
-addonHandler.initTranslation()
 
 f = open("C:\\users\\tony\\dropbox\\work\\1.txt", "w")
 def log(s):
-    print >>f, str(s)
+    ss = s
+    try:
+        ss = ss.encode("UTF-8")
+    except:
+        pass
+    print >>f, ss
     f.flush()
 
 def myAssert(condition):
     if not condition:
         raise RuntimeError("Assertion failed")
+
+
+def createMenu():
+    def _popupMenu(evt):
+        gui.mainFrame._popupSettingsDialog(SettingsDialog)
+    prefsMenuItem  = gui.mainFrame.sysTrayIcon.preferencesMenu.Append(wx.ID_ANY, _("SentenceNav..."))
+    gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, _popupMenu, prefsMenuItem)
+
+def initConfiguration():
+    exceptionalAbbreviations = """
+{
+    "en": "Mr Ms Mrs Dr St",
+    "ru": "Тов тов"
+}
+""".replace("\n", " ")
+    capitalLettersRegex = """
+{
+    "en": "[A-Z]",
+    "ru": "[А-Я]"
+}
+""".replace("\n", " ")
+
+    confspec = {
+        "paragraphChimeVolume" : "integer( default=5, min=0, max=100)",
+        "noNextSentenceChimeVolume" : "integer( default=50, min=0, max=100)",
+        "breakOnWikiReferences" : "boolean( default=True)",
+        "sentenceBreakers" : "string( default='.!?')",
+        "fullWidthSentenceBreakersRegex" : "string( default='[。！？]')",
+        "skippable" : "string( default='\"”’»)')",
+        "exceptionalAbbreviations" : "string( default='%s')" % exceptionalAbbreviations,
+        "capitalLetterRegex" : "string( default='%s')" % capitalLettersRegex,
+    }
+    config.conf.spec["sentencenav"] = confspec
     
+def getConfig(key, lang=None):
+    value = config.conf["sentencenav"][key]
+    if isinstance(value, str):
+        value = unicode(value.decode("UTF-8"))
+    if lang is None:
+        return value
+    dictionary = json.loads(value)
+    try:
+        return dictionary[lang]
+    except KeyError:
+        return dictionary["en"]
+
+addonHandler.initTranslation()
+initConfiguration()
+createMenu()
+
+class SettingsDialog(gui.SettingsDialog):
+    # Translators: Title for the settings dialog
+    title = _("SentenceNav settings")
+
+    def __init__(self, *args, **kwargs):
+        super(SettingsDialog, self).__init__(*args, **kwargs)
+
+    def makeSettings(self, settingsSizer):
+      # paragraphChimeVolumeSlider
+        sizer=wx.BoxSizer(wx.HORIZONTAL)
+        # Translators: Paragraph crossing chime volume
+        label=wx.StaticText(self,wx.ID_ANY,label=_("Volume of chime when crossing paragraph border"))
+        slider=wx.Slider(self, wx.NewId(), minValue=0,maxValue=100)
+        slider.SetValue(config.conf["sentencenav"]["paragraphChimeVolume"])
+        sizer.Add(label)
+        sizer.Add(slider)
+        settingsSizer.Add(sizer)
+        self.paragraphChimeVolumeSlider = slider
+
+      # noNextSentenceChimeVolumeSlider
+        sizer=wx.BoxSizer(wx.HORIZONTAL)
+        # Translators: End of document chime volume
+        label=wx.StaticText(self,wx.ID_ANY,label=_("Volume of chime when no more sentences available"))
+        slider=wx.Slider(self, wx.NewId(), minValue=0,maxValue=100)
+        slider.SetValue(config.conf["sentencenav"]["noNextSentenceChimeVolume"])
+        sizer.Add(label)
+        sizer.Add(slider)
+        settingsSizer.Add(sizer)
+        self.noNextSentenceChimeVolumeSlider = slider
+        
+      # Regex-related edit boxes
+        # Translators: Label for sentence breakers edit box
+        self.sentenceBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Sentence breakers"), wx.TextCtrl).control
+        self.sentenceBreakersEdit.Value = getConfig("sentenceBreakers")
+        # Translators: Label for skippable punctuation marks edit box
+        self.skippableEdit = gui.guiHelper.LabeledControlHelper(self, _("Skippable punctuation marks"), wx.TextCtrl).control
+        self.skippableEdit.Value = getConfig("skippable")
+
+
+        
+
+    def onOk(self, evt):
+        config.conf["sentencenav"]["paragraphChimeVolume"] = self.paragraphChimeVolumeSlider.Value
+        config.conf["sentencenav"]["noNextSentenceChimeVolume"] = self.noNextSentenceChimeVolumeSlider.Value
+        config.conf["sentencenav"]["sentenceBreakers"] = self.sentenceBreakersEdit.Value
+        config.conf["sentencenav"]["skippable"] = self.skippableEdit.Value
+        regexCache.clear()
+        super(SettingsDialog, self).onOk(evt)
+
 class Context:
     def __init__(self, textInfo):
         self.texts = [textInfo.text]
         self.textInfos = [textInfo]
 
+def re_grp(s):
+    """Wraps a string with a non-capturing group for use in regular expressions."""
+    return "(?:%s)" % s        
+
+def re_set(s):
+    """Creates a regex set of characters from a plain string."""
+    # Step 1: escape special characters
+    for c in "\\[]":
+        s = s.replace(c, "\\" + c)
+    return "[" + s + "]"
+    
+def nlb(s):
+    """Forms a negative look-behind regexp clause to prevent certain expressions like "Mr." from ending the sentence.
+    It also adds a positive look-ahead to make sure that such an expression is followed by a period, as opposed to
+    other sentence breakers, such as question or exclamation mark."""
+    return u"(?<!" + s + u"(?=[.]))"
+
+regexCache = {}
+
+def getRegex(lang):
+    try:
+        return regexCache[lang]
+    except KeyError:
+        pass
+    regex = u""
+    regex += nlb(getConfig("capitalLetterRegex", lang))
+    for abbr in getConfig("exceptionalAbbreviations", lang).split():
+        regex += nlb(abbr)
+    regex += re_set(getConfig("sentenceBreakers")) + "+"
+    regex += re_set(getConfig("skippable")) + "*"
+    if getConfig("breakOnWikiReferences"):
+        wikiReference = re_grp("\\[[\\w\\s]+\\]")
+        regex += wikiReference + "*"
+    regex += "\\s+"
+    fullWidth = re_grp(getConfig("fullWidthSentenceBreakersRegex"))
+    regex = u"^|{regex}|{fullWidth}+|\\s*$".format(
+        regex=regex,
+        fullWidth=fullWidth)
+    log(regex.encode("UTF-8"))
+    result = re.compile(regex , re.UNICODE)
+    regexCache[lang] = result
+    return result
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-    def re_grp(s):
-        """Wraps a string with a non-capturing group for use in regular expressions."""
-        return "(?:%s)" % s        
     
     # Description of end of sentence regular expression in human language: 
     # End of sentence regular expression SENTENCE_END_REGEX  matches either:
@@ -77,11 +224,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             ))
         + "]")
     ABBREVIATIONS = "Mr|Ms|Mrs|Dr|St".split("|")
-    def nlb(s):
-        """Forms a negative look-behind regexp clause to prevent certain expressions like "Mr." from ending the sentence.
-        It also adds a positive look-ahead to make sure that such an expression is followed by a period, as opposed to
-        other sentence breakers, such as question or exclamation mark."""
-        return u"(?<!" + s + u"(?=[.]))"
     LOOK_BEHIND = nlb("\\s" + CAPITAL_LETTERS)
     LOOK_BEHIND += "".join([nlb(u"\\s" + abbr) for abbr in ABBREVIATIONS])
     SENTENCE_END_REGEX = LOOK_BEHIND + SENTENCE_END_REGEX
@@ -301,10 +443,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return resultSentenceStr, resultTi
         
     def chimeNoNextSentence(self):
-        self.fancyBeep("HF", 100, 50, 50)
+        volume = config.conf["sentencenav"]["noNextSentenceChimeVolume"]
+        self.fancyBeep("HF", 100, volume, volume)
         
     def chimeCrossParagraphBorder(self):
-        self.fancyBeep("AC#EG#", 30, 5, 5)
+        volume = config.conf["sentencenav"]["paragraphChimeVolume"]
+        self.fancyBeep("AC#EG#", 30, volume, volume)
         
     def script_nextSentence(self, gesture):
         """Move to next sentence."""
@@ -365,10 +509,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         caretOffset = textInfo._getCaretOffset() 
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         caretIndex = caretOffset - textInfo._startOffset
+        regex = getRegex(speech.getCurrentLanguage())
         if extended:
-            sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=self.SENTENCE_END_REGEX)
+            sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=regex)
         else:
-            sentenceStr, ti = self.moveSimple(textInfo, caretOffset, increment, regex=self.SENTENCE_END_REGEX)
+            sentenceStr, ti = self.moveSimple(textInfo, caretOffset, increment, regex=regex)
         if ti is None:
             return
         ti.collapse()
