@@ -17,6 +17,7 @@ import NVDAHelper
 from NVDAObjects.window import winword
 import operator
 import re 
+from scriptHandler import script
 import speech
 import struct
 import textInfos
@@ -64,12 +65,15 @@ def initConfiguration():
         "paragraphChimeVolume" : "integer( default=5, min=0, max=100)",
         "noNextSentenceChimeVolume" : "integer( default=50, min=0, max=100)",
         "noNextSentenceMessage" : "boolean( default=False)",
+        "reconstructMode" : "string( default='sameIndent')",
         "breakOnWikiReferences" : "boolean( default=True)",
         "sentenceBreakers" : "string( default='.!?')",
         "fullWidthSentenceBreakers" : "string( default='。！？')",
         "skippable" : "string( default='\"”’»)')",
         "exceptionalAbbreviations" : "string( default='%s')" % exceptionalAbbreviations,
         "capitalLetters" : "string( default='%s')" % capitalLetters,
+        "phraseBreakers" : "string( default='.!?,;:()')",
+        "fullWidthPhraseBreakers" : "string( default='。！？，；：（）')",
     }
     config.conf.spec["sentencenav"] = confspec
     
@@ -103,6 +107,10 @@ createMenu()
 class SettingsDialog(gui.SettingsDialog):
     # Translators: Title for the settings dialog
     title = _("SentenceNav settings")
+    
+    reconstructOptions = ["always", "sameIndent", "never"]
+    # Translators: choices inside reconstruct mode combo box
+    reconstructOptionsText = [_("Always"), _("Only across paragraphs with same indentation and same heading level"), _("Never")]
 
     def __init__(self, *args, **kwargs):
         super(SettingsDialog, self).__init__(*args, **kwargs)
@@ -136,6 +144,20 @@ class SettingsDialog(gui.SettingsDialog):
         label = _("Speak message when no next sentence available in the document")
         self.noNextSentenceMessageCheckbox = sHelper.addItem(wx.CheckBox(self, label=label))
         self.noNextSentenceMessageCheckbox.Value = getConfig("noNextSentenceMessage")
+        
+      # Reconstruct mode Combo box
+        # Translators: Label for reconstruct mode combo box
+        label = _("Reconstruct sentences across multiple paragraphs when")
+        self.reconstructModeCombobox = sHelper.addLabeledControl(label, wx.Choice, choices=self.reconstructOptionsText)
+        index = self.reconstructOptions.index(str(getConfig("reconstructMode")))
+        self.reconstructModeCombobox.Selection = index
+
+      # Regex-related checkbox
+        # Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
+        label = _("Take Wikipedia-style references into account")
+        self.breakOnWikiReferencesCheckbox = sHelper.addItem(wx.CheckBox(self, label=label))
+        self.breakOnWikiReferencesCheckbox.Value = getConfig("breakOnWikiReferences")
+        
       # Regex-related edit boxes
         # Translators: Label for sentence breakers edit box
         self.sentenceBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Sentence breakers"), wx.TextCtrl).control
@@ -158,19 +180,30 @@ class SettingsDialog(gui.SettingsDialog):
         self.capitalLettersEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
         self.capitalLettersEdit.Value = getConfig("capitalLetters", lang)
 
-        
+      # Phrase regex-related edit boxes
+        # Translators: Label for phrase breakers edit box
+        self.phraseBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Phrase breakers"), wx.TextCtrl).control
+        self.phraseBreakersEdit.Value = getConfig("phraseBreakers")
+        # Translators: Label for full width phrase breakers edit box
+        self.fullWidthPhraseBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Full width phrase breakers"), wx.TextCtrl).control
+        self.fullWidthPhraseBreakersEdit.Value = getConfig("fullWidthPhraseBreakers")
+
 
     def onOk(self, evt):
         config.conf["sentencenav"]["paragraphChimeVolume"] = self.paragraphChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceChimeVolume"] = self.noNextSentenceChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceMessage"] = self.noNextSentenceMessageCheckbox.Value
+        config.conf["sentencenav"]["reconstructMode"] = self.reconstructOptions[self.reconstructModeCombobox.Selection]
+        config.conf["sentencenav"]["breakOnWikiReferences"] = self.breakOnWikiReferencesCheckbox.Value
         config.conf["sentencenav"]["sentenceBreakers"] = self.sentenceBreakersEdit.Value
         config.conf["sentencenav"]["skippable"] = self.skippableEdit.Value
         config.conf["sentencenav"]["fullWidthSentenceBreakers"] = self.fullWidthSentenceBreakersEdit.Value
         setConfig("exceptionalAbbreviations", self.exceptionalAbbreviationsEdit.Value, self.lang)
         setConfig("capitalLetters", self.capitalLettersEdit.Value, self.lang)
-        
+        config.conf["sentencenav"]["phraseBreakers"] = self.phraseBreakersEdit.Value
+        config.conf["sentencenav"]["fullWidthPhraseBreakers"] = self.fullWidthPhraseBreakersEdit.Value
         regexCache.clear()
+        phraseRegex = None
         super(SettingsDialog, self).onOk(evt)
 
 class Context:
@@ -216,12 +249,41 @@ def getRegex(lang):
     regex = u"^|{regex}|{fullWidth}+|\\s*$".format(
         regex=regex,
         fullWidth=fullWidth)
-    log(regex.encode("UTF-8"))
-    result = re.compile(regex , re.UNICODE)
+    try:
+        result = re.compile(regex , re.UNICODE)
+    except:
+        # Translators: message when regex compilation failed
+        ui.message("Couldn't compile regular expression for sentences")
+        raise
     regexCache[lang] = result
     return result
 
+    
+phraseRegex = None
+
+def getPhraseRegex():
+    global phraseRegex
+    if phraseRegex is not None:
+        return phraseRegex
+    regex = u""
+    regex += re_set(getConfig("phraseBreakers")) + "+"
+    regex += "\\s+"
+    fullWidth = re_set(getConfig("fullWidthPhraseBreakers"))
+    regex = u"^|{regex}|{fullWidth}+|\\s*$".format(
+        regex=regex,
+        fullWidth=fullWidth)
+    log(regex.encode("UTF-8"))
+    try:
+        result = re.compile(regex , re.UNICODE)
+    except:
+        # Translators: message when regex compilation failed
+        ui.message("Couldn't compile regular expression for phrases")
+        raise
+    phraseRegex = result
+    return result
+
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+    scriptCategory = _("SentenceNav")
     
     # Description of end of sentence regular expression in human language: 
     # End of sentence regular expression SENTENCE_END_REGEX  matches either:
@@ -416,7 +478,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         while True:
             paragraph = self.nextParagraph(paragraph, direction)
             if paragraph is None:
-                self.chimeNoNextSentence(direction)
+                self.chimeNoNextSentence()
                 return (None, None)
             if not speech.isBlank(paragraph.text):
                 break
@@ -427,12 +489,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             offset = paragraph._endOffset - 1
         return self.findCurrentSentence(context, offset, regex)
         
-    def moveExtended(self, paragraph, offset, direction, regex, reconstructMode="sameIndent"):
+    def moveExtended(self, paragraph, offset, direction, regex, errorMsg="Error", reconstructMode="sameIndent"):
         chimeIfAcrossParagraphs = False
         if reconstructMode == "always":
             compatibilityFunc = lambda x,y: True
         elif reconstructMode == "sameIndent":
-            compatibilityFunc = lambda ti1, ti2: ti1.NVDAObjectAtStart.location[0] == ti2.NVDAObjectAtStart.location[0]
+            compatibilityFunc = lambda ti1, ti2: (ti1.NVDAObjectAtStart.location[0] == ti2.NVDAObjectAtStart.location[0]) and (self.getHeadingLevel(ti1) == self.getHeadingLevel(ti2))
         elif reconstructMode == "never":
             compatibilityFunc = lambda x,y: False
         else:
@@ -451,7 +513,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             while True:
                 paragraph = self.nextParagraph(paragraph, direction)
                 if paragraph is None:
-                    self.chimeNoNextSentence(direction)
+                    self.chimeNoNextSentence(errorMsg)
                     return (None, None)
                 if not speech.isBlank(paragraph.text):
                     break
@@ -474,44 +536,58 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             paragraphOffsets = [p._startOffset for p in context.textInfos]
             index1 = bisect.bisect_right(paragraphOffsets, ti._startOffset)
             index2 = bisect.bisect_right(paragraphOffsets, resultTi._startOffset)
-            if index1 != index2:
+            #if index1 != index2:
+            if max(ti._startOffset, resultTi._startOffset) in paragraphOffsets:
                 self.chimeCrossParagraphBorder()
         return resultSentenceStr, resultTi
         
-    def chimeNoNextSentence(self, direction):
+    def chimeNoNextSentence(self, errorMsg="Error"):
         volume = config.conf["sentencenav"]["noNextSentenceChimeVolume"]
         self.fancyBeep("HF", 100, volume, volume)
         if getConfig("noNextSentenceMessage"):
-            if direction > 0:
-                # Translators: Spoken message when no next sentence is available in the document
-                ui.message(_("No next sentence"))
-            else:
-                # Translators: Spoken message when no previous sentence is available in the document
-                ui.message(_("No previous sentence"))
+            ui.message(errorMsg)
         
     def chimeCrossParagraphBorder(self):
         volume = config.conf["sentencenav"]["paragraphChimeVolume"]
         self.fancyBeep("AC#EG#", 30, volume, volume)
-        
+
+    @script(description='Move to next sentence.', gestures=['kb:Alt+DownArrow'])
     def script_nextSentence(self, gesture):
-        """Move to next sentence."""
-        self.move(gesture, 1)
+        regex = getRegex(getCurrentLanguage())
+        # Translators: message when no next sentence available in the document
+        errorMsg = _("No next sentence")
+        self.move(gesture, regex, 1, errorMsg)
         
+    @script(description='Move to previous sentence.', gestures=['kb:Alt+UpArrow'])
     def script_previousSentence(self, gesture):
-        """Move to previous sentence."""
-        self.move(gesture, -1)
-
-    def script_currentSentence(self, gesture):
-        """Speak current  sentence."""
-        self.move(gesture, 0)
-
-    def script_nextExtendedSentence(self, gesture):
-        """Move to next extended sentence."""
-        self.move(gesture, 1, extended=True)
+        regex = getRegex(getCurrentLanguage())
+        # Translators: message when no previous sentence available in the document
+        errorMsg = _("No previous sentence")
+        self.move(gesture, regex, -1, errorMsg)
         
-    def script_previousExtendedSentence(self, gesture):
-        """Move to previous extended sentence."""
-        self.move(gesture, -1, extended=True)
+    @script(description='Speak current sentence.', gestures=['kb:NVDA+Alt+S'])
+    def script_currentSentence(self, gesture):
+        regex = getRegex(getCurrentLanguage())
+        self.move(gesture, regex, 0, "")
+
+    @script(description='Move to next phrase.', gestures=['kb:Alt+Windows+DownArrow'])
+    def script_nextPhrase(self, gesture):
+        regex = getPhraseRegex()
+        # Translators: message when no next phrase available in the document
+        errorMsg = _("No next phrase")
+        self.move(gesture, regex, 1, errorMsg)
+        
+    @script(description='Move to previous phrase.', gestures=['kb:Alt+Windows+UpArrow'])
+    def script_previousPhrase(self, gesture):
+        regex = getPhraseRegex()
+        # Translators: message when no previous phrase available in the document
+        errorMsg = _("No previous phrase")
+        self.move(gesture, regex, -1, errorMsg)
+
+    @script(description='Speak current phrase.', gestures=[])
+    def script_currentPhrase(self, gesture):
+        regex = getPhraseRegex()
+        self.move(gesture, regex, 0, "")
 
     def script_nextText(self, gesture):
         """Move to next paragraph that contains text."""
@@ -521,7 +597,23 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         """Move to previous paragraph that contains text."""
         self.moveToText(gesture, -1)
 
-    def move(self, gesture, increment, extended=False):
+        
+    def getHeadingLevel(self, info):
+        formatField=textInfos.FormatField()
+        formatConfig=config.conf['documentFormatting']
+        for field in info.getTextWithFields(formatConfig):
+            #if isinstance(field,textInfos.FieldCommand): and isinstance(field.field,textInfos.FormatField):
+            try:
+                formatField.update(field.field)
+            except:
+                pass
+        try:
+            return int(formatField.get("level"))
+        except:
+            return 0
+
+    
+    def move(self, gesture, regex, increment, errorMsg):
         focus = api.getFocusObject()
         if (
             isinstance(focus, winword.WordDocument)
@@ -552,68 +644,28 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         caretOffset = textInfo._getCaretOffset() 
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         caretIndex = caretOffset - textInfo._startOffset
-        regex = getRegex(getCurrentLanguage())
-        if extended:
-            sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=regex)
-        else:
-            sentenceStr, ti = self.moveSimple(textInfo, caretOffset, increment, regex=regex)
+        reconstructMode = getConfig("reconstructMode")
+        sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=regex, errorMsg=errorMsg, reconstructMode=reconstructMode)
         if ti is None:
             return
+        if increment != 0:
+            
+            t1 = ti.copy()
+            t1.collapse()
+            t1.expand(textInfos.UNIT_LINE)
+            t1.updateCaret()
+            t2 = ti.copy()
+            t2.collapse(True)
+            t2.expand(textInfos.UNIT_LINE)
+            t2.updateCaret()
+            ti.updateCaret()
+            api.setReviewPosition(ti)
+            
+        speech.speakTextInfo(ti)
         ti.collapse()
         if increment != 0:
             ti.updateCaret()
-        speech.speakText(sentenceStr)
-        return
-        
-        while True:
-            text = textInfo.text
-            boundaries = self.splitParagraphIntoSentences(text)
-            # Find the first index in boundaries that is strictly greater than caretIndex
-            j = bisect.bisect_right(boundaries, caretIndex)
-            i = j - 1            
-            # At this point boundaries[i] and boundaries[j] represent
-            # the boundaries of the current sentence.
-            
-            # Testing if we can move to previous/next sentence and still remain within the same paragraph.
-            n = len(boundaries)
-            if (0 <= i + increment < n) and (0 <= j + increment < n):
-                # Next sentence can be found within the same paragraph
-                i += increment
-                j += increment
-                textInfo.collapse()
-                textInfo2 = textInfo.copy()
-                result = textInfo.move(textInfos.UNIT_CHARACTER, boundaries[i])
-                myAssert((result != 0) or (boundaries[i] == 0))
-                # If we are moving to the very last sentence of the very last paragraph,
-                # then we cannot move textInfo2 to the end of the paragraph.
-                # Move to just one character before that, and then try to move one more character.
-                myAssert(boundaries[j] > 1)
-                result2 = textInfo2.move(textInfos.UNIT_CHARACTER, boundaries[j] - 1)
-                myAssert(result2 != 0)
-                textInfo2.move(textInfos.UNIT_CHARACTER, 1)
-                textInfo.setEndPoint(textInfo2, "endToStart")
-                textInfo.updateCaret()
-                ui.message(textInfo.text)
-                return
-            else:  
-                # We need to move to previous/next paragraph to find previous/next sentence.
-                self.fancyBeep("AC#EG#", 30, 5, 5)
-                while True:
-                    result = textInfo.move(textInfos.UNIT_PARAGRAPH, increment)
-                    if result == 0:
-                        self.fancyBeep("HF", 100, 50, 50)
-                        return
-                    textInfo.expand(textInfos.UNIT_PARAGRAPH)
-                    if not speech.isBlank(textInfo.text):
-                        break
-                textInfo.expand(textInfos.UNIT_PARAGRAPH)
-                # Imaginary caret just before (if moving forward) or just after (if moving backward) this paragraph,
-                # so that the next iteration will pick the very first or the very last sentence of this paragraph.
-                if increment > 0:
-                    caretIndex = -1
-                else:
-                    caretIndex = len(textInfo.text) 
-                # Now control flow will takes us to another iteration of the outer while loop. 
+        #speech.speakText(sentenceStr)
 
     def moveToText(self, gesture, increment):
         focus = api.getFocusObject()
@@ -641,6 +693,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 self.simpleCrackle(distance)
                 ui.message(text)
                 break
+                
+    
 
     NOTES = "A,B,H,C,C#,D,D#,E,F,F#,G,G#".split(",")
     NOTE_RE = re.compile("[A-H][#]?")
@@ -718,13 +772,3 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def simpleCrackle(self, n):
         return self.fancyCrackle([0] * n)
-
-    __gestures = {
-        "kb:alt+DownArrow": "nextSentence",
-        "kb:alt+UpArrow": "previousSentence",
-        "kb:NVDA+Alt+S": "currentSentence",
-        "kb:alt+Windows+DownArrow": "nextExtendedSentence",
-        "kb:alt+Windows+UpArrow": "previousExtendedSentence",
-        "kb:alt+shift+DownArrow": "nextText",
-        "kb:alt+shift+UpArrow": "previousText",
-    }
