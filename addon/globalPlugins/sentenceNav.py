@@ -25,17 +25,6 @@ import tones
 import ui
 import wx
 
-
-f = open("C:\\users\\tony\\dropbox\\work\\1.txt", "w")
-def log(s):
-    ss = s
-    try:
-        ss = ss.encode("UTF-8")
-    except:
-        pass
-    print >>f, ss
-    f.flush()
-
 def myAssert(condition):
     if not condition:
         raise RuntimeError("Assertion failed")
@@ -65,6 +54,7 @@ def initConfiguration():
         "paragraphChimeVolume" : "integer( default=5, min=0, max=100)",
         "noNextSentenceChimeVolume" : "integer( default=50, min=0, max=100)",
         "noNextSentenceMessage" : "boolean( default=False)",
+        "speakFormatted" : "boolean( default=True)",
         "reconstructMode" : "string( default='sameIndent')",
         "breakOnWikiReferences" : "boolean( default=True)",
         "sentenceBreakers" : "string( default='.!?')",
@@ -144,6 +134,10 @@ class SettingsDialog(gui.SettingsDialog):
         label = _("Speak message when no next sentence available in the document")
         self.noNextSentenceMessageCheckbox = sHelper.addItem(wx.CheckBox(self, label=label))
         self.noNextSentenceMessageCheckbox.Value = getConfig("noNextSentenceMessage")
+        # Translators: speak formatted text checkbox
+        label = _("Speak formatted text")
+        self.speakFormattedCheckbox = sHelper.addItem(wx.CheckBox(self, label=label))
+        self.speakFormattedCheckbox.Value = getConfig("speakFormatted")
         
       # Reconstruct mode Combo box
         # Translators: Label for reconstruct mode combo box
@@ -193,6 +187,7 @@ class SettingsDialog(gui.SettingsDialog):
         config.conf["sentencenav"]["paragraphChimeVolume"] = self.paragraphChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceChimeVolume"] = self.noNextSentenceChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceMessage"] = self.noNextSentenceMessageCheckbox.Value
+        config.conf["sentencenav"]["speakFormatted"] = self.speakFormattedCheckbox.Value
         config.conf["sentencenav"]["reconstructMode"] = self.reconstructOptions[self.reconstructModeCombobox.Selection]
         config.conf["sentencenav"]["breakOnWikiReferences"] = self.breakOnWikiReferencesCheckbox.Value
         config.conf["sentencenav"]["sentenceBreakers"] = self.sentenceBreakersEdit.Value
@@ -231,6 +226,19 @@ def nlb(s):
 regexCache = {}
 
 def getRegex(lang):
+    # Description of end of sentence regular expression in human language: 
+    # End of sentence regular expression SENTENCE_END_REGEX  matches either:
+    # 1. Beginning or end of the string.  
+    # 2.Sentence breaker punctuation marks (such as period, question or exclamation mark) SENTENCE_BREAKERS  (one or more), that is both:
+    # 2.1. Followed by all of:
+    # 2.1.1. Optionally skippable punctuation marks (such as closing right bracket or right double quote mark) SKIPPABLE_PUNCTUATION (zero or more)
+    # 2.1.2.Optionally Wikipedia-style reference (such as [1], or [Citation Needed]) WIKIPEDIA_REFERENCE  (zero or more)     
+    # 2.1.3. One or more whitespaces or whitespace-like characters \\s
+    # 2.2. And (defined in LOOK_BEHIND ) not preceded by:
+    # 2.2.1. Common abbreviations (defined in ABBREVIATIONS ), such as Mr., Ms., Dr., etc, followed by period.   
+    # 2.2.2. Single letter abbreviations (defined in CAPITAL_LETTERS ), such as initials, followed by a period. 
+    # 3. Wide character punctuation marks (defined in CHINESE_SENTENCE_BREAKERS)
+
     try:
         return regexCache[lang]
     except KeyError:
@@ -272,7 +280,6 @@ def getPhraseRegex():
     regex = u"^|{regex}|{fullWidth}+|\\s*$".format(
         regex=regex,
         fullWidth=fullWidth)
-    log(regex.encode("UTF-8"))
     try:
         result = re.compile(regex , re.UNICODE)
     except:
@@ -284,49 +291,6 @@ def getPhraseRegex():
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     scriptCategory = _("SentenceNav")
-    
-    # Description of end of sentence regular expression in human language: 
-    # End of sentence regular expression SENTENCE_END_REGEX  matches either:
-    # 1. Beginning or end of the string.  
-    # 2.Sentence breaker punctuation marks (such as period, question or exclamation mark) SENTENCE_BREAKERS  (one or more), that is both:
-    # 2.1. Followed by all of:
-    # 2.1.1. Optionally skippable punctuation marks (such as closing right bracket or right double quote mark) SKIPPABLE_PUNCTUATION (zero or more)
-    # 2.1.2.Optionally Wikipedia-style reference (such as [1], or [Citation Needed]) WIKIPEDIA_REFERENCE  (zero or more)     
-    # 2.1.3. One or more whitespaces or whitespace-like characters \\s
-    # 2.2. And (defined in LOOK_BEHIND ) not preceded by:
-    # 2.2.1. Common abbreviations (defined in ABBREVIATIONS ), such as Mr., Ms., Dr., etc, followed by period.   
-    # 2.2.2. Single letter abbreviations (defined in CAPITAL_LETTERS ), such as initials, followed by a period. 
-    # 3. Wide character punctuation marks (defined in CHINESE_SENTENCE_BREAKERS)
-    SENTENCE_BREAKERS = ".?!"
-    CHINESE_SENTENCE_BREAKERS = ("["
-        + u"\u3002" # Chinese full stop
-        + u"\uFF01" # Chinese exclamation mark
-        + u"\uFF1F" # Chinese question mark
-        + "]+") 
-
-    SKIPPABLE_PUNCTUATION = (
-        u'")'
-        + u"\u201D" # Right double quotation mark
-        )  
-    WIKIPEDIA_REFERENCE = re_grp("\\[[\\w\\s]+\\]")
-    SENTENCE_END_REGEX = u"[{br}]+[{skip}]*{wiki}*\\s+".format(
-        br=SENTENCE_BREAKERS ,
-        wiki=WIKIPEDIA_REFERENCE,
-        skip = SKIPPABLE_PUNCTUATION)
-    CAPITAL_LETTERS = (
-        "[A-Z"
-        # Cyrillic capital letters:
-        + u"".join(
-            map(unichr,
-                xrange(0x0410, 0x0430) 
-            ))
-        + "]")
-    ABBREVIATIONS = "Mr|Ms|Mrs|Dr|St".split("|")
-    LOOK_BEHIND = nlb("\\s" + CAPITAL_LETTERS)
-    LOOK_BEHIND += "".join([nlb(u"\\s" + abbr) for abbr in ABBREVIATIONS])
-    SENTENCE_END_REGEX = LOOK_BEHIND + SENTENCE_END_REGEX
-    SENTENCE_END_REGEX = re_grp("^|" + SENTENCE_END_REGEX + "|" + CHINESE_SENTENCE_BREAKERS + "|\\s*$")
-    SENTENCE_END_REGEX  = re.compile(SENTENCE_END_REGEX , re.UNICODE)
     
     def splitParagraphIntoSentences(self, text, regex=None):
         if regex is None:
@@ -436,8 +400,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def expandSentence(self, context, offset, regex, direction, compatibilityFunc=None):
         if direction == 0:
             # Expand both forward and backward
-            self.expandSentence(context, offset, regex, -1)
-            return self.expandSentence(context, offset, regex, 1)
+            self.expandSentence(context, offset, regex, -1, compatibilityFunc=compatibilityFunc)
+            return self.expandSentence(context, offset, regex, 1, compatibilityFunc=compatibilityFunc)
         elif direction > 0:
             cindex = -1
         else:
@@ -462,6 +426,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 context.texts.insert(0, nextText)
     
     def moveSimple(self, paragraph, offset, direction, regex):
+        """Note that this function is currently not being used. 
+        It is preserved as it offers a simpler control flow for those who wish to study the internals of this add-on. 
+        This function is not capable of reconstructing sentences across paragraphs.
+        For more information see moveExtended()."""
         context = Context(paragraph)
         sentenceStr, ti = self.findCurrentSentence(context, offset, regex)
         if direction == 0:
@@ -589,15 +557,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         regex = getPhraseRegex()
         self.move(gesture, regex, 0, "")
 
-    def script_nextText(self, gesture):
-        """Move to next paragraph that contains text."""
-        self.moveToText(gesture, 1)
-
-    def script_previousText(self, gesture):
-        """Move to previous paragraph that contains text."""
-        self.moveToText(gesture, -1)
-
-        
     def getHeadingLevel(self, info):
         formatField=textInfos.FormatField()
         formatConfig=config.conf['documentFormatting']
@@ -631,7 +590,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 # increment == 0
                 pass
             return
-        if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM]:
+        if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM, controlTypes.ROLE_BUTTON]:
             try:
                 # The following line will only succeed in BrowserMode.
                 focus.treeInterceptor.script_collapseOrExpandControl(gesture)
@@ -648,54 +607,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=regex, errorMsg=errorMsg, reconstructMode=reconstructMode)
         if ti is None:
             return
-        if increment != 0:
-            
-            t1 = ti.copy()
-            t1.collapse()
-            t1.expand(textInfos.UNIT_LINE)
-            t1.updateCaret()
-            t2 = ti.copy()
-            t2.collapse(True)
-            t2.expand(textInfos.UNIT_LINE)
-            t2.updateCaret()
-            ti.updateCaret()
-            api.setReviewPosition(ti)
-            
-        speech.speakTextInfo(ti)
+        if getConfig("speakFormatted"):
+            speech.speakTextInfo(ti)
+        else:
+            speech.speakText(sentenceStr)
         ti.collapse()
         if increment != 0:
             ti.updateCaret()
-        #speech.speakText(sentenceStr)
-
-    def moveToText(self, gesture, increment):
-        focus = api.getFocusObject()
-        if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
-            focus = focus.treeInterceptor
-        textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
-        distance = 0
-        while True:
-            result =textInfo.move(textInfos.UNIT_PARAGRAPH, increment)
-            if result == 0:
-                self.fancyBeep("HF", 100, 50, 50)
-                return
-            distance += 1
-            textInfo.expand(textInfos.UNIT_PARAGRAPH)
-            text = textInfo.text
-            
-            # Small hack: our regex always matches the end of the string, since any sentence must end at the end of the paragraph.
-            # In this case, however, we need to figure out if the sentence really ends with a full stop or other sentence breaker at the end.
-            # So we add a random word in the end of the string and see if there is any other sentence boundaries besides the beginning and the end of the string.
-            text2 = text + " FinalWord"
-            boundaries = self.splitParagraphIntoSentences(text2)
-            if len(boundaries) >= 3:
-                textInfo.collapse()
-                textInfo.updateCaret()
-                self.simpleCrackle(distance)
-                ui.message(text)
-                break
-                
-    
-
+        
     NOTES = "A,B,H,C,C#,D,D#,E,F,F#,G,G#".split(",")
     NOTE_RE = re.compile("[A-H][#]?")
     BASE_FREQ = 220 
