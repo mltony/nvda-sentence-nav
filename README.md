@@ -1,7 +1,7 @@
 # nvda-sentence-nav
 SentenceNav is an NVDA add-on that allows you to read text by sentences, as opposed to by paragraphs or words.
 
-Please note that "Jump to text paragraph" feature has been move to [TextNav](http://github.com/mltony/nvda-text-nav/) add-on that needs to be installed separately.
+Please note that "Jump to next  paragraph with text" feature has been move to [TextNav](http://github.com/mltony/nvda-text-nav/) add-on that needs to be installed separately.
 ## Download
 Current stable release: [SentenceNav v1.1](https://github.com/mltony/nvda-sentence-nav/releases/download/v1.1/SentenceNav-1.1.nvda-addon).
 
@@ -12,7 +12,7 @@ Current stable release: [SentenceNav v1.1](https://github.com/mltony/nvda-senten
 * Alt+Windows+Down: Go to next phrase.
 * Alt+Windows+Up: Go to previous phrase.
 
-Please note that "Jump to text paragraph" feature has been move to [TextNav](http://github.com/mltony/nvda-text-nav/) add-on that needs to be installed separately.
+Please note that "Jump to next  paragraph with text" feature has been move to [TextNav](http://github.com/mltony/nvda-text-nav/) add-on that needs to be installed separately.
 
 ## Notes and known issues
 * Sentence markup is done by heuristic algorithms and is not 100% accurate. Expect SentenceNav to occasionally make mistakes, such as breaking a sentence where it's not supposed to be broken or the other way around - missing a border between two sentences and speaking them together.
@@ -30,6 +30,7 @@ Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
   * Now sentences are spoken as formatted text instead of plain text preserving links and other formatting elements.
   * Added a keystroke to speak current sentence.
   * Added phrase navigation.
+  * "Jump to next paragraph with text" functionality has been moved to a separate [TextNav](http://github.com/mltony/nvda-text-nav/) add-on.
   * Bugfixes.
 * [v1.1](https://github.com/mltony/nvda-sentence-nav/releases/download/v1.1/SentenceNav-1.1.nvda-addon) - 03/23/2018
   * Added move to text keystrokes.
