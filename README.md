@@ -31,6 +31,7 @@ Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
   * Added a keystroke to speak current sentence.
   * Added phrase navigation.
   * "Jump to next paragraph with text" functionality has been moved to a separate [TextNav](http://github.com/mltony/nvda-text-nav/) add-on.
+  * Added support to disable SentenceNav for some applications.
   * Bugfixes.
 * [v1.1](https://github.com/mltony/nvda-sentence-nav/releases/download/v1.1/SentenceNav-1.1.nvda-addon) - 03/23/2018
   * Added move to text keystrokes.

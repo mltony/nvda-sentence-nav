@@ -64,6 +64,7 @@ def initConfiguration():
         "capitalLetters" : "string( default='%s')" % capitalLetters,
         "phraseBreakers" : "string( default='.!?,;:()')",
         "fullWidthPhraseBreakers" : "string( default='。！？，；：（）')",
+        "applicationsBlacklist" : "string( default='audacity,cmd')",
     }
     config.conf.spec["sentencenav"] = confspec
     
@@ -181,6 +182,11 @@ class SettingsDialog(gui.SettingsDialog):
         # Translators: Label for full width phrase breakers edit box
         self.fullWidthPhraseBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Full width phrase breakers"), wx.TextCtrl).control
         self.fullWidthPhraseBreakersEdit.Value = getConfig("fullWidthPhraseBreakers")
+      # applicationsBlacklist edit
+        # Translators: Label for blacklisted applications edit box
+        self.applicationsBlacklistEdit = gui.guiHelper.LabeledControlHelper(self, _("Disable SentenceNav in applications (comma-separated list)"), wx.TextCtrl).control
+        self.applicationsBlacklistEdit.Value = getConfig("applicationsBlacklist")
+        
 
 
     def onOk(self, evt):
@@ -197,6 +203,8 @@ class SettingsDialog(gui.SettingsDialog):
         setConfig("capitalLetters", self.capitalLettersEdit.Value, self.lang)
         config.conf["sentencenav"]["phraseBreakers"] = self.phraseBreakersEdit.Value
         config.conf["sentencenav"]["fullWidthPhraseBreakers"] = self.fullWidthPhraseBreakersEdit.Value
+        config.conf["sentencenav"]["applicationsBlacklist"] = self.applicationsBlacklistEdit.Value
+        
         regexCache.clear()
         phraseRegex = None
         super(SettingsDialog, self).onOk(evt)
@@ -521,6 +529,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     @script(description='Move to next sentence.', gestures=['kb:Alt+DownArrow'])
     def script_nextSentence(self, gesture):
+        if self.maybePassThrough(gesture):
+            return
         regex = getRegex(getCurrentLanguage())
         # Translators: message when no next sentence available in the document
         errorMsg = _("No next sentence")
@@ -528,6 +538,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
     @script(description='Move to previous sentence.', gestures=['kb:Alt+UpArrow'])
     def script_previousSentence(self, gesture):
+        if self.maybePassThrough(gesture):
+            return
         regex = getRegex(getCurrentLanguage())
         # Translators: message when no previous sentence available in the document
         errorMsg = _("No previous sentence")
@@ -535,11 +547,15 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
     @script(description='Speak current sentence.', gestures=['kb:NVDA+Alt+S'])
     def script_currentSentence(self, gesture):
+        if self.maybePassThrough(gesture):
+            return
         regex = getRegex(getCurrentLanguage())
         self.move(gesture, regex, 0, "")
 
     @script(description='Move to next phrase.', gestures=['kb:Alt+Windows+DownArrow'])
     def script_nextPhrase(self, gesture):
+        if self.maybePassThrough(gesture):
+            return
         regex = getPhraseRegex()
         # Translators: message when no next phrase available in the document
         errorMsg = _("No next phrase")
@@ -547,6 +563,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         
     @script(description='Move to previous phrase.', gestures=['kb:Alt+Windows+UpArrow'])
     def script_previousPhrase(self, gesture):
+        if self.maybePassThrough(gesture):
+            return
         regex = getPhraseRegex()
         # Translators: message when no previous phrase available in the document
         errorMsg = _("No previous phrase")
@@ -554,8 +572,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     @script(description='Speak current phrase.', gestures=[])
     def script_currentPhrase(self, gesture):
+        if self.maybePassThrough(gesture):
+            return
         regex = getPhraseRegex()
         self.move(gesture, regex, 0, "")
+        
+    def maybePassThrough(self, gesture):
+        focus = api.getFocusObject()
+        appName = focus.appModule.appName
+        if unicode(appName.lower()) in getConfig("applicationsBlacklist").lower().strip().split(","):
+            gesture.send()
+            return True
+        return False
 
     def getHeadingLevel(self, info):
         formatField=textInfos.FormatField()
@@ -607,13 +635,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=regex, errorMsg=errorMsg, reconstructMode=reconstructMode)
         if ti is None:
             return
+        if increment != 0:
+            ti.updateCaret()
+            ti.NVDAObjectAtStart.scrollIntoView()
+            t2 = ti.copy()
+            t2.collapse(True)
+            t2.NVDAObjectAtStart.scrollIntoView()
         if getConfig("speakFormatted"):
             speech.speakTextInfo(ti)
         else:
             speech.speakText(sentenceStr)
-        ti.collapse()
-        if increment != 0:
-            ti.updateCaret()
         
     NOTES = "A,B,H,C,C#,D,D#,E,F,F#,G,G#".split(",")
     NOTE_RE = re.compile("[A-H][#]?")
