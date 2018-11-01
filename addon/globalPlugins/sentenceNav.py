@@ -638,9 +638,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if increment != 0:
             ti.updateCaret()
             ti.NVDAObjectAtStart.scrollIntoView()
-            t2 = ti.copy()
-            t2.collapse(True)
-            t2.NVDAObjectAtStart.scrollIntoView()
         if getConfig("speakFormatted"):
             speech.speakTextInfo(ti)
         else:
