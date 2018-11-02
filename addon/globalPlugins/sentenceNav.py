@@ -637,9 +637,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         if increment != 0:
             ti.updateCaret()
-            ti.NVDAObjectAtStart.scrollIntoView()
+            #ti.NVDAObjectAtStart.scrollIntoView()
         if getConfig("speakFormatted"):
-            speech.speakTextInfo(ti)
+            speech.speakTextInfo(ti, reason=controlTypes.REASON_CARET)
         else:
             speech.speakText(sentenceStr)
         
