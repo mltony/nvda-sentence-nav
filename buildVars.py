@@ -24,7 +24,7 @@ SentenceNav is an NVDA add-on that allows you to read text by sentences, as oppo
 	# Author(s)
 	"addon_author" : u"Tony Malykh <anton.malykh@gmail.com>",
 	# URL for the add-on documentation support
-	"addon_url" : "https://gihub.com/mltony/nvda-sentence-nav",
+	"addon_url" : "https://github.com/mltony/nvda-sentence-nav",
 	# Documentation file name
 	"addon_docFileName" : "readme.html",
 }
