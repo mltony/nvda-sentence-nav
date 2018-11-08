@@ -354,7 +354,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if len(boundaries) == 1:
             # This must be an empty context/paragraph
             # j points to out of boundaries
-            log("empty paragraph")
             t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
             t1 = tis[t1i].copy()
             t1.expand(textInfos.UNIT_PARAGRAPH)
