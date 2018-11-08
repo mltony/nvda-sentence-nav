@@ -64,7 +64,7 @@ def initConfiguration():
         "capitalLetters" : "string( default='%s')" % capitalLetters,
         "phraseBreakers" : "string( default='.!?,;:()')",
         "fullWidthPhraseBreakers" : "string( default='。！？，；：（）')",
-        "applicationsBlacklist" : "string( default='audacity,cmd')",
+        "applicationsBlacklist" : "string( default='audacity,excel')",
     }
     config.conf.spec["sentencenav"] = confspec
     
