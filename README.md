@@ -19,6 +19,7 @@ Please note that "Jump to next  paragraph with text" feature has been move to [T
 * Sentence markup is done by heuristic algorithms and is not 100% accurate. Expect SentenceNav to occasionally make mistakes, such as breaking a sentence where it's not supposed to be broken or the other way around - missing a border between two sentences and speaking them together.
 * SentenceNav doesn't work in Microsoft Word, WordPad as well as any applications that use Microsoft Word editable controls internally, such as Microsoft Outlook. Sentence navigation in these programs is provided by NVDA, rather than SentenceNav. Phrase navigation is not available.
 * Sentence navigation keystrokes Alt+Up/Down might conflict with built-in keystrokes in applications. SentenceNav developers strive to resolve these conflicts whenever possible. However, if you encounter such a situation, a simple workaround is to press NVDA+F2 (Pass next key through), followed by the conflicting keystroke Alt+Up/Down to make sure that this keystroke would be processed by the application and not by SentenceNav.
+* SentenceNav doesn't work in some applications, such as LibreOffice and edit control in Mozilla Thunderbird. This is caused by [NVDA issue](https://github.com/nvaccess/nvda/issues/9005).
 
 ## Algorithm
 SentenceNav uses a regular expression to find sentence boundaries. The regular expression is looking for:
