@@ -17,7 +17,8 @@ import NVDAHelper
 from NVDAObjects.window import winword
 import operator
 import re 
-from scriptHandler import script
+import sayAllHandler
+from scriptHandler import script, willSayAllResume
 import speech
 import struct
 import textInfos
@@ -526,7 +527,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         volume = config.conf["sentencenav"]["paragraphChimeVolume"]
         self.fancyBeep("AC#EG#", 30, volume, volume)
 
-    @script(description='Move to next sentence.', gestures=['kb:Alt+DownArrow'])
+    @script(description='Move to next sentence.', gestures=['kb:Alt+DownArrow'],
+        resumeSayAllMode=sayAllHandler.CURSOR_CARET)
     def script_nextSentence(self, gesture):
         if self.maybePassThrough(gesture):
             return
@@ -535,7 +537,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         errorMsg = _("No next sentence")
         self.move(gesture, regex, 1, errorMsg)
         
-    @script(description='Move to previous sentence.', gestures=['kb:Alt+UpArrow'])
+    @script(description='Move to previous sentence.', gestures=['kb:Alt+UpArrow'],
+        resumeSayAllMode=sayAllHandler.CURSOR_CARET)
     def script_previousSentence(self, gesture):
         if self.maybePassThrough(gesture):
             return
@@ -636,7 +639,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         if increment != 0:
             ti.updateCaret()
-            #ti.NVDAObjectAtStart.scrollIntoView()
+        if willSayAllResume(gesture):
+            return
         if getConfig("speakFormatted"):
             speech.speakTextInfo(ti, reason=controlTypes.REASON_CARET)
         else:
