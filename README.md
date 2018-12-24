@@ -47,6 +47,7 @@ Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
   * Added support for LibreOffice.
   * Improved initials detection.
   * Sentence and phrase breakers can now contain hyphens.
+  * Exceptional abbreviations can now contain special characters, such as periods.
 * [v2.0](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.0/SentenceNav-2.0.nvda-addon) - 11/08/2018
   * Complete rewrite of SentenceNav.
   * Added ability to reconstruct sentences spanning across multiple paragraphs.
