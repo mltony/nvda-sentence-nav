@@ -509,11 +509,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 if not speech.isBlank(paragraph.text):
                     break
             self.chimeCrossParagraphBorder()
-            context = Context(paragraph)
-            if direction > 0:
-                offset = paragraph._startOffset
-            else:
-                offset = paragraph._endOffset - 1
+            context = Context(paragraph, 0)
+            if direction < 0:
+                lastPosition = paragraph.copy()
+                lastPosition.collapse(True) # collapse to the end
+                result = lastPosition.move(textInfos.UNIT_CHARACTER, -1)
+                myAssert(result != 0)
+                context.find(lastPosition)
         else:
             # Next sentence can be found in the same context
             # At least its beginning or ending - that sentence will be expanded.
