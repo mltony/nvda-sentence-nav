@@ -44,6 +44,8 @@ Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
 ## Release history
 * v2.1 - not yet released
   * Added support for skim reading.
+  * Added support for LibreOffice.
+  * Improved initials detection.
 * [v2.0](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.0/SentenceNav-2.0.nvda-addon) - 11/08/2018
   * Complete rewrite of SentenceNav.
   * Added ability to reconstruct sentences spanning across multiple paragraphs.
