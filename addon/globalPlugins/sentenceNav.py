@@ -16,7 +16,7 @@ import json
 import NVDAHelper
 from NVDAObjects.window import winword
 import operator
-import re 
+import re
 import sayAllHandler
 from scriptHandler import script, willSayAllResume
 import speech
@@ -25,6 +25,7 @@ import textInfos
 import tones
 import ui
 import wx
+
 
 def myAssert(condition):
     if not condition:
@@ -68,7 +69,7 @@ def initConfiguration():
         "applicationsBlacklist" : "string( default='audacity,excel')",
     }
     config.conf.spec["sentencenav"] = confspec
-    
+
 def getConfig(key, lang=None):
     value = config.conf["sentencenav"][key]
     if isinstance(value, str):
@@ -80,7 +81,7 @@ def getConfig(key, lang=None):
         return dictionary[lang]
     except KeyError:
         return dictionary["en"]
-        
+
 def setConfig(key, value, lang):
     fullValue = config.conf["sentencenav"][key]
     fullValue = unicode(fullValue.decode("UTF-8"))
@@ -91,7 +92,7 @@ def setConfig(key, value, lang):
 def getCurrentLanguage():
     s = speech.getCurrentLanguage()
     return s[:2]
-    
+
 addonHandler.initTranslation()
 initConfiguration()
 createMenu()
@@ -99,7 +100,7 @@ createMenu()
 class SettingsDialog(gui.SettingsDialog):
     # Translators: Title for the settings dialog
     title = _("SentenceNav settings")
-    
+
     reconstructOptions = ["always", "sameIndent", "never"]
     # Translators: choices inside reconstruct mode combo box
     reconstructOptionsText = [_("Always"), _("Only across paragraphs with same indentation and same heading level"), _("Never")]
@@ -130,7 +131,7 @@ class SettingsDialog(gui.SettingsDialog):
         sizer.Add(slider)
         settingsSizer.Add(sizer)
         self.noNextSentenceChimeVolumeSlider = slider
-        
+
       # Checkboxes
         # Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
         label = _("Speak message when no next sentence available in the document")
@@ -140,7 +141,7 @@ class SettingsDialog(gui.SettingsDialog):
         label = _("Speak formatted text")
         self.speakFormattedCheckbox = sHelper.addItem(wx.CheckBox(self, label=label))
         self.speakFormattedCheckbox.Value = getConfig("speakFormatted")
-        
+
       # Reconstruct mode Combo box
         # Translators: Label for reconstruct mode combo box
         label = _("Reconstruct sentences across multiple paragraphs when")
@@ -153,7 +154,7 @@ class SettingsDialog(gui.SettingsDialog):
         label = _("Take Wikipedia-style references into account")
         self.breakOnWikiReferencesCheckbox = sHelper.addItem(wx.CheckBox(self, label=label))
         self.breakOnWikiReferencesCheckbox.Value = getConfig("breakOnWikiReferences")
-        
+
       # Regex-related edit boxes
         # Translators: Label for sentence breakers edit box
         self.sentenceBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Sentence breakers"), wx.TextCtrl).control
@@ -164,7 +165,7 @@ class SettingsDialog(gui.SettingsDialog):
         # Translators: Label for full width sentence breakers edit box
         self.fullWidthSentenceBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Full width sentence breakers"), wx.TextCtrl).control
         self.fullWidthSentenceBreakersEdit.Value = getConfig("fullWidthSentenceBreakers")
-        
+
       # Regex-related language-specific edit boxes
         lang = self.lang = getCurrentLanguage()
         # Translators: Label for exceptional abbreviations edit box
@@ -187,7 +188,7 @@ class SettingsDialog(gui.SettingsDialog):
         # Translators: Label for blacklisted applications edit box
         self.applicationsBlacklistEdit = gui.guiHelper.LabeledControlHelper(self, _("Disable SentenceNav in applications (comma-separated list)"), wx.TextCtrl).control
         self.applicationsBlacklistEdit.Value = getConfig("applicationsBlacklist")
-        
+
 
 
     def onOk(self, evt):
@@ -205,19 +206,51 @@ class SettingsDialog(gui.SettingsDialog):
         config.conf["sentencenav"]["phraseBreakers"] = self.phraseBreakersEdit.Value
         config.conf["sentencenav"]["fullWidthPhraseBreakers"] = self.fullWidthPhraseBreakersEdit.Value
         config.conf["sentencenav"]["applicationsBlacklist"] = self.applicationsBlacklistEdit.Value
-        
+
         regexCache.clear()
         phraseRegex = None
         super(SettingsDialog, self).onOk(evt)
 
+
+def countCharacters(textInfo):
+    try:
+        return textInfo._endOffset - textInfo._startOffset
+    except AttributeError:
+        return countCharacters(list(textInfo._getTextInfos())[0])
+
+def getCaretIndex(textInfo):
+    try:
+        caretOffset = textInfo._getCaretOffset()
+        textInfo = textInfo.copy()
+        textInfo.expand(textInfos.UNIT_PARAGRAPH)
+        caretIndex = caretOffset - textInfo._startOffset
+        return caretIndex
+    except AttributeError:
+        textInfo = list(textInfo._getTextInfos())[0]
+        return getCaretIndex(textInfo)
+
+
 class Context:
-    def __init__(self, textInfo):
+    def __init__(self, textInfo, caretIndex):
         self.texts = [textInfo.text]
         self.textInfos = [textInfo]
+        self.caretIndex = caretIndex # Caret index within current paragraph, zero-based
+        self.current = 0 # Index of current paragraph
+
+    def find(self, textInfo, which="start"):
+        for i in xrange(len(self.textInfos)):
+            if textInfo.compareEndPoints(self.textInfos[i], which + "ToStart") >= 0:
+                if textInfo.compareEndPoints(self.textInfos[i], which + "ToEnd") < 0:
+                    self.current = i
+                    indexTextInfo = self.textInfos[i].copy()
+                    indexTextInfo.setEndPoint(textInfo, "endTo" + which.capitalize())
+                    self.caretIndex = countCharacters(indexTextInfo)
+                    return
+        raise RuntimeError("Could not find textInfo in this context.")
 
 def re_grp(s):
     """Wraps a string with a non-capturing group for use in regular expressions."""
-    return "(?:%s)" % s        
+    return "(?:%s)" % s
 
 def re_set(s):
     """Creates a regex set of characters from a plain string."""
@@ -225,7 +258,7 @@ def re_set(s):
     for c in "\\[]":
         s = s.replace(c, "\\" + c)
     return "[" + s + "]"
-    
+
 def nlb(s):
     """Forms a negative look-behind regexp clause to prevent certain expressions like "Mr." from ending the sentence.
     It also adds a positive look-ahead to make sure that such an expression is followed by a period, as opposed to
@@ -235,17 +268,17 @@ def nlb(s):
 regexCache = {}
 
 def getRegex(lang):
-    # Description of end of sentence regular expression in human language: 
+    # Description of end of sentence regular expression in human language:
     # End of sentence regular expression SENTENCE_END_REGEX  matches either:
-    # 1. Beginning or end of the string.  
+    # 1. Beginning or end of the string.
     # 2.Sentence breaker punctuation marks (such as period, question or exclamation mark) SENTENCE_BREAKERS  (one or more), that is both:
     # 2.1. Followed by all of:
     # 2.1.1. Optionally skippable punctuation marks (such as closing right bracket or right double quote mark) SKIPPABLE_PUNCTUATION (zero or more)
-    # 2.1.2.Optionally Wikipedia-style reference (such as [1], or [Citation Needed]) WIKIPEDIA_REFERENCE  (zero or more)     
+    # 2.1.2.Optionally Wikipedia-style reference (such as [1], or [Citation Needed]) WIKIPEDIA_REFERENCE  (zero or more)
     # 2.1.3. One or more whitespaces or whitespace-like characters \\s
     # 2.2. And (defined in LOOK_BEHIND ) not preceded by:
-    # 2.2.1. Common abbreviations (defined in ABBREVIATIONS ), such as Mr., Ms., Dr., etc, followed by period.   
-    # 2.2.2. Single letter abbreviations (defined in CAPITAL_LETTERS ), such as initials, followed by a period. 
+    # 2.2.1. Common abbreviations (defined in ABBREVIATIONS ), such as Mr., Ms., Dr., etc, followed by period.
+    # 2.2.2. Single letter abbreviations (defined in CAPITAL_LETTERS ), such as initials, followed by a period.
     # 3. Wide character punctuation marks (defined in CHINESE_SENTENCE_BREAKERS)
 
     try:
@@ -275,7 +308,7 @@ def getRegex(lang):
     regexCache[lang] = result
     return result
 
-    
+
 phraseRegex = None
 
 def getPhraseRegex():
@@ -300,7 +333,7 @@ def getPhraseRegex():
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     scriptCategory = _("SentenceNav")
-    
+
     def splitParagraphIntoSentences(self, text, regex=None):
         if regex is None:
             regex = self.SENTENCE_END_REGEX
@@ -308,48 +341,23 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # Sometimes the last position in the text will be matched twice, so filter duplicates.
         result = sorted(list(set(result)))
         return result
-        
-    def findCurrentSentence(self, context, offset, regex):
+
+    def findCurrentSentence(self, context, regex):
         texts = context.texts
         tis = context.textInfos
         n = len(texts)
         myAssert(n == len(tis))
-        
-        # Checking that the state is valid
-        for i in xrange(n):
-            l1 = len(texts[i])
-            l2 = tis[i]._endOffset - tis[i]._startOffset
-            # Most of the times l1 == l2, however, sometimes l2 is greater by one.
-            # Check that no other condition is possible.
-            if l1 == l2:
-                continue
-            if l1 + 1 == l2:
-                continue
-            raise RuntimeError("Invalid state: l1=%d l2=%d" % (l1, l2))
-            
-        # Checking that textInfos in the context are adjacent
-        for i in xrange(1, n):
-            myAssert(tis[i-1]._endOffset == tis[i]._startOffset)
-        
-        #Step 1. Identify which paragraph offset belongs to.
-        curParIndex = -1
-        for i in xrange(n):
-            textInfo = tis[i]
-            if textInfo._startOffset <= offset < textInfo._endOffset:
-                curParIndex = i
-                break
-        if curParIndex == -1:
-            raise RuntimeError("Offset is not within this paragraph.")
+
         joinString = " "
         s = joinString.join(texts)
-        index = offset - tis[0]._startOffset + len(joinString) * curParIndex
-        parStartIndices = [] # Denotes indices in s where new paragraphs start
-        for i in xrange(n):
-            parStartIndices.append(tis[i]._startOffset - tis[0]._startOffset + len(joinString) * i)
+        index = sum([len(texts[t]) for t in xrange(context.current)]) + len(joinString) * context.current + context.caretIndex
+        parStartIndices = [0] # Denotes indices in s where new paragraphs start
+        for i in xrange(1, n):
+            parStartIndices.append(parStartIndices[i-1] + len(texts[i-1]) + len(joinString))
         boundaries = self.splitParagraphIntoSentences(s, regex=regex)
         # Find the first index in boundaries that is strictly greater than index
         j = bisect.bisect_right(boundaries, index)
-        i = j - 1            
+        i = j - 1
         # At this point boundaries[i] and boundaries[j] represent
         # the boundaries of the current sentence.
         if len(boundaries) == 1:
@@ -368,7 +376,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             ti.setEndPoint(tis[-1], "endToEnd")
             return ("", ti)
         sentenceStr = s[boundaries[i]:boundaries[j]]
-        
+
         t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
         t1 = tis[t1i].copy()
         t1.collapse()
@@ -388,7 +396,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         else:
             raise RuntimeError("Unexpected condition.")
         return (sentenceStr, t1)
-    
+
     def nextParagraph(self, textInfo, direction):
         ti = textInfo.copy()
         ti.collapse()
@@ -397,27 +405,22 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return None
         ti.expand(textInfos.UNIT_PARAGRAPH)
         return ti
-        
-    def getBoundaryOffset(self, textInfo, direction):
-        myAssert(direction != 0)
-        if direction > 0:
-            return textInfo._endOffset
-        else:
-            return textInfo._startOffset
-        
-    def expandSentence(self, context, offset, regex, direction, compatibilityFunc=None):
+
+    def expandSentence(self, context, regex, direction, compatibilityFunc=None):
         if direction == 0:
             # Expand both forward and backward
-            self.expandSentence(context, offset, regex, -1, compatibilityFunc=compatibilityFunc)
-            return self.expandSentence(context, offset, regex, 1, compatibilityFunc=compatibilityFunc)
+            self.expandSentence(context, regex, -1, compatibilityFunc=compatibilityFunc)
+            return self.expandSentence(context, regex, 1, compatibilityFunc=compatibilityFunc)
         elif direction > 0:
             cindex = -1
+            method = "endToEnd"
         else:
             cindex = 0
-            
+            method = "startToStart"
+
         while True:
-            sentenceStr, ti = self.findCurrentSentence(context, offset, regex)
-            if self.getBoundaryOffset(ti, direction) != self.getBoundaryOffset(context.textInfos[cindex], direction):
+            sentenceStr, ti = self.findCurrentSentence(context, regex)
+            if ti.compareEndPoints(context.textInfos[cindex], method) != 0:
                 return (sentenceStr, ti)
             nextTextInfo = self.nextParagraph(context.textInfos[cindex], direction)
             if nextTextInfo is None:
@@ -432,10 +435,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             else:
                 context.textInfos.insert(0, nextTextInfo)
                 context.texts.insert(0, nextText)
-    
+                context.current += 1
+
     def moveSimple(self, paragraph, offset, direction, regex):
-        """Note that this function is currently not being used. 
-        It is preserved as it offers a simpler control flow for those who wish to study the internals of this add-on. 
+        """Note that this function is currently not being used.
+        It is preserved as it offers a simpler control flow for those who wish to study the internals of this add-on.
         This function is not capable of reconstructing sentences across paragraphs.
         For more information see moveExtended()."""
         context = Context(paragraph)
@@ -464,8 +468,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         else:
             offset = paragraph._endOffset - 1
         return self.findCurrentSentence(context, offset, regex)
-        
-    def moveExtended(self, paragraph, offset, direction, regex, errorMsg="Error", reconstructMode="sameIndent"):
+
+    def moveExtended(self, paragraph, caretIndex, direction, regex, errorMsg="Error", reconstructMode="sameIndent"):
         chimeIfAcrossParagraphs = False
         if reconstructMode == "always":
             compatibilityFunc = lambda x,y: True
@@ -475,15 +479,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             compatibilityFunc = lambda x,y: False
         else:
             raise ValueError()
-        context = Context(paragraph)
-        sentenceStr, ti = self.expandSentence( context, offset, regex, direction, compatibilityFunc=compatibilityFunc)
+        context = Context(paragraph, caretIndex)
+        sentenceStr, ti = self.expandSentence( context, regex, direction, compatibilityFunc=compatibilityFunc)
         if direction == 0:
             return sentenceStr, ti
         elif direction > 0:
             cindex = -1
+            method = "endToEnd"
         else:
             cindex = 0
-        if self.getBoundaryOffset(ti, direction) == self.getBoundaryOffset(context.textInfos[cindex], direction):
+            method = "startToStart"
+        if ti.compareEndPoints(context.textInfos[cindex], method) == 0:
             # We need to look for the next sentence in the next paragraph.
             paragraph = context.textInfos[cindex]
             while True:
@@ -503,26 +509,34 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             # Next sentence can be found in the same context
             # At least its beginning or ending - that sentence will be expanded.
             if direction > 0:
-                offset = ti._endOffset
+                ti2 = ti.copy()
+                ti2.collapse(True) # Collapse to the end
+                context.find(ti2)
             else:
-                offset = ti._startOffset - 1
+                ti2 = ti.copy()
+                ti2.collapse(False) # to the beginning
+                result = ti2.move(textInfos.UNIT_CHARACTER, -1)
+                myAssert(result != 0)
+                context.find(ti2)
             chimeIfAcrossParagraphs = True
-        resultSentenceStr, resultTi = self.expandSentence( context, offset, regex, direction, compatibilityFunc=compatibilityFunc)
-        if chimeIfAcrossParagraphs:
-            paragraphOffsets = [p._startOffset for p in context.textInfos]
-            index1 = bisect.bisect_right(paragraphOffsets, ti._startOffset)
-            index2 = bisect.bisect_right(paragraphOffsets, resultTi._startOffset)
-            #if index1 != index2:
-            if max(ti._startOffset, resultTi._startOffset) in paragraphOffsets:
-                self.chimeCrossParagraphBorder()
+        resultSentenceStr, resultTi = self.expandSentence( context, regex, direction, compatibilityFunc=compatibilityFunc)
+        if  chimeIfAcrossParagraphs:
+            if ti.compareEndPoints(resultTi, "startToStart") > 0:
+                trailing = ti
+            else:
+                trailing = resultTi
+            for paragraph in context.textInfos:
+                if paragraph.compareEndPoints(trailing, "startToStart") == 0:
+                    self.chimeCrossParagraphBorder()
+                    break
         return resultSentenceStr, resultTi
-        
+
     def chimeNoNextSentence(self, errorMsg="Error"):
         volume = config.conf["sentencenav"]["noNextSentenceChimeVolume"]
         self.fancyBeep("HF", 100, volume, volume)
         if getConfig("noNextSentenceMessage"):
             ui.message(errorMsg)
-        
+
     def chimeCrossParagraphBorder(self):
         volume = config.conf["sentencenav"]["paragraphChimeVolume"]
         self.fancyBeep("AC#EG#", 30, volume, volume)
@@ -536,7 +550,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # Translators: message when no next sentence available in the document
         errorMsg = _("No next sentence")
         self.move(gesture, regex, 1, errorMsg)
-        
+
     @script(description='Move to previous sentence.', gestures=['kb:Alt+UpArrow'],
         resumeSayAllMode=sayAllHandler.CURSOR_CARET)
     def script_previousSentence(self, gesture):
@@ -546,7 +560,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # Translators: message when no previous sentence available in the document
         errorMsg = _("No previous sentence")
         self.move(gesture, regex, -1, errorMsg)
-        
+
     @script(description='Speak current sentence.', gestures=['kb:NVDA+Alt+S'])
     def script_currentSentence(self, gesture):
         if self.maybePassThrough(gesture):
@@ -562,7 +576,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         # Translators: message when no next phrase available in the document
         errorMsg = _("No next phrase")
         self.move(gesture, regex, 1, errorMsg)
-        
+
     @script(description='Move to previous phrase.', gestures=['kb:Alt+Windows+UpArrow'])
     def script_previousPhrase(self, gesture):
         if self.maybePassThrough(gesture):
@@ -578,7 +592,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         regex = getPhraseRegex()
         self.move(gesture, regex, 0, "")
-        
+
     def maybePassThrough(self, gesture):
         focus = api.getFocusObject()
         appName = focus.appModule.appName
@@ -601,21 +615,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         except:
             return 0
 
-    
+
     def move(self, gesture, regex, increment, errorMsg):
         focus = api.getFocusObject()
         if (
             isinstance(focus, winword.WordDocument)
             or (
-                "Dynamic_IAccessibleRichEdit" in str(type(focus)) 
+                "Dynamic_IAccessibleRichEdit" in str(type(focus))
                 and  hasattr(focus, "script_caret_nextSentence")
-                and hasattr(focus, "script_caret_previousSentence")  
+                and hasattr(focus, "script_caret_previousSentence")
                 )
             ):
             if increment > 0:
                 focus.script_caret_nextSentence(gesture)
             elif increment < 0:
-                focus.script_caret_previousSentence(gesture)    
+                focus.script_caret_previousSentence(gesture)
             else:
                 # increment == 0
                 pass
@@ -630,11 +644,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
         textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
-        caretOffset = textInfo._getCaretOffset() 
+        #caretOffset = textInfo._getCaretOffset()
+        #textInfo.expand(textInfos.UNIT_PARAGRAPH)
+        #caretIndex = caretOffset - textInfo._startOffset
+        caretIndex = getCaretIndex(textInfo)
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
-        caretIndex = caretOffset - textInfo._startOffset
         reconstructMode = getConfig("reconstructMode")
-        sentenceStr, ti = self.moveExtended(textInfo, caretOffset, increment, regex=regex, errorMsg=errorMsg, reconstructMode=reconstructMode)
+        sentenceStr, ti = self.moveExtended(textInfo, caretIndex, increment, regex=regex, errorMsg=errorMsg, reconstructMode=reconstructMode)
         if ti is None:
             return
         if increment != 0:
@@ -645,25 +661,25 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             speech.speakTextInfo(ti, reason=controlTypes.REASON_CARET)
         else:
             speech.speakText(sentenceStr)
-        
+
     NOTES = "A,B,H,C,C#,D,D#,E,F,F#,G,G#".split(",")
     NOTE_RE = re.compile("[A-H][#]?")
-    BASE_FREQ = 220 
+    BASE_FREQ = 220
     def getChordFrequencies(self, chord):
         myAssert(len(self.NOTES) == 12)
         prev = -1
         result = []
         for m in self.NOTE_RE.finditer(chord):
             s = m.group()
-            i =self.NOTES.index(s) 
+            i =self.NOTES.index(s)
             while i < prev:
                 i += 12
             result.append(int(self.BASE_FREQ * (2 ** (i / 12.0))))
             prev = i
-        return result            
-    
+        return result
+
     def fancyBeep(self, chord, length, left=10, right=10):
-        beepLen = length 
+        beepLen = length
         freqs = self.getChordFrequencies(chord)
         intSize = 8 # bytes
         bufSize = max([NVDAHelper.generateBeep(None,freq, beepLen, right, left) for freq in freqs])
@@ -693,7 +709,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         for i in xrange(0, m*n, n):
             result.append(a[i  / m])
         return result
-    
+
     BASE_FREQ = speech.IDT_BASE_FREQUENCY
     def getPitch(self, indent):
         return self.BASE_FREQ*2**(indent/24.0) #24 quarter tones per octave.
@@ -702,10 +718,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     PAUSE_LEN = 5 # millis
     MAX_CRACKLE_LEN = 400 # millis
     MAX_BEEP_COUNT = MAX_CRACKLE_LEN / (BEEP_LEN + PAUSE_LEN)
-        
+
     def fancyCrackle(self, levels):
         levels = self.uniformSample(levels, self.MAX_BEEP_COUNT )
-        beepLen = self.BEEP_LEN 
+        beepLen = self.BEEP_LEN
         pauseLen = self.PAUSE_LEN
         pauseBufSize = NVDAHelper.generateBeep(None,self.BASE_FREQ,pauseLen,0, 0)
         beepBufSizes = [NVDAHelper.generateBeep(None,self.getPitch(l), beepLen, 50, 50) for l in levels]
@@ -714,7 +730,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         bufPtr = 0
         for l in levels:
             bufPtr += NVDAHelper.generateBeep(
-                ctypes.cast(ctypes.byref(buf, bufPtr), ctypes.POINTER(ctypes.c_char)), 
+                ctypes.cast(ctypes.byref(buf, bufPtr), ctypes.POINTER(ctypes.c_char)),
                 self.getPitch(l), beepLen, 50, 50)
             bufPtr += pauseBufSize # add a short pause
         tones.player.stop()
