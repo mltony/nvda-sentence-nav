@@ -286,7 +286,7 @@ def getRegex(lang):
     except KeyError:
         pass
     regex = u""
-    regex += nlb(re_set(getConfig("capitalLetters", lang)))
+    regex += nlb("\\b" + re_set(getConfig("capitalLetters", lang)))
     for abbr in getConfig("exceptionalAbbreviations", lang).strip().split():
         regex += nlb(abbr)
     regex += re_set(getConfig("sentenceBreakers")) + "+"
