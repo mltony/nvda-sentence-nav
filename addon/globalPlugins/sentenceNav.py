@@ -41,7 +41,7 @@ def createMenu():
 def initConfiguration():
     exceptionalAbbreviations = """
 {
-    "en": "Mr Ms Mrs Dr St",
+    "en": "Mr Ms Mrs Dr St e.g",
     "ru": "Тов тов"
 }
 """.replace("\n", " ")
@@ -262,6 +262,12 @@ def re_set(s):
         s = "-" + s.replace("-", "")
     return "[" + s + "]"
 
+def re_escape(s):
+    for c in "\\.?*()[]{}$^":
+        s = s.replace(c, "\\" + c)
+    return s
+
+
 def nlb(s):
     """Forms a negative look-behind regexp clause to prevent certain expressions like "Mr." from ending the sentence.
     It also adds a positive look-ahead to make sure that such an expression is followed by a period, as opposed to
@@ -291,7 +297,7 @@ def getRegex(lang):
     regex = u""
     regex += nlb("\\b" + re_set(getConfig("capitalLetters", lang)))
     for abbr in getConfig("exceptionalAbbreviations", lang).strip().split():
-        regex += nlb(abbr)
+        regex += nlb(re_escape(abbr))
     regex += re_set(getConfig("sentenceBreakers")) + "+"
     regex += re_set(getConfig("skippable")) + "*"
     if getConfig("breakOnWikiReferences"):
