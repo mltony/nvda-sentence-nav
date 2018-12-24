@@ -64,7 +64,7 @@ def initConfiguration():
         "skippable" : "string( default='\"”’»)')",
         "exceptionalAbbreviations" : "string( default='%s')" % exceptionalAbbreviations,
         "capitalLetters" : "string( default='%s')" % capitalLetters,
-        "phraseBreakers" : "string( default='.!?,;:()')",
+        "phraseBreakers" : "string( default='.!?,;:-–()')",
         "fullWidthPhraseBreakers" : "string( default='。！？，；：（）')",
         "applicationsBlacklist" : "string( default='audacity,excel')",
     }
@@ -257,6 +257,9 @@ def re_set(s):
     # Step 1: escape special characters
     for c in "\\[]":
         s = s.replace(c, "\\" + c)
+    # Step 2. If hyphen is in the set, we need to move it to position 1.
+    if "-" in s:
+        s = "-" + s.replace("-", "")
     return "[" + s + "]"
 
 def nlb(s):
