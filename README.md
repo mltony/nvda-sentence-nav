@@ -2,10 +2,6 @@
 SentenceNav is an NVDA add-on that allows you to read text by sentences, as opposed to by paragraphs or words.
 
 Please note that "Jump to next  paragraph with text" feature has been move to [TextNav](http://github.com/mltony/nvda-text-nav/) add-on that needs to be installed separately.
-## Download
-Current stable release: 
-[SentenceNav v2.1](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.1/SentenceNav-2.1.nvda-addon).
-
 ## Keystrokes
 * Alt+Down: Go to next sentence.
 * Alt+Up: Go to previous sentence.
@@ -41,8 +37,8 @@ Phrase detection is performed by another regular expression, that matches:
 ## Source code
 Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
 
-## Release history
-* [v2.2](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.2/SentenceNav-2.2.nvda-addon) - 01/20/2019
+## Release history and downloads
+* Current stable release: [v2.2](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.2/SentenceNav-2.2.nvda-addon) - 01/20/2019
   * Better paragraph compatibility logic for reconstructing sentences across paragraphs.
   * Translations.
 * [v2.1](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.1/SentenceNav-2.1.nvda-addon) - 12/25/2018
