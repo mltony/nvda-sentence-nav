@@ -42,6 +42,9 @@ Phrase detection is performed by another regular expression, that matches:
 Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
 
 ## Release history
+* [v2.2](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.2/SentenceNav-2.2.nvda-addon) - 01/20/2019
+  * Better paragraph compatibility logic for reconstructing sentences across paragraphs.
+  * Translations.
 * [v2.1](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.1/SentenceNav-2.1.nvda-addon) - 12/25/2018
   * Added support for skim reading.
   * Added support for LibreOffice.
