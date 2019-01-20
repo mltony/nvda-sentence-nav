@@ -103,7 +103,7 @@ class SettingsDialog(gui.SettingsDialog):
 
     reconstructOptions = ["always", "sameIndent", "never"]
     # Translators: choices inside reconstruct mode combo box
-    reconstructOptionsText = [_("Always"), _("Only across paragraphs with same indentation and same heading level"), _("Never")]
+    reconstructOptionsText = [_("Always"), _("Only across paragraphs with same indentation and same style level"), _("Never")]
 
     def __init__(self, *args, **kwargs):
         super(SettingsDialog, self).__init__(*args, **kwargs)
@@ -483,7 +483,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if reconstructMode == "always":
             compatibilityFunc = lambda x,y: True
         elif reconstructMode == "sameIndent":
-            compatibilityFunc = lambda ti1, ti2: (ti1.NVDAObjectAtStart.location[0] == ti2.NVDAObjectAtStart.location[0]) and (self.getHeadingLevel(ti1) == self.getHeadingLevel(ti2))
+            compatibilityFunc = lambda ti1, ti2: (ti1.NVDAObjectAtStart.location[0] == ti2.NVDAObjectAtStart.location[0]) and (self.getParagraphStyle(ti1) == self.getParagraphStyle(ti2))
         elif reconstructMode == "never":
             compatibilityFunc = lambda x,y: False
         else:
@@ -611,8 +611,18 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             gesture.send()
             return True
         return False
+        
+    styleFields = [
+        "level",
+        "font-family",
+        "font-size",
+        "color",
+        "background-color",
+        "bold",
+        "italic",
+    ]
 
-    def getHeadingLevel(self, info):
+    def getParagraphStyle(self, info):
         formatField=textInfos.FormatField()
         formatConfig=config.conf['documentFormatting']
         for field in info.getTextWithFields(formatConfig):
@@ -621,11 +631,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 formatField.update(field.field)
             except:
                 pass
-        try:
-            return int(formatField.get("level"))
-        except:
-            return 0
-
+        result = [formatField.get(fieldName, None) for fieldName in self.styleFields]
+        return tuple(result)
 
     def move(self, gesture, regex, increment, errorMsg):
         focus = api.getFocusObject()
