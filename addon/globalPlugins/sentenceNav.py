@@ -220,16 +220,21 @@ class SettingsDialog(gui.SettingsDialog):
 
 
 def countCharacters(textInfo):
-    '''Counts the number of characters in this TextInfo.'''
+    '''Counts the number of characters in this TextInfo.
+    There is no good unified way to do so in NVDA, 
+    so try every possible trick in the book.'''
     try:
+        # This works for offset-based TextInfos
         return textInfo._endOffset - textInfo._startOffset
     except AttributeError:
         pass
     try:
+        # This works for some CompoundTextInfos, like in LibreOffice Writer
         return countCharacters(list(textInfo._getTextInfos())[0])
     except AttributeError:
         pass
     try:
+        # This works in edit control in Mozilla Thunderbird
         return countCharacters(textInfo._start)
     except AttributeError:
         pass
@@ -240,31 +245,6 @@ def getCaretIndexWithinParagraph(caretTextInfo):
     paragraphTextInfo.expand(textInfos.UNIT_PARAGRAPH)
     paragraphTextInfo.setEndPoint(caretTextInfo, "endToStart")
     return countCharacters(paragraphTextInfo)
-
-def getCaretIndex(textInfo):
-    # There is no unified way in NVDA to retrieve caret index within current paragraph.
-    # So try every possible trick.
-    try:
-        # This way will work with offset-based TextInfos
-        caretOffset = textInfo._getCaretOffset()
-        textInfo = textInfo.copy()
-        textInfo.expand(textInfos.UNIT_PARAGRAPH)
-        caretIndex = caretOffset - textInfo._startOffset
-        return caretIndex
-    except AttributeError:
-        pass
-    try:
-        # This way will work with some CompoundTextInfos, such as in LibreOffice
-        textInfo = list(textInfo._getTextInfos())[0]
-        return getCaretIndex(textInfo)
-    except AttributeError:
-        pass
-    try:
-        # This way works with MozillaCompoundTextInfo
-        return textInfo._start._startOffset
-    except AttributeError:
-        pass
-    raise RuntimeError("Unable to obtain caret offset for %s" % str(textInfo))
 
 class Context:
     def __init__(self, textInfo, caretIndex):
