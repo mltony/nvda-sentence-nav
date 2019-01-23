@@ -26,6 +26,12 @@ import tones
 import ui
 import wx
 
+debug = True
+if debug:
+    f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w")
+    def mylog(s):
+        print >>f, str(s)
+        f.flush()
 
 def myAssert(condition):
     if not condition:
@@ -213,22 +219,51 @@ class SettingsDialog(gui.SettingsDialog):
 
 
 def countCharacters(textInfo):
+    '''Counts the number of characters in this TextInfo.'''
     try:
         return textInfo._endOffset - textInfo._startOffset
     except AttributeError:
+        pass
+    try:
         return countCharacters(list(textInfo._getTextInfos())[0])
+    except AttributeError:
+        pass
+    try:
+        return countCharacters(textInfo._start)
+    except AttributeError:
+        pass
+    raise RuntimeError("Unable to count characters for %s" % str(textInfo))
+
+def getCaretIndexWithinParagraph(caretTextInfo):
+    paragraphTextInfo = caretTextInfo.copy()
+    paragraphTextInfo.expand(textInfos.UNIT_PARAGRAPH)
+    paragraphTextInfo.setEndPoint(caretTextInfo, "endToStart")
+    return countCharacters(paragraphTextInfo)
 
 def getCaretIndex(textInfo):
+    # There is no unified way in NVDA to retrieve caret index within current paragraph.
+    # So try every possible trick.
     try:
+        # This way will work with offset-based TextInfos
         caretOffset = textInfo._getCaretOffset()
         textInfo = textInfo.copy()
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         caretIndex = caretOffset - textInfo._startOffset
         return caretIndex
     except AttributeError:
+        pass
+    try:
+        # This way will work with some CompoundTextInfos, such as in LibreOffice
         textInfo = list(textInfo._getTextInfos())[0]
         return getCaretIndex(textInfo)
-
+    except AttributeError:
+        pass
+    try:
+        # This way works with MozillaCompoundTextInfo
+        return textInfo._start._startOffset
+    except AttributeError:
+        pass
+    raise RuntimeError("Unable to obtain caret offset for %s" % str(textInfo))
 
 class Context:
     def __init__(self, textInfo, caretIndex):
@@ -247,6 +282,17 @@ class Context:
                     self.caretIndex = countCharacters(indexTextInfo)
                     return
         raise RuntimeError("Could not find textInfo in this context.")
+
+    def __str__(self):
+        result = ""
+        for i in xrange(len(self.texts)):
+            text = self.texts[i]
+            if i == self.current:
+                prefix = "@%d" % self.caretIndex
+            else:
+                prefix = "."
+            result += "%s %s\n" % (prefix, text)
+        return result
 
 def re_grp(s):
     """Wraps a string with a non-capturing group for use in regular expressions."""
@@ -352,6 +398,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return result
 
     def findCurrentSentence(self, context, regex):
+        if debug:
+            mylog("findCurrentSentence\n %s" % context)
         texts = context.texts
         tis = context.textInfos
         n = len(texts)
@@ -426,8 +474,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         else:
             cindex = 0
             method = "startToStart"
-
+        counter = 0
         while True:
+            counter += 1
+            if counter > 1000:
+                raise RuntimeError("Infinite loop detected.")
             sentenceStr, ti = self.findCurrentSentence(context, regex)
             if ti.compareEndPoints(context.textInfos[cindex], method) != 0:
                 return (sentenceStr, ti)
@@ -457,6 +508,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return sentenceStr, ti
         if self.getBoundaryOffset(ti, direction) != self.getBoundaryOffset(paragraph, direction):
             # Next sentence can be found within the same paragraph
+            mylog("Looking within the same paragraph.")
             if direction > 0:
                 offset = ti._endOffset
             else:
@@ -500,8 +552,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             method = "startToStart"
         if ti.compareEndPoints(context.textInfos[cindex], method) == 0:
             # We need to look for the next sentence in the next paragraph.
+            mylog("Looking in the next paragraph.")
             paragraph = context.textInfos[cindex]
+            counter = 0
             while True:
+                counter += 1
+                if counter > 1000:
+                    raise RuntimeError("Infinite loop detected.")
                 paragraph = self.nextParagraph(paragraph, direction)
                 if paragraph is None:
                     self.chimeNoNextSentence(errorMsg)
@@ -519,6 +576,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         else:
             # Next sentence can be found in the same context
             # At least its beginning or ending - that sentence will be expanded.
+            mylog("Looking in the same paragraph.")
             if direction > 0:
                 ti2 = ti.copy()
                 ti2.collapse(True) # Collapse to the end
@@ -662,10 +720,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
         textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
-        #caretOffset = textInfo._getCaretOffset()
-        #textInfo.expand(textInfos.UNIT_PARAGRAPH)
-        #caretIndex = caretOffset - textInfo._startOffset
-        caretIndex = getCaretIndex(textInfo)
+        caretIndex = getCaretIndexWithinParagraph(textInfo)
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         reconstructMode = getConfig("reconstructMode")
         sentenceStr, ti = self.moveExtended(textInfo, caretIndex, increment, regex=regex, errorMsg=errorMsg, reconstructMode=reconstructMode)
