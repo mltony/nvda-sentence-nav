@@ -478,39 +478,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 context.texts.insert(0, nextText)
                 context.current += 1
 
-    def moveSimple(self, paragraph, offset, direction, regex):
-        """Note that this function is currently not being used.
-        It is preserved as it offers a simpler control flow for those who wish to study the internals of this add-on.
-        This function is not capable of reconstructing sentences across paragraphs.
-        For more information see moveExtended()."""
-        context = Context(paragraph)
-        sentenceStr, ti = self.findCurrentSentence(context, offset, regex)
-        if direction == 0:
-            return sentenceStr, ti
-        if self.getBoundaryOffset(ti, direction) != self.getBoundaryOffset(paragraph, direction):
-            # Next sentence can be found within the same paragraph
-            mylog("Looking within the same paragraph.")
-            if direction > 0:
-                offset = ti._endOffset
-            else:
-                offset = ti._startOffset - 1
-            return self.findCurrentSentence(context, offset, regex)
-        # We need to move to previous/next paragraphs
-        self.chimeCrossParagraphBorder()
-        while True:
-            paragraph = self.nextParagraph(paragraph, direction)
-            if paragraph is None:
-                self.chimeNoNextSentence()
-                return (None, None)
-            if not speech.isBlank(paragraph.text):
-                break
-        context = Context(paragraph)
-        if direction > 0:
-            offset  = paragraph._startOffset
-        else:
-            offset = paragraph._endOffset - 1
-        return self.findCurrentSentence(context, offset, regex)
-
     def moveExtended(self, paragraph, caretIndex, direction, regex, errorMsg="Error", reconstructMode="sameIndent"):
         chimeIfAcrossParagraphs = False
         if reconstructMode == "always":
