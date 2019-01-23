@@ -437,12 +437,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def nextParagraph(self, textInfo, direction):
         ti = textInfo.copy()
-        ti.collapse()
-        result = ti.move(textInfos.UNIT_PARAGRAPH, direction)
-        if result == 0:
-            return None
-        ti.expand(textInfos.UNIT_PARAGRAPH)
-        return ti
+        # For some TextInfo implementations, such as edit control in Thunderbird we need to try twice:
+        for i in [1,2]:
+            ti.collapse()
+            result = ti.move(textInfos.UNIT_PARAGRAPH, direction)
+            if result == 0:
+                return None
+            ti.expand(textInfos.UNIT_PARAGRAPH)
+            if ti.compareEndPoints(textInfo, "startToStart") == direction:
+                return ti
+        return None
 
     def expandSentence(self, context, regex, direction, compatibilityFunc=None):
         if direction == 0:
