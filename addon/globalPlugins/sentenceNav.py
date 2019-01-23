@@ -26,10 +26,11 @@ import tones
 import ui
 import wx
 
-debug = True
+debug = False
 if debug:
     f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w")
-    def mylog(s):
+def mylog(s):
+    if debug:
         print >>f, str(s)
         f.flush()
 
