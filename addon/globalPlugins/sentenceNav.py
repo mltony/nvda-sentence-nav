@@ -316,6 +316,7 @@ def getRegex(lang):
     # 2.2.1. Common abbreviations (defined in ABBREVIATIONS ), such as Mr., Ms., Dr., etc, followed by period.
     # 2.2.2. Single letter abbreviations (defined in CAPITAL_LETTERS ), such as initials, followed by a period.
     # 3. Wide character punctuation marks (defined in CHINESE_SENTENCE_BREAKERS)
+    # 4. Two or more newline characters in a row, optionally followed by any amount of whitespaces.
 
     try:
         return regexCache[lang]
@@ -332,7 +333,7 @@ def getRegex(lang):
         regex += wikiReference + "*"
     regex += "\\s+"
     fullWidth = re_set(getConfig("fullWidthSentenceBreakers"))
-    regex = u"^|{regex}|{fullWidth}+|\\s*$".format(
+    regex = u"^|{regex}|{fullWidth}+\\s*|\n\n+\\s*|\\s*$".format(
         regex=regex,
         fullWidth=fullWidth)
     try:
@@ -386,7 +387,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         n = len(texts)
         myAssert(n == len(tis))
 
-        joinString = " "
+        joinString = "\n"
         s = joinString.join(texts)
         index = sum([len(texts[t]) for t in xrange(context.current)]) + len(joinString) * context.current + context.caretIndex
         parStartIndices = [0] # Denotes indices in s where new paragraphs start
