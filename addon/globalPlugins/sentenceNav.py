@@ -356,7 +356,7 @@ def getPhraseRegex():
     regex += re_set(getConfig("phraseBreakers")) + "+"
     regex += "\\s+"
     fullWidth = re_set(getConfig("fullWidthPhraseBreakers"))
-    regex = u"^|{regex}|{fullWidth}+|\\s*$".format(
+    regex = u"^|{regex}|{fullWidth}+\\s*|\n\n+\\s*|\\s*$".format(
         regex=regex,
         fullWidth=fullWidth)
     try:
