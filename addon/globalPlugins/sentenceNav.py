@@ -222,7 +222,8 @@ class SettingsDialog(gui.SettingsDialog):
 def countCharacters(textInfo):
     '''Counts the number of characters in this TextInfo.
     There is no good unified way to do so in NVDA, 
-    so try every possible trick in the book.'''
+    so try every possible trick in the book.
+    This function is only guaranteed to work if textInfo is contained within a single paragraph.'''
     try:
         # This works for offset-based TextInfos
         return textInfo._endOffset - textInfo._startOffset
@@ -230,11 +231,13 @@ def countCharacters(textInfo):
         pass
     try:
         # This works for some CompoundTextInfos, like in LibreOffice Writer
+        myAssert(len(list(textInfo._getTextInfos())) == 1)
         return countCharacters(list(textInfo._getTextInfos())[0])
     except AttributeError:
         pass
     try:
         # This works in edit control in Mozilla Thunderbird
+        myAssert(textInfo._start == textInfo._end)
         return countCharacters(textInfo._start)
     except AttributeError:
         pass
