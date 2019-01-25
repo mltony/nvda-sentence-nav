@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 #A part of the SentenceNav addon for NVDA
-#Copyright (C) 2018 Tony Malykh
+#Copyright (C) 2018-2019 Tony Malykh
 #This file is covered by the GNU General Public License.
 #See the file COPYING.txt for more details.
 
