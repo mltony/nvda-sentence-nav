@@ -336,9 +336,12 @@ def getRegex(lang):
         regex += wikiReference + "*"
     regex += "\\s+"
     fullWidth = re_set(getConfig("fullWidthSentenceBreakers"))
-    regex = u"^|{regex}|{fullWidth}+\\s*|\n\n+\\s*|\\s*$".format(
+    doubleNewLine = re_grp("\n\\s*")
+    doubleNewLine = "%s{2,}" % doubleNewLine
+    regex = u"^|{regex}|{fullWidth}+\\s*|{doubleNewLine}|\\s*$".format(
         regex=regex,
-        fullWidth=fullWidth)
+        fullWidth=re_grp(fullWidth),
+        doubleNewLine=re_grp(doubleNewLine))
     try:
         result = re.compile(regex , re.UNICODE)
     except:
@@ -359,9 +362,12 @@ def getPhraseRegex():
     regex += re_set(getConfig("phraseBreakers")) + "+"
     regex += "\\s+"
     fullWidth = re_set(getConfig("fullWidthPhraseBreakers"))
-    regex = u"^|{regex}|{fullWidth}+\\s*|\n\n+\\s*|\\s*$".format(
+    doubleNewLine = re_grp("\n\\s*")
+    doubleNewLine = "%s{2,}" % doubleNewLine
+    regex = u"^|{regex}|{fullWidth}+\\s*|{doubleNewLine}|\\s*$".format(
         regex=regex,
-        fullWidth=fullWidth)
+        fullWidth=re_grp(fullWidth),
+        doubleNewLine=re_grp(doubleNewLine))
     try:
         result = re.compile(regex , re.UNICODE)
     except:
@@ -386,6 +392,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if debug:
             mylog("findCurrentSentence\n %s" % context)
         texts = context.texts
+        texts = [text.replace("\n", " ").replace("\r", " ") for text in texts]
         tis = context.textInfos
         n = len(texts)
         myAssert(n == len(tis))
