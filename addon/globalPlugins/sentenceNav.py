@@ -282,14 +282,15 @@ def re_grp(s):
     """Wraps a string with a non-capturing group for use in regular expressions."""
     return "(?:%s)" % s
 
-def re_set(s):
+def re_set(s, allowRanges=False):
     """Creates a regex set of characters from a plain string."""
     # Step 1: escape special characters
     for c in "\\[]":
         s = s.replace(c, "\\" + c)
-    # Step 2. If hyphen is in the set, we need to move it to position 1.
-    if "-" in s:
-        s = "-" + s.replace("-", "")
+    if not allowRanges:
+        # Step 2. If hyphen is in the set, we need to move it to position 1.
+        if "-" in s:
+            s = "-" + s.replace("-", "")
     return "[" + s + "]"
 
 def re_escape(s):
@@ -326,7 +327,7 @@ def getRegex(lang):
     except KeyError:
         pass
     regex = u""
-    regex += nlb("\\b" + re_set(getConfig("capitalLetters", lang)))
+    regex += nlb("\\b" + re_set(getConfig("capitalLetters", lang), allowRanges=True))
     for abbr in getConfig("exceptionalAbbreviations", lang).strip().split():
         regex += nlb(re_escape(abbr))
     regex += re_set(getConfig("sentenceBreakers")) + "+"
