@@ -342,6 +342,7 @@ def getRegex(lang):
         regex=regex,
         fullWidth=re_grp(fullWidth),
         doubleNewLine=re_grp(doubleNewLine))
+    mylog("Compiling regex: " + regex.encode("UTF-8"))
     try:
         result = re.compile(regex , re.UNICODE)
     except:
