@@ -41,5 +41,3 @@ Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
 ## Downloads
 Current stable release: [SentenceNav v2.5](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.5/SentenceNav-2.5.nvda-addon)
 
-## Feedback
-If you have any questions or comments, or if you find this addon useful, please don't hesitate to contact me at anton.malykh *at* gmail.com.
