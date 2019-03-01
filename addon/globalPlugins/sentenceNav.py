@@ -602,7 +602,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         regex = getRegex(getCurrentLanguage())
         self.move(gesture, regex, 0, "")
 
-    @script(description='Move to next phrase.', gestures=['kb:Alt+Windows+DownArrow'])
+    @script(description='Move to next phrase.', gestures=['kb:Alt+Windows+DownArrow'],
+        resumeSayAllMode=sayAllHandler.CURSOR_CARET)
     def script_nextPhrase(self, gesture):
         if self.maybePassThrough(gesture):
             return
@@ -611,7 +612,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         errorMsg = _("No next phrase")
         self.move(gesture, regex, 1, errorMsg)
 
-    @script(description='Move to previous phrase.', gestures=['kb:Alt+Windows+UpArrow'])
+    @script(description='Move to previous phrase.', gestures=['kb:Alt+Windows+UpArrow'],
+        resumeSayAllMode=sayAllHandler.CURSOR_CARET)
     def script_previousPhrase(self, gesture):
         if self.maybePassThrough(gesture):
             return
