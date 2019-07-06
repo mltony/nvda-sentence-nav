@@ -38,13 +38,6 @@ def myAssert(condition):
     if not condition:
         raise RuntimeError("Assertion failed")
 
-
-def createMenu():
-    def _popupMenu(evt):
-        gui.mainFrame._popupSettingsDialog(SettingsDialog)
-    prefsMenuItem  = gui.mainFrame.sysTrayIcon.preferencesMenu.Append(wx.ID_ANY, _("SentenceNav..."))
-    gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, _popupMenu, prefsMenuItem)
-
 def initConfiguration():
     exceptionalAbbreviations = """
 {
@@ -102,7 +95,6 @@ def getCurrentLanguage():
 
 addonHandler.initTranslation()
 initConfiguration()
-createMenu()
 
 class SettingsDialog(gui.SettingsDialog):
     # Translators: Title for the settings dialog
@@ -382,6 +374,26 @@ def getPhraseRegex():
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     scriptCategory = _("SentenceNav")
 
+    def __init__(self, *args, **kwargs):
+        super(GlobalPlugin, self).__init__(*args, **kwargs)
+        self.createMenu()
+    
+    def createMenu(self):
+        def _popupMenu(evt):
+            gui.mainFrame._popupSettingsDialog(SettingsDialog)
+        self.prefsMenuItem = gui.mainFrame.sysTrayIcon.preferencesMenu.Append(wx.ID_ANY, _("SentenceNav..."))
+        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, _popupMenu, self.prefsMenuItem)
+    
+    def terminate(self):
+        prefMenu = gui.mainFrame.sysTrayIcon.preferencesMenu
+        try:
+            if wx.version().startswith("4"):
+                prefMenu.Remove(self.prefsMenuItem)
+            else:
+                prefMenu.RemoveItem(self.prefsMenuItem)
+        except:
+            pass
+    
     def splitParagraphIntoSentences(self, text, regex=None):
         if regex is None:
             regex = self.SENTENCE_END_REGEX
