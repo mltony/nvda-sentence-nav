@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: SentenceNav\n"
 "Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2018-11-30 13:36+0200\n"
-"Last-Translator: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
+"PO-Revision-Date: 2019-02-23 11:32+0200\n"
+"Last-Translator: Jani Kinnunen <janikinnunen340@gmail.com>\n"
 "Language-Team: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
@@ -18,10 +18,107 @@ msgstr ""
 "X-Generator: Poedit 1.6.11\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "SentenceNav..."
+msgstr "SentenceNav..."
+
+#. Translators: Title for the settings dialog
+msgid "SentenceNav settings"
+msgstr "SentenceNavin asetukset"
+
+#. Translators: choices inside reconstruct mode combo box
+msgid "Always"
+msgstr "Aina"
+
+msgid "Only across paragraphs with same indentation and same heading level"
+msgstr "Vain kappaleissa, joilla on sama sisennys ja otsikkotaso"
+
+msgid "Never"
+msgstr "Ei koskaan"
+
+#. Translators: Paragraph crossing chime volume
+msgid "Volume of chime when crossing paragraph border"
+msgstr "Äänimerkin voimakkuus, kun kappaleraja ylitetään"
+
+#. Translators: End of document chime volume
+msgid "Volume of chime when no more sentences available"
+msgstr "Äänimerkin voimakkuus, kun lauseita ei ole enempää"
+
+#. Checkboxes
+#. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
+msgid "Speak message when no next sentence available in the document"
+msgstr "Puhu ilmoitus, kun asiakirjassa ei ole enempää lauseita"
+
+#. Translators: speak formatted text checkbox
+msgid "Speak formatted text"
+msgstr "Puhu muotoiltu teksti"
+
+#. Reconstruct mode Combo box
+#. Translators: Label for reconstruct mode combo box
+msgid "Reconstruct sentences across multiple paragraphs when"
+msgstr "Muodosta useiden kappaleiden lauseet uudelleen"
+
+#. Regex-related checkbox
+#. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
+msgid "Take Wikipedia-style references into account"
+msgstr "Ota huomioon Wikipedia-tyyliset viittaukset"
+
+#. Regex-related edit boxes
+#. Translators: Label for sentence breakers edit box
+msgid "Sentence breakers"
+msgstr "Lauseen lopetusmerkit"
+
+#. Translators: Label for skippable punctuation marks edit box
+msgid "Skippable punctuation marks"
+msgstr "Ohitettavat välimerkit"
+
+#. Translators: Label for full width sentence breakers edit box
+msgid "Full width sentence breakers"
+msgstr "Lauseen täyden leveyden lopetusmerkit"
+
+#. Translators: Label for exceptional abbreviations edit box
+#, python-format
+msgid "Exceptional abbreviations, space separated, in language %s"
+msgstr "Välilyönnillä eroteltavat poikkeukselliset lyhenteet kielellä %s"
+
+#. Translators: Label for capital letters edit box
+#, python-format
+msgid "Capital letters with no spaces in language %s"
+msgstr "Isot kirjaimet ilman välilyöntejä kielellä %s"
+
+#. Phrase regex-related edit boxes
+#. Translators: Label for phrase breakers edit box
+msgid "Phrase breakers"
+msgstr "Virkkeen lopetusmerkki"
+
+#. Translators: Label for full width phrase breakers edit box
+msgid "Full width phrase breakers"
+msgstr "Virkkeen täyden leveyden lopetusmerkit"
+
+#. applicationsBlacklist edit
+#. Translators: Label for blacklisted applications edit box
+msgid "Disable SentenceNav in applications (comma-separated list)"
+msgstr "Poista SentenceNav käytöstä sovelluksissa (pilkulla eroteltu luettelo)"
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "SentenceNav"
+
+#. Translators: message when no next sentence available in the document
+msgid "No next sentence"
+msgstr "Ei enempää lauseita"
+
+#. Translators: message when no previous sentence available in the document
+msgid "No previous sentence"
+msgstr "Ei enempää edellisiä lauseita"
+
+#. Translators: message when no next phrase available in the document
+msgid "No next phrase"
+msgstr "Ei enempää virkkeitä"
+
+#. Translators: message when no previous phrase available in the document
+msgid "No previous phrase"
+msgstr "Ei enempää edellisiä virkkeitä"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager

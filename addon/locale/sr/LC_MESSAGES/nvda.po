@@ -8,123 +8,117 @@ msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
 "Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2019-02-23 00:02+0100\n"
-"Last-Translator: Rémy Ruiz <remyruiz@gmail.com>\n"
-"Language-Team: \n"
-"Language: fr\n"
+"PO-Revision-Date: 2019-04-22 19:57+0100\n"
+"Last-Translator: Nikola Jović <wwenikola123@gmail.com>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.12\n"
+"X-Generator: Poedit 1.6.10\n"
 
 msgid "SentenceNav..."
-msgstr "SentenceNav..."
+msgstr "Navigacija kroz rečenice..."
 
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
-msgstr "Paramètres SentenceNav"
+msgstr "Podešavanja navigacije kroz rečenice"
 
 #. Translators: choices inside reconstruct mode combo box
 msgid "Always"
-msgstr "Toujours"
+msgstr "Uvek"
 
 msgid "Only across paragraphs with same indentation and same heading level"
-msgstr ""
-"Seulement entre les paragraphes avec la même indentation et le même titre "
-"de niveau"
+msgstr "Samo po pasusima sa istim uvlačenjem ili istim nivoima naslova"
 
 msgid "Never"
-msgstr "Jamais"
+msgstr "Nikada"
 
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
-msgstr "Volume du carillon lorsque la bordure du paragraphe est franchie"
+msgstr "Jačina zvučnog signala kada se pređu granice pasusa"
 
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
-msgstr "Volume du carillon lorsqu'il n'y a plus de phrases disponibles"
+msgstr "Jačina zvučnog signala kada nema više dostupnih rečenica"
 
 #. Checkboxes
 #. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
 msgid "Speak message when no next sentence available in the document"
-msgstr ""
-"Annoncer un message lorsqu'aucune phrase suivante n'est disponible dans le "
-"document"
+msgstr "Izgovori poruku kada sledeća rečenica nije dostupna u dokumentu"
 
 #. Translators: speak formatted text checkbox
 msgid "Speak formatted text"
-msgstr "Annoncer un texte formaté"
+msgstr "Izgovori formatiran tekst"
 
 #. Reconstruct mode Combo box
 #. Translators: Label for reconstruct mode combo box
 msgid "Reconstruct sentences across multiple paragraphs when"
-msgstr "Reconstruisez des phrases sur plusieurs paragraphes lorsque"
+msgstr "Rekonstruiši rečenice između više pasusa kada"
 
 #. Regex-related checkbox
 #. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
 msgid "Take Wikipedia-style references into account"
-msgstr "Prendre en compte les références de style Wikipedia"
+msgstr "Uzmi u obzir stil referenca vikipedije"
 
 #. Regex-related edit boxes
 #. Translators: Label for sentence breakers edit box
 msgid "Sentence breakers"
-msgstr "Rupture de phrase"
+msgstr "Odvajači rečenica"
 
 #. Translators: Label for skippable punctuation marks edit box
 msgid "Skippable punctuation marks"
-msgstr "Signes de ponctuation sautables"
+msgstr "Znakovi interpunkcije koji se mogu preskočiti"
 
 #. Translators: Label for full width sentence breakers edit box
 msgid "Full width sentence breakers"
-msgstr "Rupture de phrase en pleine largeur"
+msgstr "Nove rečenice pune širine"
 
 #. Translators: Label for exceptional abbreviations edit box
 #, python-format
 msgid "Exceptional abbreviations, space separated, in language %s"
-msgstr ""
-"Abréviations exceptionnelles, séparées par des espaces, dans la langue %s"
+msgstr "Izuzetci za skraćenice, odvojene u razmacima, na jeziku %s"
 
 #. Translators: Label for capital letters edit box
 #, python-format
 msgid "Capital letters with no spaces in language %s"
-msgstr "Lettres majuscules sans espaces dans la langue %s"
+msgstr "Velika slova bez razmaka na jeziku %s"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
-msgstr "Rupture de phrase"
+msgstr "Odvajači fraza"
 
 #. Translators: Label for full width phrase breakers edit box
 msgid "Full width phrase breakers"
-msgstr "Rupture de phrase en pleine largeur"
+msgstr "Odvajači fraza pune širine"
 
 #. applicationsBlacklist edit
 #. Translators: Label for blacklisted applications edit box
 msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr ""
-"Désactiver SentenceNav dans les applications (liste séparée par des "
-"virgules)"
+"Onemogući navigaciju kroz rečenice u aplikacijama (lista se odvaja zarezima)"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
-msgstr "SentenceNav"
+msgstr "Navigacija kroz rečenice"
 
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
-msgstr "Aucune phrase suivante"
+msgstr "Nema sledeće rečenice"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
-msgstr "Aucune phrase précédente"
+msgstr "Nema prethodne rečenice"
 
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
-msgstr "Aucune phrase suivante"
+msgstr "Nema sledeće fraze"
 
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
-msgstr "Aucune phrase précédente"
+msgstr "Nema prethodne fraze"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
@@ -133,6 +127,6 @@ msgid ""
 "SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
 "opposed to by paragraphs or words."
 msgstr ""
-"Module complémentaire de navigation par phrases.\n"
-"SentenceNav est un module complémentaire NVDA qui vous permet de lire du "
-"texte par phrases, par opposition à des paragraphes ou des mots."
+"Dodatak za navigaciju kroz rečenice.\n"
+"Ovo je dodatak koji vam omogućava da čitate tekst po rečenicama, suprotno "
+"već pruženim mogućnostima čitanja po rečima i pasusima."

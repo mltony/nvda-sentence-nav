@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
 "Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2018-12-09 11:50+0200\n"
+"PO-Revision-Date: 2019-06-20 10:09+0200\n"
 "Last-Translator: shmuel naaman <shmuel_naaman@yahoo.com>\n"
 "Language-Team: Shmuel Naaman <nvda.israel@gmail.com>\n"
 "Language: he\n"
@@ -17,10 +17,107 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.6.10\n"
 
+msgid "SentenceNav..."
+msgstr "SentenceNav"
+
+#. Translators: Title for the settings dialog
+msgid "SentenceNav settings"
+msgstr "הגדרות "
+
+#. Translators: choices inside reconstruct mode combo box
+msgid "Always"
+msgstr "תמיד"
+
+msgid "Only across paragraphs with same indentation and same heading level"
+msgstr "רק משפטים באותה רמת כניסה ובאותה רמה של כותרת"
+
+msgid "Never"
+msgstr "Never"
+
+#. Translators: Paragraph crossing chime volume
+msgid "Volume of chime when crossing paragraph border"
+msgstr "עוצמת הצליל כשחוצים גבולות פיסקה"
+
+#. Translators: End of document chime volume
+msgid "Volume of chime when no more sentences available"
+msgstr "עוצמת הצליל כשאין עוד משפט במסמך"
+
+#. Checkboxes
+#. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
+msgid "Speak message when no next sentence available in the document"
+msgstr "הכרז כשאין משפט קודם או הבא במסמך"
+
+#. Translators: speak formatted text checkbox
+msgid "Speak formatted text"
+msgstr "הקרא טקסט עם העיצוב שלו"
+
+#. Reconstruct mode Combo box
+#. Translators: Label for reconstruct mode combo box
+msgid "Reconstruct sentences across multiple paragraphs when"
+msgstr "האם לקחת בחשבון משפטים הפרוסים על כמה פסקאות "
+
+#. Regex-related checkbox
+#. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
+msgid "Take Wikipedia-style references into account"
+msgstr "האם להתייחס לסמני הפרדה שלWikiPidia "
+
+#. Regex-related edit boxes
+#. Translators: Label for sentence breakers edit box
+msgid "Sentence breakers"
+msgstr "ממסמני חיתוך משפטים"
+
+#. Translators: Label for skippable punctuation marks edit box
+msgid "Skippable punctuation marks"
+msgstr "סימני פיסוק ניתנים לדילוג"
+
+#. Translators: Label for full width sentence breakers edit box
+msgid "Full width sentence breakers"
+msgstr "מפריד רוחב מלא"
+
+#. Translators: Label for exceptional abbreviations edit box
+#, python-format
+msgid "Exceptional abbreviations, space separated, in language %s"
+msgstr "קיצורים יוצאי דופן, מופרדים ברווח, בשפה %s"
+
+#. Translators: Label for capital letters edit box
+#, python-format
+msgid "Capital letters with no spaces in language %s"
+msgstr "אותיות רשיות ללא רווח בשפה %s"
+
+#. Phrase regex-related edit boxes
+#. Translators: Label for phrase breakers edit box
+msgid "Phrase breakers"
+msgstr "סמני סוףחיתוך פסוקית"
+
+#. Translators: Label for full width phrase breakers edit box
+msgid "Full width phrase breakers"
+msgstr "סימנים המסמנים הפסקת משפט"
+
+#. applicationsBlacklist edit
+#. Translators: Label for blacklisted applications edit box
+msgid "Disable SentenceNav in applications (comma-separated list)"
+msgstr "השבת את התוסף ביישומים הבאים (comma-separated list)"
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "SentenceNav"
+
+#. Translators: message when no next sentence available in the document
+msgid "No next sentence"
+msgstr "אין משפט הבא"
+
+#. Translators: message when no previous sentence available in the document
+msgid "No previous sentence"
+msgstr "אין משפט קודם"
+
+#. Translators: message when no next phrase available in the document
+msgid "No next phrase"
+msgstr "אין פסוקית נוספתאין פסוקית נוספת"
+
+#. Translators: message when no previous phrase available in the document
+msgid "No previous phrase"
+msgstr "אין פסוקית קודמת"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
