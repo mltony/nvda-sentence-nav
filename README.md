@@ -39,5 +39,6 @@ Phrase detection is performed by another regular expression, that matches:
 Source code is available at <http://github.com/mltony/nvda-sentence-nav>.
 
 ## Downloads
-Current stable release: [SentenceNav v2.5](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.5/SentenceNav-2.5.nvda-addon)
+* Current stable version: [SentenceNav](https://github.com/mltony/nvda-sentence-nav/releases/latest/download/SentenceNav.nvda-addon)
+* Last Python 2 version (compatible with NVDA 2019.2 and prior): [SentenceNav v2.5](https://github.com/mltony/nvda-sentence-nav/releases/download/v2.5/SentenceNav-2.5.nvda-addon)
 
