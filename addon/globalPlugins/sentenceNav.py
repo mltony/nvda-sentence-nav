@@ -72,8 +72,6 @@ def initConfiguration():
 
 def getConfig(key, lang=None):
     value = config.conf["sentencenav"][key]
-    if isinstance(value, str):
-        value = unicode(value.decode("UTF-8"))
     if lang is None:
         return value
     dictionary = json.loads(value)
@@ -84,10 +82,9 @@ def getConfig(key, lang=None):
 
 def setConfig(key, value, lang):
     fullValue = config.conf["sentencenav"][key]
-    fullValue = unicode(fullValue.decode("UTF-8"))
     dictionary = json.loads(fullValue)
     dictionary[lang] = value
-    config.conf["sentencenav"][key] = json.dumps(dictionary).encode("UTF-8")
+    config.conf["sentencenav"][key] = json.dumps(dictionary)
 
 def getCurrentLanguage():
     s = speech.getCurrentLanguage()
@@ -249,7 +246,7 @@ class Context:
         self.current = 0 # Index of current paragraph
 
     def find(self, textInfo, which="start"):
-        for i in xrange(len(self.textInfos)):
+        for i in range(len(self.textInfos)):
             if textInfo.compareEndPoints(self.textInfos[i], which + "ToStart") >= 0:
                 if textInfo.compareEndPoints(self.textInfos[i], which + "ToEnd") < 0:
                     self.current = i
@@ -261,7 +258,7 @@ class Context:
 
     def __str__(self):
         result = ""
-        for i in xrange(len(self.texts)):
+        for i in range(len(self.texts)):
             text = self.texts[i]
             if i == self.current:
                 prefix = "@%d" % self.caretIndex
@@ -335,7 +332,7 @@ def getRegex(lang):
         regex=regex,
         fullWidth=re_grp(fullWidth),
         doubleNewLine=re_grp(doubleNewLine))
-    mylog("Compiling regex: " + regex.encode("UTF-8"))
+    mylog("Compiling regex: " + regex)
     try:
         result = re.compile(regex , re.UNICODE)
     except:
@@ -413,9 +410,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
         joinString = "\n"
         s = joinString.join(texts)
-        index = sum([len(texts[t]) for t in xrange(context.current)]) + len(joinString) * context.current + context.caretIndex
+        index = sum([len(texts[t]) for t in range(context.current)]) + len(joinString) * context.current + context.caretIndex
         parStartIndices = [0] # Denotes indices in s where new paragraphs start
-        for i in xrange(1, n):
+        for i in range(1, n):
             parStartIndices.append(parStartIndices[i-1] + len(texts[i-1]) + len(joinString))
         boundaries = self.splitParagraphIntoSentences(s, regex=regex)
         # Find the first index in boundaries that is strictly greater than index
@@ -644,7 +641,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def maybePassThrough(self, gesture):
         focus = api.getFocusObject()
         appName = focus.appModule.appName
-        if unicode(appName.lower()) in getConfig("applicationsBlacklist").lower().strip().split(","):
+        if appName.lower() in getConfig("applicationsBlacklist").lower().strip().split(","):
             gesture.send()
             return True
         return False
@@ -740,16 +737,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             bufSize -= (bufSize % intSize)
         tones.player.stop()
         bbs = []
-        result = [0] * (bufSize/intSize)
+        result = [0] * (bufSize//intSize)
         for freq in freqs:
             buf = ctypes.create_string_buffer(bufSize)
             NVDAHelper.generateBeep(buf, freq, beepLen, right, left)
             bytes = bytearray(buf)
-            unpacked = struct.unpack("<%dQ" % (bufSize / intSize), bytes)
+            unpacked = struct.unpack("<%dQ" % (bufSize // intSize), bytes)
             result = map(operator.add, result, unpacked)
         maxInt = 1 << (8 * intSize)
         result = map(lambda x : x %maxInt, result)
-        packed = struct.pack("<%dQ" % (bufSize / intSize), *result)
+        packed = struct.pack("<%dQ" % (bufSize // intSize), *result)
         tones.player.feed(packed)
 
     def uniformSample(self, a, m):
@@ -758,8 +755,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return a
         # Here assume n > m
         result = []
-        for i in xrange(0, m*n, n):
-            result.append(a[i  / m])
+        for i in range(0, m*n, n):
+            result.append(a[i // m])
         return result
 
     BASE_FREQ = speech.IDT_BASE_FREQUENCY
@@ -769,7 +766,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     BEEP_LEN = 10 # millis
     PAUSE_LEN = 5 # millis
     MAX_CRACKLE_LEN = 400 # millis
-    MAX_BEEP_COUNT = MAX_CRACKLE_LEN / (BEEP_LEN + PAUSE_LEN)
+    MAX_BEEP_COUNT = MAX_CRACKLE_LEN // (BEEP_LEN + PAUSE_LEN)
 
     def fancyCrackle(self, levels):
         levels = self.uniformSample(levels, self.MAX_BEEP_COUNT )
