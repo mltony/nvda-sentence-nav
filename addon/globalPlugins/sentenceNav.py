@@ -695,7 +695,11 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
-        textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
+        try:
+            textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
+        except NotImplementedError:
+            gesture.send()
+            return
         caretIndex = getCaretIndexWithinParagraph(textInfo)
         textInfo.expand(textInfos.UNIT_PARAGRAPH)
         reconstructMode = getConfig("reconstructMode")
