@@ -28,10 +28,10 @@ import wx
 
 debug = False
 if debug:
-    f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w")
+    f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w", encoding="utf-8")
 def mylog(s):
     if debug:
-        print >>f, str(s)
+        print(str(s), file=f)
         f.flush()
 
 def myAssert(condition):
@@ -214,8 +214,11 @@ def countCharacters(textInfo):
     so try every possible trick in the book.
     This function is only guaranteed to work if textInfo is contained within a single paragraph.'''
     try:
-        # This works for offset-based TextInfos
-        return textInfo._endOffset - textInfo._startOffset
+        # This used to work for offset-based TextInfos
+        # Probably migration to Python 3 broke the way it works with unicode characters, since now it looks at byte offsets, and every unicode character increases the offset by 2.
+        #return textInfo._endOffset - textInfo._startOffset
+        # Well, let's try an alternative:
+        return len(textInfo.text)
     except AttributeError:
         pass
     try:
@@ -415,20 +418,27 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         for i in range(1, n):
             parStartIndices.append(parStartIndices[i-1] + len(texts[i-1]) + len(joinString))
         boundaries = self.splitParagraphIntoSentences(s, regex=regex)
+        if debug:
+            mylog(f"Index={index} Boundaries: {boundaries}")
         # Find the first index in boundaries that is strictly greater than index
         j = bisect.bisect_right(boundaries, index)
         i = j - 1
         # At this point boundaries[i] and boundaries[j] represent
         # the boundaries of the current sentence.
+                
         if len(boundaries) == 1:
             # This must be an empty context/paragraph
             # j points to out of boundaries
+            if debug:
+                mylog(f"len(boundaries) == 1, therefore, must be empty context and j={j} points out of boundaries")
             t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
             t1 = tis[t1i].copy()
             t1.expand(textInfos.UNIT_PARAGRAPH)
             return (t1.text, t1)
         if j == len(boundaries):
             # This can happen if the cursor is at the very last position in the document
+            if debug:
+                mylog(f"j == len(boundaries) - This can happen if the cursor is at the very last position in the document")
             ti = tis[-1].copy()
             ti.collapse()
             moveDistance = boundaries[i] - parStartIndices[-1]
@@ -436,6 +446,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             ti.setEndPoint(tis[-1], "endToEnd")
             return ("", ti)
         sentenceStr = s[boundaries[i]:boundaries[j]]
+        if debug:
+            mylog(f"Current sentence: '{sentenceStr}'")
 
         t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
         t1 = tis[t1i].copy()
