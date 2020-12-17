@@ -26,7 +26,7 @@ import tones
 import ui
 import wx
 
-debug = True
+debug = False
 if debug:
     f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w", encoding="utf-8")
 def mylog(s):
@@ -51,7 +51,12 @@ def initConfiguration():
     "ru": "А-Я"
 }
 """.replace("\n", " ")
-
+    lowerCaseLetters = """
+{
+    "en": "a-z",
+    "ru": "а-я"
+}
+""".replace("\n", " ")
     confspec = {
         "paragraphChimeVolume" : "integer( default=5, min=0, max=100)",
         "noNextSentenceChimeVolume" : "integer( default=50, min=0, max=100)",
@@ -64,6 +69,7 @@ def initConfiguration():
         "skippable" : "string( default='\"”’»)')",
         "exceptionalAbbreviations" : "string( default='%s')" % exceptionalAbbreviations,
         "capitalLetters" : "string( default='%s')" % capitalLetters,
+        "lowerCaseLetters" : "string( default='%s')" % lowerCaseLetters,
         "phraseBreakers" : "string( default='.!?,;:-–()')",
         "fullWidthPhraseBreakers" : "string( default='。！？，；：（）')",
         "applicationsBlacklist" : "string( default='audacity,excel')",
@@ -164,14 +170,18 @@ class SettingsDialog(gui.SettingsDialog):
 
       # Regex-related language-specific edit boxes
         lang = self.lang = getCurrentLanguage()
-        # Translators: Label for exceptional abbreviations edit box
+      # Translators: Label for exceptional abbreviations edit box
         label = _("Exceptional abbreviations, space separated, in language %s") % lang
         self.exceptionalAbbreviationsEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
         self.exceptionalAbbreviationsEdit.Value = getConfig("exceptionalAbbreviations", lang)
-        # Translators: Label for capital letters edit box
+      # Translators: Label for capital letters edit box
         label = _("Capital letters with no spaces in language %s") % lang
         self.capitalLettersEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
         self.capitalLettersEdit.Value = getConfig("capitalLetters", lang)
+      # Translators: Label for lower case letters edit box
+        label = _("Lower case letters with no spaces in language %s") % lang
+        self.lowerCaseLettersEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
+        self.lowerCaseLettersEdit.Value = getConfig("lowerCaseLetters", lang)
 
       # Phrase regex-related edit boxes
         # Translators: Label for phrase breakers edit box
@@ -199,6 +209,7 @@ class SettingsDialog(gui.SettingsDialog):
         config.conf["sentencenav"]["fullWidthSentenceBreakers"] = self.fullWidthSentenceBreakersEdit.Value
         setConfig("exceptionalAbbreviations", self.exceptionalAbbreviationsEdit.Value, self.lang)
         setConfig("capitalLetters", self.capitalLettersEdit.Value, self.lang)
+        setConfig("lowerCaseLetters", self.lowerCaseLettersEdit.Value, self.lang)
         config.conf["sentencenav"]["phraseBreakers"] = self.phraseBreakersEdit.Value
         config.conf["sentencenav"]["fullWidthPhraseBreakers"] = self.fullWidthPhraseBreakersEdit.Value
         config.conf["sentencenav"]["applicationsBlacklist"] = self.applicationsBlacklistEdit.Value
@@ -384,6 +395,9 @@ def nlb(s):
     It also adds a positive look-ahead to make sure that such an expression is followed by a period, as opposed to
     other sentence breakers, such as question or exclamation mark."""
     return u"(?<!" + s + u"(?=[.]))"
+def nla(s):
+    """Forms a negative look-ahead regexp clause to prevent for example lower-case letters."""
+    return f"(?!{s})"
 
 regexCache = {}
 
@@ -401,6 +415,8 @@ def getRegex(lang):
     # 2.2.2. Single letter abbreviations (defined in CAPITAL_LETTERS ), such as initials, followed by a period.
     # 3. Wide character punctuation marks (defined in CHINESE_SENTENCE_BREAKERS)
     # 4. Two or more newline characters in a row, optionally followed by any amount of whitespaces.
+    # One additional condition is that if the separator is period, then
+    # we check that it is not followed by a few spaces and then a lower case letter.
 
     try:
         return regexCache[lang]
@@ -409,13 +425,28 @@ def getRegex(lang):
     regex = u""
     regex += nlb("\\b" + re_set(getConfig("capitalLetters", lang), allowRanges=True))
     for abbr in getConfig("exceptionalAbbreviations", lang).strip().split():
-        regex += nlb(re_escape(abbr))
-    regex += re_set(getConfig("sentenceBreakers")) + "+"
-    regex += re_set(getConfig("skippable")) + "*"
-    if getConfig("breakOnWikiReferences"):
-        wikiReference = re_grp("\\[[\\w\\s]+\\]")
-        regex += wikiReference + "*"
-    regex += "\\s+"
+        regex += nlb(re_escape(abbr))        
+    breakers = getConfig("sentenceBreakers")
+    if "." in breakers:
+        breakers = [
+            breakers.replace(".", ""),
+            "."
+        ]
+    else:
+        breakers = [breakers]
+    rrr = []
+    for bi in range(len(breakers)):
+        rr = re_set(breakers[bi]) + "+"
+        rr += re_set(getConfig("skippable")) + "*"
+        if getConfig("breakOnWikiReferences"):
+            wikiReference = re_grp("\\[[\\w\\s]+\\]")
+            rr += wikiReference + "*"
+        rr += "\\s+"
+        if bi == 1:
+            # Here we handle lower case letters only after period as breaker
+            rr += nla(re_set(getConfig("lowerCaseLetters", lang), allowRanges=True))
+        rrr.append(rr)
+    regex +=re_grp("|".join(rrr))
     fullWidth = re_set(getConfig("fullWidthSentenceBreakers"))
     doubleNewLine = re_grp("\n\\s*")
     doubleNewLine = "%s{2,}" % doubleNewLine
