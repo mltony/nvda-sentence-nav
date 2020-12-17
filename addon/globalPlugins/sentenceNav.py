@@ -296,33 +296,52 @@ class Context:
     def makeTextInfo(self, paragraphInfo, offset):
         index = self.textInfos.index(paragraphInfo)
         if index != self.current or self.caretInfo is None:
-            #mylog(f"Plain MakeTextInfo: moving by {offset}")
+            mylog(f"Plain MakeTextInfo: moving by {offset}")
             info = paragraphInfo.copy()
-            #mylog(f"{info._startOffset}")
+            text = self.texts[index]
+            if len(text) == offset:
+                # We need to move to the very end. However some textInfos won't allow us
+                # to do so, e.g. Thunderbird. Besides it would be slow anyway.
+                # So try to collapse to the end instead.
+                info.collapse(end=True)
+                mylog("Collapsed to the end since offset={offset} = len(text)!")
+                return info
+            mylog(f"{info._startOffset}")
             info.collapse()
-            #mylog(f"{info._startOffset}")
-            info.move(textInfos.UNIT_CHARACTER, offset)
-            #mylog(f"{info._startOffset}")
+            mylog(f"{info._startOffset}")
+            result = info.move(textInfos.UNIT_CHARACTER, offset)
+            if (offset > 0) and (result == 0):
+                raise Exception("Unexpected! Failed to move!")
+            mylog(f"{info._startOffset}")
             return info
         # optimization: if we are in our current paragraph, compute off of caret textInfo
-        #mylog(f"Optimized MakeTextInfo: moving by {offset} - {self.caretIndex}")
+        mylog(f"Optimized MakeTextInfo: moving by {offset} - {self.caretIndex}")
         info = self.caretInfo.copy()
         info.move(textInfos.UNIT_CHARACTER, offset - self.caretIndex)
         return info
 
     def makeSentenceInfo(self, startTi, startOffset, endTi, endOffset):
         start = self.makeTextInfo(startTi, startOffset)
-        #mylog(f"start._startOffset={start._startOffset}")
+        mylog(f"start._startOffset={start._startOffset}")
         end = self.makeTextInfo(endTi, endOffset)
-        #mylog(f"end._startOffset={end._startOffset}")
+        mylog(f"end._startOffset={end._startOffset}")
         start.setEndPoint(end, "endToEnd")
-        #mylog(f"start._startOffset={start._startOffset} start._endOffset={start._endOffset}")
+        mylog(f"start._startOffset={start._startOffset} start._endOffset={start._endOffset}")
         return start
 
     def isTouchingBoundary(self,direction, startTi, startOffset, endTi, endOffset):
         # When moving forward we need to compare if the end of the sentence coincides with the end of the context.
         # If this is the case, we might want to expand context, just to check whetehr the sentence might continue in the next paragraph.
         # Or similarly, when moving backward, comparing to the beginning of the context.
+        if debug:
+            mylog(f"isTouchingBoundary({startOffset}, {endOffset})")
+            mylog(f"startTi: {startTi.text}")
+            mylog(f"endTi: {endTi.text}")
+            c1 = endTi == self.textInfos[-1]
+            c2 =  endOffset == len(self.texts[-1])
+            c3 = startTi == self.textInfos[0]
+            c4 =  startOffset == 0
+            mylog(f"{c1} {c2} {c3} {c4}")
         if (
             (
                 direction > 0
@@ -338,8 +357,10 @@ class Context:
                 )
             )
         ):
+            mylog(f"isTouchingBoundary=True!")
             return True
         else:
+            mylog(f"isTouchingBoundary=False!")
             return False
             
     def findByOffset(self, paragraphInfo, offset):
@@ -545,6 +566,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
         joinString = "\n"
         s = joinString.join(texts)
+        mylog(f"s='{s}'")
         index = sum([len(texts[t]) for t in range(context.current)]) + len(joinString) * context.current + context.caretIndex
         parStartIndices = [0] # Denotes indices in s where new paragraphs start
         for i in range(1, n):
@@ -744,6 +766,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             #        break
         info = context.makeSentenceInfo(startTi2, startOffset2, endTi2, endOffset2)
         if debug:
+            mylog(f"MoveExtended result string: {sentenceStr2}")
             mylog(f"MoveExtended result: {info.text}")
         return sentenceStr2, info
 
