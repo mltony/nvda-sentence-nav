@@ -73,6 +73,7 @@ def initConfiguration():
         "phraseBreakers" : "string( default='.!?,;:-–()')",
         "fullWidthPhraseBreakers" : "string( default='。！？，；：（）')",
         "applicationsBlacklist" : "string( default='audacity,excel')",
+        "enableInWord" : "boolean( default=False)",
     }
     config.conf.spec["sentencenav"] = confspec
 
@@ -194,6 +195,11 @@ class SettingsDialog(gui.SettingsDialog):
         # Translators: Label for blacklisted applications edit box
         self.applicationsBlacklistEdit = gui.guiHelper.LabeledControlHelper(self, _("Disable SentenceNav in applications (comma-separated list)"), wx.TextCtrl).control
         self.applicationsBlacklistEdit.Value = getConfig("applicationsBlacklist")
+      # Enable in MS Word
+        # Translators: Checkbox that enables support for MS Word
+        label = _("Enable experimental support for Microsoft Word and WordPad (overrides default NVDA functionality)")
+        self.enableInWordCheckbox = sHelper.addItem(wx.CheckBox(self, label=label))
+        self.enableInWordCheckbox.Value = getConfig("enableInWord")
 
 
 
@@ -213,12 +219,20 @@ class SettingsDialog(gui.SettingsDialog):
         config.conf["sentencenav"]["phraseBreakers"] = self.phraseBreakersEdit.Value
         config.conf["sentencenav"]["fullWidthPhraseBreakers"] = self.fullWidthPhraseBreakersEdit.Value
         config.conf["sentencenav"]["applicationsBlacklist"] = self.applicationsBlacklistEdit.Value
+        config.conf["sentencenav"]["enableInWord"] = self.enableInWordCheckbox.Value
 
         regexCache.clear()
         phraseRegex = None
         super(SettingsDialog, self).onOk(evt)
 
 
+def sign(x):
+    if x > 0:
+        return 1
+    elif x < 0:
+        return -1
+    else:
+        return 0
 def countCharacters(textInfo):
     '''Counts the number of characters in this TextInfo.
     There is no good unified way to do so in NVDA,
@@ -282,27 +296,27 @@ class Context:
     def makeTextInfo(self, paragraphInfo, offset):
         index = self.textInfos.index(paragraphInfo)
         if index != self.current or self.caretInfo is None:
-            mylog(f"Plain MakeTextInfo: moving by {offset}")
+            #mylog(f"Plain MakeTextInfo: moving by {offset}")
             info = paragraphInfo.copy()
-            mylog(f"{info._startOffset}")
+            #mylog(f"{info._startOffset}")
             info.collapse()
-            mylog(f"{info._startOffset}")
+            #mylog(f"{info._startOffset}")
             info.move(textInfos.UNIT_CHARACTER, offset)
-            mylog(f"{info._startOffset}")
+            #mylog(f"{info._startOffset}")
             return info
         # optimization: if we are in our current paragraph, compute off of caret textInfo
-        mylog(f"Optimized MakeTextInfo: moving by {offset} - {self.caretIndex}")
+        #mylog(f"Optimized MakeTextInfo: moving by {offset} - {self.caretIndex}")
         info = self.caretInfo.copy()
         info.move(textInfos.UNIT_CHARACTER, offset - self.caretIndex)
         return info
 
     def makeSentenceInfo(self, startTi, startOffset, endTi, endOffset):
         start = self.makeTextInfo(startTi, startOffset)
-        mylog(f"start._startOffset={start._startOffset}")
+        #mylog(f"start._startOffset={start._startOffset}")
         end = self.makeTextInfo(endTi, endOffset)
-        mylog(f"end._startOffset={end._startOffset}")
+        #mylog(f"end._startOffset={end._startOffset}")
         start.setEndPoint(end, "endToEnd")
-        mylog(f"start._startOffset={start._startOffset} start._endOffset={start._endOffset}")
+        #mylog(f"start._startOffset={start._startOffset} start._endOffset={start._endOffset}")
         return start
 
     def isTouchingBoundary(self,direction, startTi, startOffset, endTi, endOffset):
@@ -600,16 +614,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return (sentenceStr, t1, t1offset, t2, t2offset)
 
     def nextParagraph(self, textInfo, direction):
+        mylog(f"nextParagraph direction={direction}")
         ti = textInfo.copy()
         # For some TextInfo implementations, such as edit control in Thunderbird we need to try twice:
         for i in [1,2]:
+            mylog(f"nextParagraph i={i}")
             ti.collapse()
             result = ti.move(textInfos.UNIT_PARAGRAPH, direction)
             if result == 0:
+                mylog(f"nextParagraph result == 0")
                 return None
             ti.expand(textInfos.UNIT_PARAGRAPH)
-            if ti.compareEndPoints(textInfo, "startToStart") == direction:
+            if sign(ti.compareEndPoints(textInfo, "startToStart")) == sign(direction):
+                mylog(f"NextPara compare end points successful!")
                 return ti
+        mylog(f"nextParagraph failed after two loops.")
         return None
 
     def expandSentence(self, context, regex, direction, compatibilityFunc=None):
@@ -824,14 +843,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
     def move(self, gesture, regex, increment, errorMsg):
         focus = api.getFocusObject()
-        if (
+        if not getConfig("enableInWord") and  (
             isinstance(focus, winword.WordDocument)
             or (
                 "Dynamic_IAccessibleRichEdit" in str(type(focus))
                 and  hasattr(focus, "script_caret_nextSentence")
                 and hasattr(focus, "script_caret_previousSentence")
-                )
-            ):
+            )
+        ):
             if increment > 0:
                 focus.script_caret_nextSentence(gesture)
             elif increment < 0:
@@ -861,7 +880,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if ti is None:
             return
         if increment != 0:
-            ti.updateCaret()
+            newCaret = ti.copy()
+            newCaret.collapse()
+            newCaret.updateCaret()
         if willSayAllResume(gesture):
             return
         if getConfig("speakFormatted"):
