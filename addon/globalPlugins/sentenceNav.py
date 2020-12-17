@@ -26,7 +26,7 @@ import tones
 import ui
 import wx
 
-debug = False
+debug = True
 if debug:
     f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w", encoding="utf-8")
 def mylog(s):
@@ -210,7 +210,7 @@ class SettingsDialog(gui.SettingsDialog):
 
 def countCharacters(textInfo):
     '''Counts the number of characters in this TextInfo.
-    There is no good unified way to do so in NVDA, 
+    There is no good unified way to do so in NVDA,
     so try every possible trick in the book.
     This function is only guaranteed to work if textInfo is contained within a single paragraph.'''
     try:
@@ -238,17 +238,104 @@ def countCharacters(textInfo):
 def getCaretIndexWithinParagraph(caretTextInfo):
     paragraphTextInfo = caretTextInfo.copy()
     paragraphTextInfo.expand(textInfos.UNIT_PARAGRAPH)
-    paragraphTextInfo.setEndPoint(caretTextInfo, "endToStart")
-    return countCharacters(paragraphTextInfo)
+    preInfo = paragraphTextInfo.copy()
+    preInfo.setEndPoint(caretTextInfo, "endToStart")
+    # For optimization return paragraphTextInfo, since it will be needed later
+    return (countCharacters(preInfo), paragraphTextInfo)
+
+def preprocessNewLines(s):
+    s = s.replace("\r\n", "\n") # Fix for Notepad++
+    s = s.replace("\r", "\n") # Fix for AkelPad
+    return s.replace("\n", " ")
 
 class Context:
-    def __init__(self, textInfo, caretIndex):
-        self.texts = [textInfo.text]
+    def __init__(self, textInfo, caretIndex, caretInfo=None):
+        self.texts = [preprocessNewLines(textInfo.text)]
         self.textInfos = [textInfo]
         self.caretIndex = caretIndex # Caret index within current paragraph, zero-based
+        self.caretInfo = caretInfo # collapsed textInfo representing caret
         self.current = 0 # Index of current paragraph
+    def addParagraph(self, index, textInfo):
+        mylog(f"Inserting new para at index={index}")
+        mylog(f"Before texts={self.texts}")
+        if index >= 0:
+            self.textInfos.insert(index, textInfo)
+            self.texts.insert(index, preprocessNewLines(textInfo.text))
+        else:
+            self.textInfos.append(textInfo)
+            self.texts.append(preprocessNewLines(textInfo.text))
+        mylog(f"texts={self.texts}")
+        if (index >= 0) and (self.current >= index):
+            self.current += 1
 
-    def find(self, textInfo, which="start"):
+    def makeTextInfo(self, paragraphInfo, offset):
+        index = self.textInfos.index(paragraphInfo)
+        if index != self.current or self.caretInfo is None:
+            mylog(f"Plain MakeTextInfo: moving by {offset}")
+            info = paragraphInfo.copy()
+            mylog(f"{info._startOffset}")
+            info.collapse()
+            mylog(f"{info._startOffset}")
+            info.move(textInfos.UNIT_CHARACTER, offset)
+            mylog(f"{info._startOffset}")
+            return info
+        # optimization: if we are in our current paragraph, compute off of caret textInfo
+        mylog(f"Optimized MakeTextInfo: moving by {offset} - {self.caretIndex}")
+        info = self.caretInfo.copy()
+        info.move(textInfos.UNIT_CHARACTER, offset - self.caretIndex)
+        return info
+
+    def makeSentenceInfo(self, startTi, startOffset, endTi, endOffset):
+        start = self.makeTextInfo(startTi, startOffset)
+        mylog(f"start._startOffset={start._startOffset}")
+        end = self.makeTextInfo(endTi, endOffset)
+        mylog(f"end._startOffset={end._startOffset}")
+        start.setEndPoint(end, "endToEnd")
+        mylog(f"start._startOffset={start._startOffset} start._endOffset={start._endOffset}")
+        return start
+
+    def isTouchingBoundary(self,direction, startTi, startOffset, endTi, endOffset):
+        # When moving forward we need to compare if the end of the sentence coincides with the end of the context.
+        # If this is the case, we might want to expand context, just to check whetehr the sentence might continue in the next paragraph.
+        # Or similarly, when moving backward, comparing to the beginning of the context.
+        if (
+            (
+                direction > 0
+                and  (
+                    endTi == self.textInfos[-1]
+                    and endOffset == len(self.texts[-1])
+                )
+            ) or (
+                direction < 0
+                and  (
+                    startTi == self.textInfos[0]
+                    and startOffset == 0
+                )
+            )
+        ):
+            return True
+        else:
+            return False
+            
+    def findByOffset(self, paragraphInfo, offset):
+        # Sets caret position according to paragraph and offset within paragraph
+        index = self.textInfos.index(paragraphInfo)
+        if offset < 0:
+            # Special case, we would like to move back one character and so we need to jump to the previous paragraph
+            if index == 0:
+                raise Exception("Impossible!")
+            self.current = index - 1
+            self.caretIndex = len(self.texts[index-1]) - 1
+            self.caretInfo = None
+        else:
+            self.current = index
+            self.caretIndex = offset
+            self.caretInfo = None
+
+    def find(self, textInfo):
+        # Finds textInfo and sets it as current caret, updating internal variables accordingly
+        # textInfo must be a collapsed info!
+        which="start"
         for i in range(len(self.textInfos)):
             if textInfo.compareEndPoints(self.textInfos[i], which + "ToStart") >= 0:
                 if textInfo.compareEndPoints(self.textInfos[i], which + "ToEnd") < 0:
@@ -256,6 +343,7 @@ class Context:
                     indexTextInfo = self.textInfos[i].copy()
                     indexTextInfo.setEndPoint(textInfo, "endTo" + which.capitalize())
                     self.caretIndex = countCharacters(indexTextInfo)
+                    self.caretInfo = textInfo
                     return
         raise RuntimeError("Could not find textInfo in this context.")
 
@@ -377,13 +465,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def __init__(self, *args, **kwargs):
         super(GlobalPlugin, self).__init__(*args, **kwargs)
         self.createMenu()
-    
+
     def createMenu(self):
         def _popupMenu(evt):
             gui.mainFrame._popupSettingsDialog(SettingsDialog)
         self.prefsMenuItem = gui.mainFrame.sysTrayIcon.preferencesMenu.Append(wx.ID_ANY, _("SentenceNav..."))
         gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, _popupMenu, self.prefsMenuItem)
-    
+
     def terminate(self):
         prefMenu = gui.mainFrame.sysTrayIcon.preferencesMenu
         try:
@@ -393,7 +481,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 prefMenu.RemoveItem(self.prefsMenuItem)
         except:
             pass
-    
+
     def splitParagraphIntoSentences(self, text, regex=None):
         if regex is None:
             regex = self.SENTENCE_END_REGEX
@@ -406,7 +494,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if debug:
             mylog("findCurrentSentence\n %s" % context)
         texts = context.texts
-        texts = [text.replace("\n", " ").replace("\r", " ") for text in texts]
         tis = context.textInfos
         n = len(texts)
         myAssert(n == len(tis))
@@ -419,55 +506,67 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             parStartIndices.append(parStartIndices[i-1] + len(texts[i-1]) + len(joinString))
         boundaries = self.splitParagraphIntoSentences(s, regex=regex)
         if debug:
+            mylog(f"n={n}, parStartIndices={parStartIndices}")
             mylog(f"Index={index} Boundaries: {boundaries}")
+            mylog(f"[s]=[{s}]")
+            mylog(f"texts={texts}")
         # Find the first index in boundaries that is strictly greater than index
         j = bisect.bisect_right(boundaries, index)
         i = j - 1
         # At this point boundaries[i] and boundaries[j] represent
         # the boundaries of the current sentence.
-                
+
         if len(boundaries) == 1:
             # This must be an empty context/paragraph
             # j points to out of boundaries
             if debug:
                 mylog(f"len(boundaries) == 1, therefore, must be empty context and j={j} points out of boundaries")
             t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
-            t1 = tis[t1i].copy()
-            t1.expand(textInfos.UNIT_PARAGRAPH)
-            return (t1.text, t1)
+            t1 = tis[t1i]
+            return (texts[t1i], t1, 0, t1, len(texts[t1i]))
         if j == len(boundaries):
             # This can happen if the cursor is at the very last position in the document
             if debug:
                 mylog(f"j == len(boundaries) - This can happen if the cursor is at the very last position in the document")
-            ti = tis[-1].copy()
-            ti.collapse()
+            ti = tis[-1]
+            #ti.collapse()
             moveDistance = boundaries[i] - parStartIndices[-1]
-            ti.move(textInfos.UNIT_CHARACTER, moveDistance)
-            ti.setEndPoint(tis[-1], "endToEnd")
-            return ("", ti)
+            #ti.move(textInfos.UNIT_CHARACTER, moveDistance)
+            #ti.setEndPoint(tis[-1], "endToEnd")
+            #return ("", ti)
+            return ("", tis[-1], moveDistance, tis[-1], len(texts[-1]))
         sentenceStr = s[boundaries[i]:boundaries[j]]
         if debug:
             mylog(f"Current sentence: '{sentenceStr}'")
 
         t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
-        t1 = tis[t1i].copy()
-        t1.collapse()
-        t1.move(textInfos.UNIT_CHARACTER, boundaries[i] - parStartIndices[t1i])
+        t1 = tis[t1i]
+        t1offset = boundaries[i] - parStartIndices[t1i]
+        #t1.collapse()
+        #t1.move(textInfos.UNIT_CHARACTER, boundaries[i] - parStartIndices[t1i])
         t2i = bisect.bisect_right(parStartIndices, boundaries[j]) - 1
-        t2 = tis[t2i].copy()
-        moveDistance = boundaries[j] - parStartIndices[t2i]
-        if moveDistance < len(texts[t2i]):
-            t2.collapse()
-            result = t2.move(textInfos.UNIT_CHARACTER, moveDistance)
-            myAssert(result == moveDistance)
-            t1.setEndPoint(t2, "endToEnd")
-        elif moveDistance == len(texts[t2i]):
-            # Sometimes paragraphs contain an extra invisible character.
-            # We need to include it in the result textInfo, so handle this case in a special way.
-            t1.setEndPoint(t2, "endToEnd")
-        else:
-            raise RuntimeError("Unexpected condition.")
-        return (sentenceStr, t1)
+        t2 = tis[t2i]
+        t2offset = boundaries[j] - parStartIndices[t2i]
+        #moveDistance = boundaries[j] - parStartIndices[t2i]
+        if False:
+            if moveDistance < len(texts[t2i]):
+                t2.collapse()
+                result = t2.move(textInfos.UNIT_CHARACTER, moveDistance)
+                myAssert(result == moveDistance)
+                t1.setEndPoint(t2, "endToEnd")
+            elif moveDistance == len(texts[t2i]):
+                # Sometimes paragraphs contain an extra invisible character.
+                # We need to include it in the result textInfo, so handle this case in a special way.
+                t1.setEndPoint(t2, "endToEnd")
+            else:
+                raise RuntimeError("Unexpected condition.")
+        # Now we rturn:
+        # 1. String of the sentence that we identified.
+        # 2. TextInfo of the paragraph where start of the sentence happens to be
+        # 3. Offset within that textInfo, pointing at the start
+        # 4. TextInfo of the paragraph where end of the sentence happens to be.
+        # 5. offset in that textInfo pointing at the end.
+        return (sentenceStr, t1, t1offset, t2, t2offset)
 
     def nextParagraph(self, textInfo, direction):
         ti = textInfo.copy()
@@ -498,25 +597,20 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             counter += 1
             if counter > 1000:
                 raise RuntimeError("Infinite loop detected.")
-            sentenceStr, ti = self.findCurrentSentence(context, regex)
-            if ti.compareEndPoints(context.textInfos[cindex], method) != 0:
-                return (sentenceStr, ti)
+            sentenceStr, startTi, startOffset, endTi, endOffset = self.findCurrentSentence(context, regex)
+
+            #if ti.compareEndPoints(context.textInfos[cindex], method) != 0:
+            if not context.isTouchingBoundary(direction, startTi, startOffset, endTi, endOffset):
+                return (sentenceStr, startTi, startOffset, endTi, endOffset)
             nextTextInfo = self.nextParagraph(context.textInfos[cindex], direction)
             if nextTextInfo is None:
-                return (sentenceStr, ti)
+                return (sentenceStr, startTi, startOffset, endTi, endOffset)
             if compatibilityFunc is not None:
                 if not compatibilityFunc(nextTextInfo, context.textInfos[cindex]):
-                    return (sentenceStr, ti)
-            nextText = nextTextInfo.text
-            if direction > 0:
-                context.textInfos.append(nextTextInfo)
-                context.texts.append(nextText)
-            else:
-                context.textInfos.insert(0, nextTextInfo)
-                context.texts.insert(0, nextText)
-                context.current += 1
+                    return (sentenceStr, startTi, startOffset, endTi, endOffset)
+            context.addParagraph(cindex, nextTextInfo)
 
-    def moveExtended(self, paragraph, caretIndex, direction, regex, errorMsg="Error", reconstructMode="sameIndent"):
+    def moveExtended(self, context, direction, regex, errorMsg="Error", reconstructMode="sameIndent"):
         chimeIfAcrossParagraphs = False
         if reconstructMode == "always":
             compatibilityFunc = lambda x,y: True
@@ -526,17 +620,17 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             compatibilityFunc = lambda x,y: False
         else:
             raise ValueError()
-        context = Context(paragraph, caretIndex)
-        sentenceStr, ti = self.expandSentence( context, regex, direction, compatibilityFunc=compatibilityFunc)
+
+        sentenceStr, startTi, startOffset, endTi, endOffset = self.expandSentence( context, regex, direction, compatibilityFunc=compatibilityFunc)
         if direction == 0:
-            return sentenceStr, ti
+            return sentenceStr, context.makeSentenceInfo(startTi, startOffset, endTi, endOffset)
         elif direction > 0:
             cindex = -1
             method = "endToEnd"
         else:
             cindex = 0
             method = "startToStart"
-        if ti.compareEndPoints(context.textInfos[cindex], method) == 0:
+        if context.isTouchingBoundary(direction, startTi, startOffset, endTi, endOffset):
             # We need to look for the next sentence in the next paragraph.
             mylog("Looking in the next paragraph.")
             paragraph = context.textInfos[cindex]
@@ -554,37 +648,54 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.chimeCrossParagraphBorder()
             context = Context(paragraph, 0)
             if direction < 0:
-                lastPosition = paragraph.copy()
-                lastPosition.collapse(True) # collapse to the end
-                result = lastPosition.move(textInfos.UNIT_CHARACTER, -1)
-                myAssert(result != 0)
-                context.find(lastPosition)
+                #lastPosition = paragraph.copy()
+                #lastPosition.collapse(True) # collapse to the end
+                #result = lastPosition.move(textInfos.UNIT_CHARACTER, -1)
+                #myAssert(result != 0)
+                #context.find(lastPosition)
+                context.findByOffset(paragraph, len(paragraph.text) - 1)
         else:
             # Next sentence can be found in the same context
             # At least its beginning or ending - that sentence will be expanded.
             mylog("Looking in the same paragraph.")
             if direction > 0:
-                ti2 = ti.copy()
-                ti2.collapse(True) # Collapse to the end
-                context.find(ti2)
+                #ti2 = ti.copy()
+                #ti2.collapse(True) # Collapse to the end
+                #context.find(ti2)
+                context.findByOffset(endTi, endOffset)
             else:
-                ti2 = ti.copy()
-                ti2.collapse(False) # to the beginning
-                result = ti2.move(textInfos.UNIT_CHARACTER, -1)
-                myAssert(result != 0)
-                context.find(ti2)
+                #ti2 = ti.copy()
+                #ti2.collapse(False) # to the beginning
+                #result = ti2.move(textInfos.UNIT_CHARACTER, -1)
+                #myAssert(result != 0)
+                #context.find(ti2)
+                context.findByOffset(startTi, startOffset - 1)
             chimeIfAcrossParagraphs = True
-        resultSentenceStr, resultTi = self.expandSentence( context, regex, direction, compatibilityFunc=compatibilityFunc)
+        sentenceStr2, startTi2, startOffset2, endTi2, endOffset2 = self.expandSentence( context, regex, direction, compatibilityFunc=compatibilityFunc)
+        if debug:
+            mylog(f"result2: {sentenceStr2}")
+            mylog(f"start: {startOffset2} @ {startTi2.text}")
+            mylog(f"end: {endOffset2} @ {endTi2.text}")
         if  chimeIfAcrossParagraphs:
-            if ti.compareEndPoints(resultTi, "startToStart") > 0:
-                trailing = ti
-            else:
-                trailing = resultTi
-            for paragraph in context.textInfos:
-                if paragraph.compareEndPoints(trailing, "startToStart") == 0:
-                    self.chimeCrossParagraphBorder()
-                    break
-        return resultSentenceStr, resultTi
+            mylog(f"Chime? direction={direction} startOffset{startOffset} startOffset2={startOffset2}")
+            if (
+                (direction > 0 and startOffset2 == 0)
+                or (direction < 0 and startOffset == 0)
+            ):
+                mylog(f"Chime!")
+                self.chimeCrossParagraphBorder()
+            #if ti.compareEndPoints(resultTi, "startToStart") > 0:
+            #    trailing = ti
+            #else:
+            #    trailing = resultTi
+            #for paragraph in context.textInfos:
+            #    if paragraph.compareEndPoints(trailing, "startToStart") == 0:
+            #        self.chimeCrossParagraphBorder()
+            #        break
+        info = context.makeSentenceInfo(startTi2, startOffset2, endTi2, endOffset2)
+        if debug:
+            mylog(f"MoveExtended result: {info.text}")
+        return sentenceStr2, info
 
     def chimeNoNextSentence(self, errorMsg="Error"):
         volume = config.conf["sentencenav"]["noNextSentenceChimeVolume"]
@@ -657,7 +768,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             gesture.send()
             return True
         return False
-        
+
     styleFields = [
         "level",
         "font-family",
@@ -708,14 +819,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
         try:
-            textInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
+            caretInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
         except NotImplementedError:
             gesture.send()
             return
-        caretIndex = getCaretIndexWithinParagraph(textInfo)
-        textInfo.expand(textInfos.UNIT_PARAGRAPH)
+        caretIndex, paragraphInfo = getCaretIndexWithinParagraph(caretInfo)
+        context = Context(paragraphInfo, caretIndex, caretInfo)
         reconstructMode = getConfig("reconstructMode")
-        sentenceStr, ti = self.moveExtended(textInfo, caretIndex, increment, regex=regex, errorMsg=errorMsg, reconstructMode=reconstructMode)
+        sentenceStr, ti = self.moveExtended(context, increment, regex=regex, errorMsg=errorMsg, reconstructMode=reconstructMode)
         if ti is None:
             return
         if increment != 0:
