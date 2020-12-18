@@ -616,11 +616,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             if debug:
                 mylog(f"j == len(boundaries) - This can happen if the cursor is at the very last position in the document")
             ti = tis[-1]
-            #ti.collapse()
             moveDistance = boundaries[i] - parStartIndices[-1]
-            #ti.move(textInfos.UNIT_CHARACTER, moveDistance)
-            #ti.setEndPoint(tis[-1], "endToEnd")
-            #return ("", ti)
             return ("", tis[-1], moveDistance, tis[-1], len(texts[-1]))
         sentenceStr = s[boundaries[i]:boundaries[j]]
         if debug:
@@ -629,24 +625,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
         t1 = tis[t1i]
         t1offset = boundaries[i] - parStartIndices[t1i]
-        #t1.collapse()
-        #t1.move(textInfos.UNIT_CHARACTER, boundaries[i] - parStartIndices[t1i])
         t2i = bisect.bisect_right(parStartIndices, boundaries[j]) - 1
         t2 = tis[t2i]
         t2offset = boundaries[j] - parStartIndices[t2i]
-        #moveDistance = boundaries[j] - parStartIndices[t2i]
-        if False:
-            if moveDistance < len(texts[t2i]):
-                t2.collapse()
-                result = t2.move(textInfos.UNIT_CHARACTER, moveDistance)
-                myAssert(result == moveDistance)
-                t1.setEndPoint(t2, "endToEnd")
-            elif moveDistance == len(texts[t2i]):
-                # Sometimes paragraphs contain an extra invisible character.
-                # We need to include it in the result textInfo, so handle this case in a special way.
-                t1.setEndPoint(t2, "endToEnd")
-            else:
-                raise RuntimeError("Unexpected condition.")
         # Now we rturn:
         # 1. String of the sentence that we identified.
         # 2. TextInfo of the paragraph where start of the sentence happens to be
@@ -678,10 +659,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return self.expandSentence(context, regex, 1, compatibilityFunc=compatibilityFunc)
         elif direction > 0:
             cindex = -1
-            method = "endToEnd"
         else:
             cindex = 0
-            method = "startToStart"
         counter = 0
         while True:
             counter += 1
@@ -689,7 +668,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 raise RuntimeError("Infinite loop detected.")
             sentenceStr, startTi, startOffset, endTi, endOffset = self.findCurrentSentence(context, regex)
 
-            #if ti.compareEndPoints(context.textInfos[cindex], method) != 0:
             if not context.isTouchingBoundary(direction, startTi, startOffset, endTi, endOffset):
                 return (sentenceStr, startTi, startOffset, endTi, endOffset)
             nextTextInfo = self.nextParagraph(context.textInfos[cindex], direction)
@@ -716,10 +694,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             return sentenceStr, context.makeSentenceInfo(startTi, startOffset, endTi, endOffset)
         elif direction > 0:
             cindex = -1
-            method = "endToEnd"
         else:
             cindex = 0
-            method = "startToStart"
         if context.isTouchingBoundary(direction, startTi, startOffset, endTi, endOffset):
             # We need to look for the next sentence in the next paragraph.
             mylog("Looking in the next paragraph.")
@@ -738,27 +714,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.chimeCrossParagraphBorder()
             context = Context(paragraph, 0)
             if direction < 0:
-                #lastPosition = paragraph.copy()
-                #lastPosition.collapse(True) # collapse to the end
-                #result = lastPosition.move(textInfos.UNIT_CHARACTER, -1)
-                #myAssert(result != 0)
-                #context.find(lastPosition)
                 context.findByOffset(paragraph, len(paragraph.text) - 1)
         else:
             # Next sentence can be found in the same context
             # At least its beginning or ending - that sentence will be expanded.
             mylog("Looking in the same paragraph.")
             if direction > 0:
-                #ti2 = ti.copy()
-                #ti2.collapse(True) # Collapse to the end
-                #context.find(ti2)
                 context.findByOffset(endTi, endOffset)
             else:
-                #ti2 = ti.copy()
-                #ti2.collapse(False) # to the beginning
-                #result = ti2.move(textInfos.UNIT_CHARACTER, -1)
-                #myAssert(result != 0)
-                #context.find(ti2)
                 context.findByOffset(startTi, startOffset - 1)
             chimeIfAcrossParagraphs = True
         sentenceStr2, startTi2, startOffset2, endTi2, endOffset2 = self.expandSentence( context, regex, direction, compatibilityFunc=compatibilityFunc)
