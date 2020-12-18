@@ -7,6 +7,7 @@
 import addonHandler
 import api
 import bisect
+import braille
 import config
 import controlTypes
 import ctypes
@@ -17,7 +18,9 @@ import NVDAHelper
 from NVDAObjects.window import winword
 import operator
 import re
+import review
 import sayAllHandler
+import vision
 from scriptHandler import script, willSayAllResume
 import speech
 import struct
@@ -906,6 +909,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             newCaret = ti.copy()
             newCaret.collapse()
             newCaret.updateCaret()
+            review.handleCaretMove(newCaret)
+            braille.handler.handleCaretMove(focus)
+            vision.handler.handleCaretMove(focus)
+            
         if willSayAllResume(gesture):
             return
         if getConfig("speakFormatted"):
