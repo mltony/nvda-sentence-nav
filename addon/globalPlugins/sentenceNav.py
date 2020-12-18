@@ -29,7 +29,7 @@ import tones
 import ui
 import wx
 
-debug = False
+debug = True
 if debug:
     f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w", encoding="utf-8")
 def mylog(s):
@@ -555,7 +555,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if regex is None:
             regex = self.SENTENCE_END_REGEX
         result = [m.end() for m in regex.finditer(text)]
-        # Sometimes the last position in the text will be matched twice, so filter duplicates.
+        # Now whenever a boundary points at a newline character, we advance it forward over newLines and spaces.
+        # This case is very hard to catch via regexp, so do it manually.
+        def slideForward(i):
+            if i == 0:
+                return i
+            while i < len(text) and text[i] in "\n\t ":
+                i += 1
+            return i
+        result = map(slideForward, result)
+        # Sometimes the last position in the text will be matched twice, so filter out duplicates.
         result = sorted(list(set(result)))
         return result
 
