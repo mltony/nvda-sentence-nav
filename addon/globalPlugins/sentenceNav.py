@@ -283,7 +283,6 @@ class Context:
         self.caretIndex = caretIndex # Caret index within current paragraph, zero-based
         self.caretInfo = caretInfo # collapsed textInfo representing caret
         self.current = 0 # Index of current paragraph
-        mylog(f"Creating context with self.caretInfo={self.caretInfo}")
     def addParagraph(self, index, textInfo):
         if index >= 0:
             self.textInfos.insert(index, textInfo)
@@ -375,7 +374,7 @@ class Context:
             self.caretIndex = len(self.texts[index-1]) - 1
             self.caretInfo = None
         else:
-            if index != self.current:
+            if index != self.current or self.caretInfo is None:
                 mylog(f"findByOffset(offset={offset}) moving from paragraph {self.current} to {index}")
                 self.current = index
                 self.caretIndex = offset
@@ -587,13 +586,13 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
 
         joinString = "\n"
         s = joinString.join(texts)
-        mylog(f"s='{s}'")
         index = sum([len(texts[t]) for t in range(context.current)]) + len(joinString) * context.current + context.caretIndex
         parStartIndices = [0] # Denotes indices in s where new paragraphs start
         for i in range(1, n):
             parStartIndices.append(parStartIndices[i-1] + len(texts[i-1]) + len(joinString))
         boundaries = self.splitParagraphIntoSentences(s, regex=regex)
         if debug:
+            mylog(f"s='{s}'")
             mylog(f"n={n}, parStartIndices={parStartIndices}")
             mylog(f"Index={index} Boundaries: {boundaries}")
             mylog(f"[s]=[{s}]")
@@ -661,7 +660,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         ti = textInfo.copy()
         # For some TextInfo implementations, such as edit control in Thunderbird we need to try twice:
         for i in [1,2]:
-            mylog(f"nextParagraph i={i}")
             ti.collapse()
             result = ti.move(textInfos.UNIT_PARAGRAPH, direction)
             if result == 0:
@@ -669,9 +667,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 return None
             ti.expand(textInfos.UNIT_PARAGRAPH)
             if sign(ti.compareEndPoints(textInfo, "startToStart")) == sign(direction):
-                mylog(f"NextPara compare end points successful!")
                 return ti
-        mylog(f"nextParagraph failed after two loops.")
+        mylog(f"nextParagraph failed unexpectedly after two loops.")
         return None
 
     def expandSentence(self, context, regex, direction, compatibilityFunc=None):
@@ -770,21 +767,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             mylog(f"start: {startOffset2} @ {startTi2.text}")
             mylog(f"end: {endOffset2} @ {endTi2.text}")
         if  chimeIfAcrossParagraphs:
-            mylog(f"Chime? direction={direction} startOffset{startOffset} startOffset2={startOffset2}")
             if (
                 (direction > 0 and startOffset2 == 0)
                 or (direction < 0 and startOffset == 0)
             ):
                 mylog(f"Chime!")
                 self.chimeCrossParagraphBorder()
-            #if ti.compareEndPoints(resultTi, "startToStart") > 0:
-            #    trailing = ti
-            #else:
-            #    trailing = resultTi
-            #for paragraph in context.textInfos:
-            #    if paragraph.compareEndPoints(trailing, "startToStart") == 0:
-            #        self.chimeCrossParagraphBorder()
-            #        break
         info = context.makeSentenceInfo(startTi2, startOffset2, endTi2, endOffset2)
         if debug:
             mylog(f"MoveExtended result string: {sentenceStr2}")
