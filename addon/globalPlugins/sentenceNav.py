@@ -277,6 +277,14 @@ def preprocessNewLines(s):
     return s.replace("\n", " ")
 
 class Context:
+    """
+        Context stores information about one or more consecutive paragraphs, e.g. their expanded TextInfos,
+        texts, as well as it stores the index of current paragraph,
+        e.g., the one with caret, as long as offset of caret within current paragraph and collapsed textInfo of the caret.
+        The rationale of this class is that we will be examining contents of those consecutive paragraphs potentially multiple times,
+        when reconstructing sentences spanning across multiple paragraphs, so
+        this class is essentially a cache of all information needed to compute sentences.
+    """
     def __init__(self, textInfo, caretIndex, caretInfo=None):
         self.texts = [preprocessNewLines(textInfo.text)]
         self.textInfos = [textInfo]
@@ -284,6 +292,9 @@ class Context:
         self.caretInfo = caretInfo # collapsed textInfo representing caret
         self.current = 0 # Index of current paragraph
     def addParagraph(self, index, textInfo):
+        """
+            Adds another adjacent paragraph to either beginning or end.
+        """
         if index >= 0:
             self.textInfos.insert(index, textInfo)
             self.texts.insert(index, preprocessNewLines(textInfo.text))
@@ -294,6 +305,10 @@ class Context:
             self.current += 1
 
     def makeTextInfo(self, paragraphInfo, offset):
+        """
+            Optimized way to convert offset within paragraph into textInfo. 
+            Tries to make use of self.caretInfo when available.
+        """
         index = self.textInfos.index(paragraphInfo)
         if index != self.current or self.caretInfo is None:
             if debug:
@@ -322,6 +337,10 @@ class Context:
         return info
 
     def makeSentenceInfo(self, startTi, startOffset, endTi, endOffset):
+        """
+            Converts startOffset  within paragraph startTi and endOffset within paragraph endTI
+            into textInfo, representing whole sentence.
+        """
         start = self.makeTextInfo(startTi, startOffset)
         end = self.makeTextInfo(endTi, endOffset)
         start.setEndPoint(end, "endToEnd")
@@ -431,6 +450,7 @@ def re_set(s, allowRanges=False):
     return "[" + s + "]"
 
 def re_escape(s):
+    # Escaping regular expression symbols
     for c in "\\.?*()[]{}$^":
         s = s.replace(c, "\\" + c)
     return s
@@ -560,6 +580,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             pass
 
     def splitParagraphIntoSentences(self, text, regex=None):
+        """
+            Splits chunk of text into sentences according to regex.
+            Performs additional preprocessing, to make sure sentences don't start at newline characters.
+        """
         if regex is None:
             regex = self.SENTENCE_END_REGEX
         result = [m.end() for m in regex.finditer(text)]
@@ -577,19 +601,32 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return result
 
     def findCurrentSentence(self, context, regex):
+        """
+            Given context, identifies current sentence, e.g. the one that caret is currently residing in.
+            Note, that this function doesn't expand context.
+            # we rturn:
+            # 1. String of the sentence that we identified.
+            # 2. TextInfo of the paragraph where start of the sentence happens to be
+            # 3. Offset within that textInfo, pointing at the start
+            # 4. TextInfo of the paragraph where end of the sentence happens to be.
+            # 5. offset in that textInfo pointing at the end.
+        """
         if debug:
             mylog("findCurrentSentence\n %s" % context)
         texts = context.texts
         tis = context.textInfos
         n = len(texts)
         myAssert(n == len(tis))
-
+        
+        # In order to run regular expressions, we join texts of all paragraphs with newline as separator.
+        # Note, that previously we have removed all newline characters from actual paragraph texts.
         joinString = "\n"
         s = joinString.join(texts)
         index = sum([len(texts[t]) for t in range(context.current)]) + len(joinString) * context.current + context.caretIndex
         parStartIndices = [0] # Denotes indices in s where new paragraphs start
         for i in range(1, n):
             parStartIndices.append(parStartIndices[i-1] + len(texts[i-1]) + len(joinString))
+        # Boundaries between sentences. Or rather indices of first characters of each sentence, plus additionally the length of the whole string, as the boundary of the end.
         boundaries = self.splitParagraphIntoSentences(s, regex=regex)
         if debug:
             mylog(f"s='{s}'")
@@ -622,21 +659,23 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if debug:
             mylog(f"Current sentence: '{sentenceStr}'")
 
+        # Now compute: 
+        # t1 - paragraph of where the sentence starts, 
+        # t1Offset - theoffset of sentence start within the paragraph,
+        # t2 and t2Offset -  similar for sentence End.
         t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
         t1 = tis[t1i]
         t1offset = boundaries[i] - parStartIndices[t1i]
         t2i = bisect.bisect_right(parStartIndices, boundaries[j]) - 1
         t2 = tis[t2i]
         t2offset = boundaries[j] - parStartIndices[t2i]
-        # Now we rturn:
-        # 1. String of the sentence that we identified.
-        # 2. TextInfo of the paragraph where start of the sentence happens to be
-        # 3. Offset within that textInfo, pointing at the start
-        # 4. TextInfo of the paragraph where end of the sentence happens to be.
-        # 5. offset in that textInfo pointing at the end.
         return (sentenceStr, t1, t1offset, t2, t2offset)
 
     def nextParagraph(self, textInfo, direction):
+        """
+            Advance to the next or previous paragraph depending on direction.
+            Some hacks need to be performed to work around certain TextInfo implementation.
+        """
         mylog(f"nextParagraph direction={direction}")
         ti = textInfo.copy()
         # For some TextInfo implementations, such as edit control in Thunderbird we need to try twice:
@@ -653,6 +692,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         return None
 
     def expandSentence(self, context, regex, direction, compatibilityFunc=None):
+        """
+            Expands context if necessary, to make sure, that if sentence spans across multiple paragraphs,
+            we capture that sentence completely.
+            For example, if we're moving forward (direction==1), then we check if the end of the sentence is 
+            touching the end of the last paragraph of the context. If it is the case, 
+            then we expand our context forward, and find current sentence again.
+            We repeat this process until we either reach the end of the document, or we reach a paragraph,
+            that is incompatible due to different formatting, or until the end of current sentence is
+            no longer touching the end of the last paragraph.
+        """
         if direction == 0:
             # Expand both forward and backward
             self.expandSentence(context, regex, -1, compatibilityFunc=compatibilityFunc)
@@ -679,6 +728,25 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             context.addParagraph(cindex, nextTextInfo)
 
     def moveExtended(self, context, direction, regex, errorMsg="Error", reconstructMode="sameIndent"):
+        """
+            This function is the real implementation of move by sentence algorithm.
+            First, it identifies current sentence by calling expandSentence, 
+            which might expand current context if necessary.
+            Then one of two things may happen:
+            1. 
+                If at this point we're touching boundary (for example,
+                when moving forward, the end of the sentence coincides with the end of the last paragraph),
+                then we explicitly advance to the next paragraph, And replace the context.
+                This case might happen, for example, if the next paragraph is not compatible with current one, e.g. due to different formatting.
+            or 2.
+                If we're not touching the boundary, then
+                depending on direction, it either moves context caret (not the real system caret)
+                either at the end of current sentence when moving forward,
+                or one character before the beginning of current sentence when moving backward.
+                Since we're not touching the boundary, this operation is always valid.
+            Then  in either case we call expandSentence again with the updated caret location within context,
+            to obtain the resulting sentence.
+        """
         chimeIfAcrossParagraphs = False
         if reconstructMode == "always":
             compatibilityFunc = lambda x,y: True
