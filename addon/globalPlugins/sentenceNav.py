@@ -29,7 +29,7 @@ import tones
 import ui
 import wx
 
-debug = True
+debug = False
 if debug:
     f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w", encoding="utf-8")
 def mylog(s):
@@ -283,23 +283,25 @@ class Context:
         self.caretIndex = caretIndex # Caret index within current paragraph, zero-based
         self.caretInfo = caretInfo # collapsed textInfo representing caret
         self.current = 0 # Index of current paragraph
+        mylog(f"Creating context with self.caretInfo={self.caretInfo}")
     def addParagraph(self, index, textInfo):
-        mylog(f"Inserting new para at index={index}")
-        mylog(f"Before texts={self.texts}")
         if index >= 0:
             self.textInfos.insert(index, textInfo)
             self.texts.insert(index, preprocessNewLines(textInfo.text))
         else:
             self.textInfos.append(textInfo)
             self.texts.append(preprocessNewLines(textInfo.text))
-        mylog(f"texts={self.texts}")
         if (index >= 0) and (self.current >= index):
             self.current += 1
 
     def makeTextInfo(self, paragraphInfo, offset):
         index = self.textInfos.index(paragraphInfo)
         if index != self.current or self.caretInfo is None:
-            mylog(f"Plain MakeTextInfo: moving by {offset}")
+            if debug:
+                mylog(f"Plain MakeTextInfo: moving by {offset} self.caretInfo={self.caretInfo}")
+                c1 = index != self.current
+                c2 = self.caretInfo is None
+                mylog(f"c1 {c1} c2 {c2} index={index} self.current={self.current}")
             info = paragraphInfo.copy()
             text = self.texts[index]
             if len(text) == offset:
@@ -309,13 +311,10 @@ class Context:
                 info.collapse(end=True)
                 mylog("Collapsed to the end since offset={offset} = len(text)!")
                 return info
-            mylog(f"{info._startOffset}")
             info.collapse()
-            mylog(f"{info._startOffset}")
             result = info.move(textInfos.UNIT_CHARACTER, offset)
             if (offset > 0) and (result == 0):
                 raise Exception("Unexpected! Failed to move!")
-            mylog(f"{info._startOffset}")
             return info
         # optimization: if we are in our current paragraph, compute off of caret textInfo
         mylog(f"Optimized MakeTextInfo: moving by {offset} - {self.caretIndex}")
@@ -325,11 +324,8 @@ class Context:
 
     def makeSentenceInfo(self, startTi, startOffset, endTi, endOffset):
         start = self.makeTextInfo(startTi, startOffset)
-        mylog(f"start._startOffset={start._startOffset}")
         end = self.makeTextInfo(endTi, endOffset)
-        mylog(f"end._startOffset={end._startOffset}")
         start.setEndPoint(end, "endToEnd")
-        mylog(f"start._startOffset={start._startOffset} start._endOffset={start._endOffset}")
         return start
 
     def isTouchingBoundary(self,direction, startTi, startOffset, endTi, endOffset):
@@ -369,17 +365,30 @@ class Context:
     def findByOffset(self, paragraphInfo, offset):
         # Sets caret position according to paragraph and offset within paragraph
         index = self.textInfos.index(paragraphInfo)
+        
         if offset < 0:
             # Special case, we would like to move back one character and so we need to jump to the previous paragraph
+            mylog(f"moveByOffset(-1), erasing self.caretInfo, will make optimized makeSentence impossible!")
             if index == 0:
                 raise Exception("Impossible!")
             self.current = index - 1
             self.caretIndex = len(self.texts[index-1]) - 1
             self.caretInfo = None
         else:
-            self.current = index
-            self.caretIndex = offset
-            self.caretInfo = None
+            if index != self.current:
+                mylog(f"findByOffset(offset={offset}) moving from paragraph {self.current} to {index}")
+                self.current = index
+                self.caretIndex = offset
+                self.caretInfo = None
+            else:
+                # Index doesn't change
+                # IN theory we don't need to compute updated textInfo, we are just moving the cursor to pretend it's new location
+                # so that we can compute current sentence at that location.
+                # However not computing new textInfo will make the code even more complicated.
+                mylog(f"findByOffset(offset={offset}) Staying within the same paragraph {index}, moving offset from {self.caretIndex} to {offset}")
+                self.caretInfo.move(textInfos.UNIT_CHARACTER, offset - self.caretIndex)
+                self.caretIndex = offset
+                
 
     def find(self, textInfo):
         # Finds textInfo and sets it as current caret, updating internal variables accordingly
