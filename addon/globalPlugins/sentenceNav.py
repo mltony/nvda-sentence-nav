@@ -11,6 +11,7 @@ import braille
 import config
 import controlTypes
 import ctypes
+import functools
 import globalPluginHandler
 import gui
 import json
@@ -306,7 +307,7 @@ class Context:
 
     def makeTextInfo(self, paragraphInfo, offset):
         """
-            Optimized way to convert offset within paragraph into textInfo. 
+            Optimized way to convert offset within paragraph into textInfo.
             Tries to make use of self.caretInfo when available.
         """
         index = self.textInfos.index(paragraphInfo)
@@ -379,11 +380,11 @@ class Context:
         else:
             mylog(f"isTouchingBoundary=False!")
             return False
-            
+
     def findByOffset(self, paragraphInfo, offset):
         # Sets caret position according to paragraph and offset within paragraph
         index = self.textInfos.index(paragraphInfo)
-        
+
         if offset < 0:
             # Special case, we would like to move back one character and so we need to jump to the previous paragraph
             mylog(f"moveByOffset(-1), erasing self.caretInfo, will make optimized makeSentence impossible!")
@@ -406,7 +407,7 @@ class Context:
                 mylog(f"findByOffset(offset={offset}) Staying within the same paragraph {index}, moving offset from {self.caretIndex} to {offset}")
                 self.caretInfo.move(textInfos.UNIT_CHARACTER, offset - self.caretIndex)
                 self.caretIndex = offset
-                
+
 
     def find(self, textInfo):
         # Finds textInfo and sets it as current caret, updating internal variables accordingly
@@ -491,7 +492,7 @@ def getRegex(lang):
     regex = u""
     regex += nlb("\\b" + re_set(getConfig("capitalLetters", lang), allowRanges=True))
     for abbr in getConfig("exceptionalAbbreviations", lang).strip().split():
-        regex += nlb(re_escape(abbr))        
+        regex += nlb(re_escape(abbr))
     breakers = getConfig("sentenceBreakers")
     if "." in breakers:
         breakers = [
@@ -579,13 +580,12 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         except:
             pass
 
-    def splitParagraphIntoSentences(self, text, regex=None):
+    @functools.lru_cache(maxsize=100)
+    def splitParagraphIntoSentences(text, regex):
         """
             Splits chunk of text into sentences according to regex.
             Performs additional preprocessing, to make sure sentences don't start at newline characters.
         """
-        if regex is None:
-            regex = self.SENTENCE_END_REGEX
         result = [m.end() for m in regex.finditer(text)]
         # Now whenever a boundary points at a newline character, we advance it forward over newLines and spaces.
         # This case is very hard to catch via regexp, so do it manually.
@@ -617,7 +617,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         tis = context.textInfos
         n = len(texts)
         myAssert(n == len(tis))
-        
+
         # In order to run regular expressions, we join texts of all paragraphs with newline as separator.
         # Note, that previously we have removed all newline characters from actual paragraph texts.
         joinString = "\n"
@@ -627,7 +627,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         for i in range(1, n):
             parStartIndices.append(parStartIndices[i-1] + len(texts[i-1]) + len(joinString))
         # Boundaries between sentences. Or rather indices of first characters of each sentence, plus additionally the length of the whole string, as the boundary of the end.
-        boundaries = self.splitParagraphIntoSentences(s, regex=regex)
+        boundaries = GlobalPlugin.splitParagraphIntoSentences(s, regex=regex)
         if debug:
             mylog(f"s='{s}'")
             mylog(f"n={n}, parStartIndices={parStartIndices}")
@@ -659,8 +659,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if debug:
             mylog(f"Current sentence: '{sentenceStr}'")
 
-        # Now compute: 
-        # t1 - paragraph of where the sentence starts, 
+        # Now compute:
+        # t1 - paragraph of where the sentence starts,
         # t1Offset - theoffset of sentence start within the paragraph,
         # t2 and t2Offset -  similar for sentence End.
         t1i = bisect.bisect_right(parStartIndices, boundaries[i]) - 1
@@ -695,8 +695,8 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         """
             Expands context if necessary, to make sure, that if sentence spans across multiple paragraphs,
             we capture that sentence completely.
-            For example, if we're moving forward (direction==1), then we check if the end of the sentence is 
-            touching the end of the last paragraph of the context. If it is the case, 
+            For example, if we're moving forward (direction==1), then we check if the end of the sentence is
+            touching the end of the last paragraph of the context. If it is the case,
             then we expand our context forward, and find current sentence again.
             We repeat this process until we either reach the end of the document, or we reach a paragraph,
             that is incompatible due to different formatting, or until the end of current sentence is
@@ -730,10 +730,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     def moveExtended(self, context, direction, regex, errorMsg="Error", reconstructMode="sameIndent"):
         """
             This function is the real implementation of move by sentence algorithm.
-            First, it identifies current sentence by calling expandSentence, 
+            First, it identifies current sentence by calling expandSentence,
             which might expand current context if necessary.
             Then one of two things may happen:
-            1. 
+            1.
                 If at this point we're touching boundary (for example,
                 when moving forward, the end of the sentence coincides with the end of the last paragraph),
                 then we explicitly advance to the next paragraph, And replace the context.
@@ -949,7 +949,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             review.handleCaretMove(newCaret)
             braille.handler.handleCaretMove(focus)
             vision.handler.handleCaretMove(focus)
-            
+
         if willSayAllResume(gesture):
             return
         if getConfig("speakFormatted"):
