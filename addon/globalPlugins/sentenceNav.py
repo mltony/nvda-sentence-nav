@@ -42,6 +42,12 @@ def myAssert(condition):
     if not condition:
         raise RuntimeError("Assertion failed")
 
+try:
+    REASON_CARET = controlTypes.REASON_CARET
+except AttributeError:
+    REASON_CARET = controlTypes.OutputReason.CARET
+
+
 def initConfiguration():
     exceptionalAbbreviations = """
 {
@@ -953,7 +959,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         if willSayAllResume(gesture):
             return
         if getConfig("speakFormatted"):
-            speech.speakTextInfo(ti, reason=controlTypes.REASON_CARET)
+            speech.speakTextInfo(ti, reason=REASON_CARET)
         else:
             speech.speakText(sentenceStr)
 
