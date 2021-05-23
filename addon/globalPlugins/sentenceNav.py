@@ -20,7 +20,6 @@ from NVDAObjects.window import winword
 import operator
 import re
 import review
-import sayAllHandler
 import vision
 from scriptHandler import script, willSayAllResume
 import speech
@@ -46,6 +45,12 @@ try:
     REASON_CARET = controlTypes.REASON_CARET
 except AttributeError:
     REASON_CARET = controlTypes.OutputReason.CARET
+    
+try:
+    from  sayAllHandler import CURSOR_CARET
+except:
+    from speech import sayAll
+    CURSOR_CARET = sayAll.CURSOR.CARET
 
 
 def initConfiguration():
@@ -827,7 +832,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.fancyBeep("AC#EG#", 30, volume, volume)
 
     @script(description='Move to next sentence.', gestures=['kb:Alt+DownArrow'],
-        resumeSayAllMode=sayAllHandler.CURSOR_CARET)
+        resumeSayAllMode=CURSOR_CARET)
     def script_nextSentence(self, gesture):
         if self.maybePassThrough(gesture):
             return
@@ -837,7 +842,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.move(gesture, regex, 1, errorMsg)
 
     @script(description='Move to previous sentence.', gestures=['kb:Alt+UpArrow'],
-        resumeSayAllMode=sayAllHandler.CURSOR_CARET)
+        resumeSayAllMode=CURSOR_CARET)
     def script_previousSentence(self, gesture):
         if self.maybePassThrough(gesture):
             return
@@ -854,7 +859,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.move(gesture, regex, 0, "")
 
     @script(description='Move to next phrase.', gestures=['kb:Alt+Windows+DownArrow'],
-        resumeSayAllMode=sayAllHandler.CURSOR_CARET)
+        resumeSayAllMode=CURSOR_CARET)
     def script_nextPhrase(self, gesture):
         if self.maybePassThrough(gesture):
             return
@@ -864,7 +869,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.move(gesture, regex, 1, errorMsg)
 
     @script(description='Move to previous phrase.', gestures=['kb:Alt+Windows+UpArrow'],
-        resumeSayAllMode=sayAllHandler.CURSOR_CARET)
+        resumeSayAllMode=CURSOR_CARET)
     def script_previousPhrase(self, gesture):
         if self.maybePassThrough(gesture):
             return
