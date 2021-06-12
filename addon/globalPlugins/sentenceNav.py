@@ -129,26 +129,16 @@ class SettingsDialog(gui.SettingsDialog):
     def makeSettings(self, settingsSizer):
         sHelper = gui.guiHelper.BoxSizerHelper(self, sizer=settingsSizer)
       # paragraphChimeVolumeSlider
-        sizer=wx.BoxSizer(wx.HORIZONTAL)
         # Translators: Paragraph crossing chime volume
-        label=wx.StaticText(self,wx.ID_ANY,label=_("Volume of chime when crossing paragraph border"))
-        slider=wx.Slider(self, wx.NewId(), minValue=0,maxValue=100)
-        slider.SetValue(config.conf["sentencenav"]["paragraphChimeVolume"])
-        sizer.Add(label)
-        sizer.Add(slider)
-        settingsSizer.Add(sizer)
-        self.paragraphChimeVolumeSlider = slider
+        label = _("Volume of chime when crossing paragraph border")
+        self.paragraphChimeVolumeSlider = sHelper.addLabeledControl(label, wx.Slider, minValue=0,maxValue=100)
+        self.paragraphChimeVolumeSlider.SetValue(config.conf["sentencenav"]["paragraphChimeVolume"])
 
       # noNextSentenceChimeVolumeSlider
-        sizer=wx.BoxSizer(wx.HORIZONTAL)
         # Translators: End of document chime volume
-        label=wx.StaticText(self,wx.ID_ANY,label=_("Volume of chime when no more sentences available"))
-        slider=wx.Slider(self, wx.NewId(), minValue=0,maxValue=100)
-        slider.SetValue(config.conf["sentencenav"]["noNextSentenceChimeVolume"])
-        sizer.Add(label)
-        sizer.Add(slider)
-        settingsSizer.Add(sizer)
-        self.noNextSentenceChimeVolumeSlider = slider
+        label = _("Volume of chime when no more sentences available")
+        self.noNextSentenceChimeVolumeSlider = sHelper.addLabeledControl(label, wx.Slider, minValue=0, maxValue=100)
+        self.noNextSentenceChimeVolumeSlider.SetValue(config.conf["sentencenav"]["noNextSentenceChimeVolume"])
 
       # Checkboxes
         # Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
@@ -175,40 +165,40 @@ class SettingsDialog(gui.SettingsDialog):
 
       # Regex-related edit boxes
         # Translators: Label for sentence breakers edit box
-        self.sentenceBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Sentence breakers"), wx.TextCtrl).control
+        self.sentenceBreakersEdit = sHelper.addLabeledControl(_("Sentence breakers"), wx.TextCtrl)
         self.sentenceBreakersEdit.Value = getConfig("sentenceBreakers")
         # Translators: Label for skippable punctuation marks edit box
-        self.skippableEdit = gui.guiHelper.LabeledControlHelper(self, _("Skippable punctuation marks"), wx.TextCtrl).control
+        self.skippableEdit = sHelper.addLabeledControl(_("Skippable punctuation marks"), wx.TextCtrl)
         self.skippableEdit.Value = getConfig("skippable")
         # Translators: Label for full width sentence breakers edit box
-        self.fullWidthSentenceBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Full width sentence breakers"), wx.TextCtrl).control
+        self.fullWidthSentenceBreakersEdit = sHelper.addLabeledControl(_("Full width sentence breakers"), wx.TextCtrl)
         self.fullWidthSentenceBreakersEdit.Value = getConfig("fullWidthSentenceBreakers")
 
       # Regex-related language-specific edit boxes
         lang = self.lang = getCurrentLanguage()
       # Translators: Label for exceptional abbreviations edit box
         label = _("Exceptional abbreviations, space separated, in language %s") % lang
-        self.exceptionalAbbreviationsEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
+        self.exceptionalAbbreviationsEdit = sHelper.addLabeledControl(label, wx.TextCtrl)
         self.exceptionalAbbreviationsEdit.Value = getConfig("exceptionalAbbreviations", lang)
       # Translators: Label for capital letters edit box
         label = _("Capital letters with no spaces in language %s") % lang
-        self.capitalLettersEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
+        self.capitalLettersEdit = sHelper.addLabeledControl(label, wx.TextCtrl)
         self.capitalLettersEdit.Value = getConfig("capitalLetters", lang)
       # Translators: Label for lower case letters edit box
         label = _("Lower case letters with no spaces in language %s") % lang
-        self.lowerCaseLettersEdit = gui.guiHelper.LabeledControlHelper(self, label, wx.TextCtrl).control
+        self.lowerCaseLettersEdit = sHelper.addLabeledControl(label, wx.TextCtrl)
         self.lowerCaseLettersEdit.Value = getConfig("lowerCaseLetters", lang)
 
       # Phrase regex-related edit boxes
         # Translators: Label for phrase breakers edit box
-        self.phraseBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Phrase breakers"), wx.TextCtrl).control
+        self.phraseBreakersEdit = sHelper.addLabeledControl(_("Phrase breakers"), wx.TextCtrl)
         self.phraseBreakersEdit.Value = getConfig("phraseBreakers")
         # Translators: Label for full width phrase breakers edit box
-        self.fullWidthPhraseBreakersEdit = gui.guiHelper.LabeledControlHelper(self, _("Full width phrase breakers"), wx.TextCtrl).control
+        self.fullWidthPhraseBreakersEdit = sHelper.addLabeledControl(_("Full width phrase breakers"), wx.TextCtrl)
         self.fullWidthPhraseBreakersEdit.Value = getConfig("fullWidthPhraseBreakers")
       # applicationsBlacklist edit
         # Translators: Label for blacklisted applications edit box
-        self.applicationsBlacklistEdit = gui.guiHelper.LabeledControlHelper(self, _("Disable SentenceNav in applications (comma-separated list)"), wx.TextCtrl).control
+        self.applicationsBlacklistEdit = sHelper.addLabeledControl(_("Disable SentenceNav in applications (comma-separated list)"), wx.TextCtrl)
         self.applicationsBlacklistEdit.Value = getConfig("applicationsBlacklist")
       # Enable in MS Word
         # Translators: Checkbox that enables support for MS Word
@@ -217,6 +207,10 @@ class SettingsDialog(gui.SettingsDialog):
         self.enableInWordCheckbox.Value = getConfig("enableInWord")
 
 
+
+    def postInit(self):
+        # Finally, ensure that focus is on the first item
+        self.paragraphChimeVolumeSlider.SetFocus()
 
     def onOk(self, evt):
         config.conf["sentencenav"]["paragraphChimeVolume"] = self.paragraphChimeVolumeSlider.Value
