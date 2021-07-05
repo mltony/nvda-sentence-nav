@@ -825,7 +825,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         volume = config.conf["sentencenav"]["paragraphChimeVolume"]
         self.fancyBeep("AC#EG#", 30, volume, volume)
 
-    @script(description='Move to next sentence.', gestures=['kb:Alt+DownArrow'],
+    @script(description=_("Move to next sentence."), gestures=['kb:Alt+DownArrow'],
         resumeSayAllMode=CURSOR_CARET)
     def script_nextSentence(self, gesture):
         if self.maybePassThrough(gesture):
@@ -835,7 +835,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         errorMsg = _("No next sentence")
         self.move(gesture, regex, 1, errorMsg)
 
-    @script(description='Move to previous sentence.', gestures=['kb:Alt+UpArrow'],
+    @script(description=_("Move to previous sentence."), gestures=['kb:Alt+UpArrow'],
         resumeSayAllMode=CURSOR_CARET)
     def script_previousSentence(self, gesture):
         if self.maybePassThrough(gesture):
@@ -845,14 +845,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         errorMsg = _("No previous sentence")
         self.move(gesture, regex, -1, errorMsg)
 
-    @script(description='Speak current sentence.', gestures=['kb:NVDA+Alt+S'])
+    @script(description=_("Speak current sentence."), gestures=['kb:NVDA+Alt+S'])
     def script_currentSentence(self, gesture):
         if self.maybePassThrough(gesture):
             return
         regex = getRegex(getCurrentLanguage())
         self.move(gesture, regex, 0, "")
 
-    @script(description='Move to next phrase.', gestures=['kb:Alt+Windows+DownArrow'],
+    @script(description=_("Move to next phrase."), gestures=['kb:Alt+Windows+DownArrow'],
         resumeSayAllMode=CURSOR_CARET)
     def script_nextPhrase(self, gesture):
         if self.maybePassThrough(gesture):
@@ -862,7 +862,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         errorMsg = _("No next phrase")
         self.move(gesture, regex, 1, errorMsg)
 
-    @script(description='Move to previous phrase.', gestures=['kb:Alt+Windows+UpArrow'],
+    @script(description=_("Move to previous phrase."), gestures=['kb:Alt+Windows+UpArrow'],
         resumeSayAllMode=CURSOR_CARET)
     def script_previousPhrase(self, gesture):
         if self.maybePassThrough(gesture):
@@ -872,7 +872,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         errorMsg = _("No previous phrase")
         self.move(gesture, regex, -1, errorMsg)
 
-    @script(description='Speak current phrase.', gestures=[])
+    @script(description=_("Speak current phrase."), gestures=[])
     def script_currentPhrase(self, gesture):
         if self.maybePassThrough(gesture):
             return
