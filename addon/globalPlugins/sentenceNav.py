@@ -828,16 +828,32 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
     @script(description=_("Move to next sentence."), gestures=['kb:Alt+DownArrow'],
         resumeSayAllMode=CURSOR_CARET)
     def script_nextSentence(self, gesture):
+        try:
+            # invoking Alt+Up/Down in Python console.
+            focus = api.getFocusObject()
+            if 'NvdaPythonConsoleUIOutputCtrl' in str(type(focus)):
+                return focus.script_moveToNextResult(gesture)
+        except AttributeError:
+            pass
         if self.maybePassThrough(gesture):
             return
+
         regex = getRegex(getCurrentLanguage())
         # Translators: message when no next sentence available in the document
         errorMsg = _("No next sentence")
         self.move(gesture, regex, 1, errorMsg)
 
+
     @script(description=_("Move to previous sentence."), gestures=['kb:Alt+UpArrow'],
         resumeSayAllMode=CURSOR_CARET)
     def script_previousSentence(self, gesture):
+        try:
+            # invoking Alt+Up/Down in Python console.
+            focus = api.getFocusObject()
+            if 'NvdaPythonConsoleUIOutputCtrl' in str(type(focus)):
+                return focus.script_moveToPrevResult(gesture)
+        except AttributeError:
+            pass
         if self.maybePassThrough(gesture):
             return
         regex = getRegex(getCurrentLanguage())
