@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
-"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
 "PO-Revision-Date: 2019-04-22 19:57+0100\n"
 "Last-Translator: Nikola Jović <wwenikola123@gmail.com>\n"
@@ -17,9 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.6.10\n"
 
-msgid "SentenceNav..."
-msgstr "Navigacija kroz rečenice..."
-
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
 msgstr "Podešavanja navigacije kroz rečenice"
@@ -28,16 +25,19 @@ msgstr "Podešavanja navigacije kroz rečenice"
 msgid "Always"
 msgstr "Uvek"
 
-msgid "Only across paragraphs with same indentation and same heading level"
+#, fuzzy
+msgid "Only across paragraphs with same indentation and same style level"
 msgstr "Samo po pasusima sa istim uvlačenjem ili istim nivoima naslova"
 
 msgid "Never"
 msgstr "Nikada"
 
+#. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
 msgstr "Jačina zvučnog signala kada se pređu granice pasusa"
 
+#. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
 msgstr "Jačina zvučnog signala kada nema više dostupnih rečenica"
@@ -84,6 +84,11 @@ msgstr "Izuzetci za skraćenice, odvojene u razmacima, na jeziku %s"
 msgid "Capital letters with no spaces in language %s"
 msgstr "Velika slova bez razmaka na jeziku %s"
 
+#. Translators: Label for lower case letters edit box
+#, fuzzy, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "Velika slova bez razmaka na jeziku %s"
+
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
@@ -99,26 +104,59 @@ msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr ""
 "Onemogući navigaciju kroz rečenice u aplikacijama (lista se odvaja zarezima)"
 
+#. Enable in MS Word
+#. Translators: Checkbox that enables support for MS Word
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "Navigacija kroz rečenice"
 
+msgid "SentenceNav..."
+msgstr "Navigacija kroz rečenice..."
+
+#, fuzzy
+msgid "Move to next sentence."
+msgstr "Nema sledeće rečenice"
+
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Nema sledeće rečenice"
+
+#, fuzzy
+msgid "Move to previous sentence."
+msgstr "Nema prethodne rečenice"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Nema prethodne rečenice"
 
+#, fuzzy
+msgid "Speak current sentence."
+msgstr "Nema sledeće rečenice"
+
+#, fuzzy
+msgid "Move to next phrase."
+msgstr "Nema sledeće fraze"
+
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Nema sledeće fraze"
 
+#, fuzzy
+msgid "Move to previous phrase."
+msgstr "Nema prethodne fraze"
+
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Nema prethodne fraze"
+
+msgid "Speak current phrase."
+msgstr ""
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager

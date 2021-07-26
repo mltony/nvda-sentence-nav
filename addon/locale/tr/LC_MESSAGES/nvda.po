@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
-"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-26 09:10+0300\n"
 "PO-Revision-Date: 2018-11-30 12:03+0300\n"
 "Last-Translator: \n"
@@ -19,10 +19,149 @@ msgstr ""
 "X-Poedit-Basepath: ../../../globalPlugins\n"
 "X-Poedit-SearchPath-0: .\n"
 
+#. Translators: Title for the settings dialog
+msgid "SentenceNav settings"
+msgstr "CümleNav ayarları"
+
+#. Translators: choices inside reconstruct mode combo box
+msgid "Always"
+msgstr "Her zaman"
+
+#, fuzzy
+msgid "Only across paragraphs with same indentation and same style level"
+msgstr ""
+"Yalnızca aynı girinti ve aynı başlık seviyesine sahip paragraflar arasında"
+
+msgid "Never"
+msgstr "Hiçbir zaman"
+
+#. paragraphChimeVolumeSlider
+#. Translators: Paragraph crossing chime volume
+msgid "Volume of chime when crossing paragraph border"
+msgstr "Paragraflar arasında geçiş yaparken zil ses seviyesi"
+
+#. noNextSentenceChimeVolumeSlider
+#. Translators: End of document chime volume
+msgid "Volume of chime when no more sentences available"
+msgstr "Daha fazla cümle olmadığında çalacak zil ses seviyesi"
+
+#. Checkboxes
+#. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
+msgid "Speak message when no next sentence available in the document"
+msgstr "Sonraki cümle bulunamadığında konuşarak uyar"
+
+#. Translators: speak formatted text checkbox
+msgid "Speak formatted text"
+msgstr "Biçimlendirilmiş metni oku"
+
+#. Reconstruct mode Combo box
+#. Translators: Label for reconstruct mode combo box
+msgid "Reconstruct sentences across multiple paragraphs when"
+msgstr ""
+"birden fazla paragraf arasında dolaşılırken cümleleri yeniden yapılandır:"
+
+#. Regex-related checkbox
+#. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
+msgid "Take Wikipedia-style references into account"
+msgstr "Wikipedia stili referansları dikkate al"
+
+#. Regex-related edit boxes
+#. Translators: Label for sentence breakers edit box
+msgid "Sentence breakers"
+msgstr "Cümle sonu işaretleri"
+
+#. Translators: Label for skippable punctuation marks edit box
+msgid "Skippable punctuation marks"
+msgstr "Atlanabilir noktalama işaretleri "
+
+#. Translators: Label for full width sentence breakers edit box
+msgid "Full width sentence breakers"
+msgstr "Tam genişlik cümle sonu işaretleri"
+
+#. Translators: Label for exceptional abbreviations edit box
+#, python-format
+msgid "Exceptional abbreviations, space separated, in language %s"
+msgstr "%s dilinde istisnai kısaltmalar, aralık ile ayrılmalı"
+
+#. Translators: Label for capital letters edit box
+#, python-format
+msgid "Capital letters with no spaces in language %s"
+msgstr "%s dilinde boşluksuz olarak büyük harfler"
+
+#. Translators: Label for lower case letters edit box
+#, fuzzy, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "%s dilinde boşluksuz olarak büyük harfler"
+
+#. Phrase regex-related edit boxes
+#. Translators: Label for phrase breakers edit box
+msgid "Phrase breakers"
+msgstr "İfade kesiciler"
+
+#. Translators: Label for full width phrase breakers edit box
+msgid "Full width phrase breakers"
+msgstr "Tam genişlik ifade kesiciler"
+
+#. applicationsBlacklist edit
+#. Translators: Label for blacklisted applications edit box
+msgid "Disable SentenceNav in applications (comma-separated list)"
+msgstr ""
+"CümlaNav eklentisinin devre dışı bırakılacağı uygulamalar, virgül ile "
+"ayrılmış liste"
+
+#. Enable in MS Word
+#. Translators: Checkbox that enables support for MS Word
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "CümleNav"
+
+msgid "SentenceNav..."
+msgstr "CümleNav..."
+
+#, fuzzy
+msgid "Move to next sentence."
+msgstr "ileride Cümle yok"
+
+#. Translators: message when no next sentence available in the document
+msgid "No next sentence"
+msgstr "ileride Cümle yok"
+
+#, fuzzy
+msgid "Move to previous sentence."
+msgstr "Geride cümle yok"
+
+#. Translators: message when no previous sentence available in the document
+msgid "No previous sentence"
+msgstr "Geride cümle yok"
+
+#, fuzzy
+msgid "Speak current sentence."
+msgstr "ileride Cümle yok"
+
+#, fuzzy
+msgid "Move to next phrase."
+msgstr "İleride ifade yok"
+
+#. Translators: message when no next phrase available in the document
+msgid "No next phrase"
+msgstr "İleride ifade yok"
+
+#, fuzzy
+msgid "Move to previous phrase."
+msgstr "Geride ifade yok"
+
+#. Translators: message when no previous phrase available in the document
+msgid "No previous phrase"
+msgstr "Geride ifade yok"
+
+msgid "Speak current phrase."
+msgstr ""
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
@@ -33,76 +172,3 @@ msgid ""
 msgstr ""
 "Cümle Navigasyon eklentisi.\n"
 "CümleNav metni cümle cümle okumanıza olanak tanıyan bir eklentidir."
-
-#~ msgid "SentenceNav..."
-#~ msgstr "CümleNav..."
-
-#~ msgid "SentenceNav settings"
-#~ msgstr "CümleNav ayarları"
-
-#~ msgid "Always"
-#~ msgstr "Her zaman"
-
-#~ msgid "Only across paragraphs with same indentation and same heading level"
-#~ msgstr ""
-#~ "Yalnızca aynı girinti ve aynı başlık seviyesine sahip paragraflar arasında"
-
-#~ msgid "Never"
-#~ msgstr "Hiçbir zaman"
-
-#~ msgid "Volume of chime when crossing paragraph border"
-#~ msgstr "Paragraflar arasında geçiş yaparken zil ses seviyesi"
-
-#~ msgid "Volume of chime when no more sentences available"
-#~ msgstr "Daha fazla cümle olmadığında çalacak zil ses seviyesi"
-
-#~ msgid "Speak message when no next sentence available in the document"
-#~ msgstr "Sonraki cümle bulunamadığında konuşarak uyar"
-
-#~ msgid "Speak formatted text"
-#~ msgstr "Biçimlendirilmiş metni oku"
-
-#~ msgid "Reconstruct sentences across multiple paragraphs when"
-#~ msgstr ""
-#~ "birden fazla paragraf arasında dolaşılırken cümleleri yeniden yapılandır:"
-
-#~ msgid "Take Wikipedia-style references into account"
-#~ msgstr "Wikipedia stili referansları dikkate al"
-
-#~ msgid "Sentence breakers"
-#~ msgstr "Cümle sonu işaretleri"
-
-#~ msgid "Skippable punctuation marks"
-#~ msgstr "Atlanabilir noktalama işaretleri "
-
-#~ msgid "Full width sentence breakers"
-#~ msgstr "Tam genişlik cümle sonu işaretleri"
-
-#~ msgid "Exceptional abbreviations, space separated, in language %s"
-#~ msgstr "%s dilinde istisnai kısaltmalar, aralık ile ayrılmalı"
-
-#~ msgid "Capital letters with no spaces in language %s"
-#~ msgstr "%s dilinde boşluksuz olarak büyük harfler"
-
-#~ msgid "Phrase breakers"
-#~ msgstr "İfade kesiciler"
-
-#~ msgid "Full width phrase breakers"
-#~ msgstr "Tam genişlik ifade kesiciler"
-
-#~ msgid "Disable SentenceNav in applications (comma-separated list)"
-#~ msgstr ""
-#~ "CümlaNav eklentisinin devre dışı bırakılacağı uygulamalar, virgül ile "
-#~ "ayrılmış liste"
-
-#~ msgid "No next sentence"
-#~ msgstr "ileride Cümle yok"
-
-#~ msgid "No previous sentence"
-#~ msgstr "Geride cümle yok"
-
-#~ msgid "No next phrase"
-#~ msgstr "İleride ifade yok"
-
-#~ msgid "No previous phrase"
-#~ msgstr "Geride ifade yok"

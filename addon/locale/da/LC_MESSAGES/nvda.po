@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
-"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
 "PO-Revision-Date: 2019-02-22 20:52+0100\n"
 "Last-Translator: Nicolai Svendsen <chojiro1990@gmail.com>\n"
@@ -17,9 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.2\n"
 
-msgid "SentenceNav..."
-msgstr "Sætningsnavigation..."
-
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
 msgstr "Indstillinger for Sætningsnavigation"
@@ -28,16 +25,19 @@ msgstr "Indstillinger for Sætningsnavigation"
 msgid "Always"
 msgstr "Altid"
 
-msgid "Only across paragraphs with same indentation and same heading level"
+#, fuzzy
+msgid "Only across paragraphs with same indentation and same style level"
 msgstr "Kun på tværs af afsnit med samme indrykning og samme overskriftsniveau"
 
 msgid "Never"
 msgstr "Aldrig"
 
+#. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
 msgstr "Lydstyrke af tone når du krydser kanten af afsnit"
 
+#. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
 msgstr "Lydstyrke på tone når der ikke er mere af sætningen tilgængelig"
@@ -85,6 +85,11 @@ msgstr "Ekstraordinære forkortelser, adskilt af mellemrum, i sprog %s"
 msgid "Capital letters with no spaces in language %s"
 msgstr "Store bogstaver uden mellemrum i sprog %s"
 
+#. Translators: Label for lower case letters edit box
+#, fuzzy, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "Store bogstaver uden mellemrum i sprog %s"
+
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
@@ -99,26 +104,59 @@ msgstr "Fuldbredde sætningsafbrydere"
 msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr "Deaktiver Sætningsnavigation i applikationer (kommasepareret liste)"
 
+#. Enable in MS Word
+#. Translators: Checkbox that enables support for MS Word
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "Sætningsnavigation"
 
+msgid "SentenceNav..."
+msgstr "Sætningsnavigation..."
+
+#, fuzzy
+msgid "Move to next sentence."
+msgstr "Ingen næste sætning"
+
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Ingen næste sætning"
+
+#, fuzzy
+msgid "Move to previous sentence."
+msgstr "Ingen forrige sætning"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Ingen forrige sætning"
 
+#, fuzzy
+msgid "Speak current sentence."
+msgstr "Ingen næste sætning"
+
+#, fuzzy
+msgid "Move to next phrase."
+msgstr "Ingen næste frase"
+
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Ingen næste frase"
 
+#, fuzzy
+msgid "Move to previous phrase."
+msgstr "Ingen forrige frase"
+
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Ingen forrige frase"
+
+msgid "Speak current phrase."
+msgstr ""
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager

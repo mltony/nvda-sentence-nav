@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav\n"
-"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2019-02-23 11:32+0200\n"
+"PO-Revision-Date: 2019-09-19 03:47+0200\n"
 "Last-Translator: Jani Kinnunen <janikinnunen340@gmail.com>\n"
 "Language-Team: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language: fi\n"
@@ -18,9 +18,6 @@ msgstr ""
 "X-Generator: Poedit 1.6.11\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-msgid "SentenceNav..."
-msgstr "SentenceNav..."
-
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
 msgstr "SentenceNavin asetukset"
@@ -29,16 +26,19 @@ msgstr "SentenceNavin asetukset"
 msgid "Always"
 msgstr "Aina"
 
-msgid "Only across paragraphs with same indentation and same heading level"
+#, fuzzy
+msgid "Only across paragraphs with same indentation and same style level"
 msgstr "Vain kappaleissa, joilla on sama sisennys ja otsikkotaso"
 
 msgid "Never"
 msgstr "Ei koskaan"
 
+#. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
 msgstr "Äänimerkin voimakkuus, kun kappaleraja ylitetään"
 
+#. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
 msgstr "Äänimerkin voimakkuus, kun lauseita ei ole enempää"
@@ -55,7 +55,7 @@ msgstr "Puhu muotoiltu teksti"
 #. Reconstruct mode Combo box
 #. Translators: Label for reconstruct mode combo box
 msgid "Reconstruct sentences across multiple paragraphs when"
-msgstr "Muodosta useiden kappaleiden lauseet uudelleen"
+msgstr "Muodosta useiden kappaleiden lauseet uudelleen kun"
 
 #. Regex-related checkbox
 #. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
@@ -85,6 +85,11 @@ msgstr "Välilyönnillä eroteltavat poikkeukselliset lyhenteet kielellä %s"
 msgid "Capital letters with no spaces in language %s"
 msgstr "Isot kirjaimet ilman välilyöntejä kielellä %s"
 
+#. Translators: Label for lower case letters edit box
+#, fuzzy, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "Isot kirjaimet ilman välilyöntejä kielellä %s"
+
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
@@ -99,26 +104,59 @@ msgstr "Virkkeen täyden leveyden lopetusmerkit"
 msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr "Poista SentenceNav käytöstä sovelluksissa (pilkulla eroteltu luettelo)"
 
+#. Enable in MS Word
+#. Translators: Checkbox that enables support for MS Word
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "SentenceNav"
 
+msgid "SentenceNav..."
+msgstr "SentenceNav..."
+
+#, fuzzy
+msgid "Move to next sentence."
+msgstr "Ei enempää lauseita"
+
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Ei enempää lauseita"
+
+#, fuzzy
+msgid "Move to previous sentence."
+msgstr "Ei enempää edellisiä lauseita"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Ei enempää edellisiä lauseita"
 
+#, fuzzy
+msgid "Speak current sentence."
+msgstr "Ei enempää lauseita"
+
+#, fuzzy
+msgid "Move to next phrase."
+msgstr "Ei enempää virkkeitä"
+
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Ei enempää virkkeitä"
 
+#, fuzzy
+msgid "Move to previous phrase."
+msgstr "Ei enempää edellisiä virkkeitä"
+
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Ei enempää edellisiä virkkeitä"
+
+msgid "Speak current phrase."
+msgstr ""
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager

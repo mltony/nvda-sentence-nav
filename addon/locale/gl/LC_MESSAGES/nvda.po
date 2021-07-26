@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
-"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
 "PO-Revision-Date: 2019-02-26 18:58+0100\n"
 "Last-Translator: Iván Novegil <ivan.novegil.cancelas@gmail.com>\n"
@@ -17,9 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.2.1\n"
 
-msgid "SentenceNav..."
-msgstr "SentenceNav..."
-
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
 msgstr "Opcións de SentenceNav"
@@ -28,17 +25,20 @@ msgstr "Opcións de SentenceNav"
 msgid "Always"
 msgstr "Sempre"
 
-msgid "Only across paragraphs with same indentation and same heading level"
+#, fuzzy
+msgid "Only across paragraphs with same indentation and same style level"
 msgstr ""
 "Só a través de parágrafos cos mesmos niveis de sangrado e encabezamento"
 
 msgid "Never"
 msgstr "Nunca"
 
+#. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
 msgstr "Volume de campá ao cruzar o borde de parágrafos"
 
+#. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
 msgstr "Volume de campá cando non hai máis oracións dispoñibles"
@@ -85,6 +85,11 @@ msgstr "Abreviacións excepcionais, separadas por espazos, no idioma %s"
 msgid "Capital letters with no spaces in language %s"
 msgstr "Letras maiúsculas sen espazos no idioma %s"
 
+#. Translators: Label for lower case letters edit box
+#, fuzzy, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "Letras maiúsculas sen espazos no idioma %s"
+
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
@@ -99,26 +104,59 @@ msgstr "Separadores de frases de ancho completo"
 msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr "Desactivar SentenceNav en aplicacións (lista separada por comas)"
 
+#. Enable in MS Word
+#. Translators: Checkbox that enables support for MS Word
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "SentenceNav"
 
+msgid "SentenceNav..."
+msgstr "SentenceNav..."
+
+#, fuzzy
+msgid "Move to next sentence."
+msgstr "Sen seguinte oración"
+
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Sen seguinte oración"
+
+#, fuzzy
+msgid "Move to previous sentence."
+msgstr "Sen oración anterior"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Sen oración anterior"
 
+#, fuzzy
+msgid "Speak current sentence."
+msgstr "Sen seguinte oración"
+
+#, fuzzy
+msgid "Move to next phrase."
+msgstr "Sen seguinte frase"
+
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Sen seguinte frase"
 
+#, fuzzy
+msgid "Move to previous phrase."
+msgstr "Sen frase anterior"
+
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Sen frase anterior"
+
+msgid "Speak current phrase."
+msgstr ""
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager

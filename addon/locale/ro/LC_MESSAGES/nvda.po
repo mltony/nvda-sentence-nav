@@ -6,19 +6,16 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
-"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
 "PO-Revision-Date: 2019-03-16 11:00+0200\n"
+"Last-Translator: Florian Ionașcu <florianionascu@hotmail.com>\n"
+"Language-Team: \n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Last-Translator: Florian Ionașcu <florianionascu@hotmail.com>\n"
-"Language-Team: \n"
 "X-Generator: Poedit 2.2.1\n"
-
-msgid "SentenceNav..."
-msgstr "SentenceNav..."
 
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
@@ -28,16 +25,19 @@ msgstr "Setări SentenceNav"
 msgid "Always"
 msgstr "Mereu"
 
-msgid "Only across paragraphs with same indentation and same heading level"
+#, fuzzy
+msgid "Only across paragraphs with same indentation and same style level"
 msgstr "Doar peste paragrafe cu același nivel de indentare și de rubrici"
 
 msgid "Never"
 msgstr "Niciodată"
 
+#. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
 msgstr "Volumul soneriei la trecerea peste bordura paragrafului"
 
+#. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
 msgstr "Volumul soneriei atunci când nicio propoziție nu este disponibilă"
@@ -46,8 +46,8 @@ msgstr "Volumul soneriei atunci când nicio propoziție nu este disponibilă"
 #. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
 msgid "Speak message when no next sentence available in the document"
 msgstr ""
-"Rostește mesajul atunci când nicio propoziție succedentă nu este "
-"disponibilă în document"
+"Rostește mesajul atunci când nicio propoziție succedentă nu este disponibilă "
+"în document"
 
 #. Translators: speak formatted text checkbox
 msgid "Speak formatted text"
@@ -86,6 +86,11 @@ msgstr "Abrevieri excepționale, sparate de spațiu, în limba %s"
 msgid "Capital letters with no spaces in language %s"
 msgstr "Litere mari fără spații în limba %s"
 
+#. Translators: Label for lower case letters edit box
+#, fuzzy, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "Litere mari fără spații în limba %s"
+
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
@@ -100,26 +105,59 @@ msgstr "Întreruperi de frază cu lățime întreagă"
 msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr "Dezactivează SentenceNav în aplicații (listă separată prin virgulă)"
 
+#. Enable in MS Word
+#. Translators: Checkbox that enables support for MS Word
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "SentenceNav"
 
+msgid "SentenceNav..."
+msgstr "SentenceNav..."
+
+#, fuzzy
+msgid "Move to next sentence."
+msgstr "Nicio propoziție succedentă"
+
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Nicio propoziție succedentă"
+
+#, fuzzy
+msgid "Move to previous sentence."
+msgstr "Nicio propoziție precedentă"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Nicio propoziție precedentă"
 
+#, fuzzy
+msgid "Speak current sentence."
+msgstr "Nicio propoziție succedentă"
+
+#, fuzzy
+msgid "Move to next phrase."
+msgstr "Nicio frază succedentă"
+
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Nicio frază succedentă"
 
+#, fuzzy
+msgid "Move to previous phrase."
+msgstr "Nicio frază precedentă"
+
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Nicio frază precedentă"
+
+msgid "Speak current phrase."
+msgstr ""
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager

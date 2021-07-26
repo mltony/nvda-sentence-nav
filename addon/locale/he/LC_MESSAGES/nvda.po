@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
-"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
 "PO-Revision-Date: 2019-06-20 10:09+0200\n"
 "Last-Translator: shmuel naaman <shmuel_naaman@yahoo.com>\n"
@@ -17,9 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.6.10\n"
 
-msgid "SentenceNav..."
-msgstr "SentenceNav"
-
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
 msgstr "הגדרות "
@@ -28,16 +25,19 @@ msgstr "הגדרות "
 msgid "Always"
 msgstr "תמיד"
 
-msgid "Only across paragraphs with same indentation and same heading level"
+#, fuzzy
+msgid "Only across paragraphs with same indentation and same style level"
 msgstr "רק משפטים באותה רמת כניסה ובאותה רמה של כותרת"
 
 msgid "Never"
 msgstr "Never"
 
+#. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
 msgstr "עוצמת הצליל כשחוצים גבולות פיסקה"
 
+#. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
 msgstr "עוצמת הצליל כשאין עוד משפט במסמך"
@@ -84,6 +84,11 @@ msgstr "קיצורים יוצאי דופן, מופרדים ברווח, בשפה 
 msgid "Capital letters with no spaces in language %s"
 msgstr "אותיות רשיות ללא רווח בשפה %s"
 
+#. Translators: Label for lower case letters edit box
+#, fuzzy, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "אותיות רשיות ללא רווח בשפה %s"
+
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
@@ -98,26 +103,59 @@ msgstr "סימנים המסמנים הפסקת משפט"
 msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr "השבת את התוסף ביישומים הבאים (comma-separated list)"
 
+#. Enable in MS Word
+#. Translators: Checkbox that enables support for MS Word
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "SentenceNav"
 
+msgid "SentenceNav..."
+msgstr "SentenceNav"
+
+#, fuzzy
+msgid "Move to next sentence."
+msgstr "אין משפט הבא"
+
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "אין משפט הבא"
+
+#, fuzzy
+msgid "Move to previous sentence."
+msgstr "אין משפט קודם"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "אין משפט קודם"
 
+#, fuzzy
+msgid "Speak current sentence."
+msgstr "אין משפט הבא"
+
+#, fuzzy
+msgid "Move to next phrase."
+msgstr "אין פסוקית נוספתאין פסוקית נוספת"
+
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "אין פסוקית נוספתאין פסוקית נוספת"
 
+#, fuzzy
+msgid "Move to previous phrase."
+msgstr "אין פסוקית קודמת"
+
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "אין פסוקית קודמת"
+
+msgid "Speak current phrase."
+msgstr ""
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager

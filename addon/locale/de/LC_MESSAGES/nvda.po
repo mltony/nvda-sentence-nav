@@ -6,7 +6,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
-"Report-Msgid-Bugs-To: nvda-translations@freelists.org\n"
+"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
 "PO-Revision-Date: 2019-03-11 19:16+0100\n"
 "Last-Translator: Waldschmetterling <a.r.waldschmetterling@gmx.de>\n"
@@ -17,9 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.5.7\n"
 
-msgid "SentenceNav..."
-msgstr "Satznavigation..."
-
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
 msgstr "Satznavigation Einstellungen"
@@ -28,16 +25,19 @@ msgstr "Satznavigation Einstellungen"
 msgid "Always"
 msgstr "Immer"
 
-msgid "Only across paragraphs with same indentation and same heading level"
+#, fuzzy
+msgid "Only across paragraphs with same indentation and same style level"
 msgstr "Nur über Absätze mit gleicher Tiefe und gleicher Überschriftebene"
 
 msgid "Never"
 msgstr "Nie"
 
+#. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
 msgstr "Lautstärke des Glockentons wenn man eine Absatzgrenze überschreitet"
 
+#. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
 msgstr "Lautstärke des Glockentons wenn kein weiterer Satz vorhanden ist "
@@ -86,6 +86,11 @@ msgstr ""
 msgid "Capital letters with no spaces in language %s"
 msgstr "Großbuchstaben ohne Pause in der Sprache %s"
 
+#. Translators: Label for lower case letters edit box
+#, fuzzy, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "Großbuchstaben ohne Pause in der Sprache %s"
+
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
@@ -102,26 +107,59 @@ msgstr ""
 "Satznavigation in Anwendungen abschalten (Listeneinträge durch Komma "
 "getrennt)"
 
+#. Enable in MS Word
+#. Translators: Checkbox that enables support for MS Word
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "Satznavigation"
 
+msgid "SentenceNav..."
+msgstr "Satznavigation..."
+
+#, fuzzy
+msgid "Move to next sentence."
+msgstr "Kein nächster Satz"
+
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Kein nächster Satz"
+
+#, fuzzy
+msgid "Move to previous sentence."
+msgstr "Kein vorheriger Satz"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Kein vorheriger Satz"
 
+#, fuzzy
+msgid "Speak current sentence."
+msgstr "Kein nächster Satz"
+
+#, fuzzy
+msgid "Move to next phrase."
+msgstr "Keine nächste Phrase"
+
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Keine nächste Phrase"
 
+#, fuzzy
+msgid "Move to previous phrase."
+msgstr "Keine vorherige Phrase"
+
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Keine vorherige Phrase"
+
+msgid "Speak current phrase."
+msgstr ""
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
