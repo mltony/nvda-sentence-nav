@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: SentenceNav\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2019-09-19 03:47+0200\n"
-"Last-Translator: Jani Kinnunen <janikinnunen340@gmail.com>\n"
+"PO-Revision-Date: 2021-07-26 17:45+0200\n"
+"Last-Translator: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language-Team: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
@@ -26,9 +26,8 @@ msgstr "SentenceNavin asetukset"
 msgid "Always"
 msgstr "Aina"
 
-#, fuzzy
 msgid "Only across paragraphs with same indentation and same style level"
-msgstr "Vain kappaleissa, joilla on sama sisennys ja otsikkotaso"
+msgstr "Vain kappaleissa, joilla on sama sisennys- ja tyylitaso"
 
 msgid "Never"
 msgstr "Ei koskaan"
@@ -41,12 +40,12 @@ msgstr "Äänimerkin voimakkuus, kun kappaleraja ylitetään"
 #. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
-msgstr "Äänimerkin voimakkuus, kun lauseita ei ole enempää"
+msgstr "Äänimerkin voimakkuus, kun virkkeitä ei ole enempää"
 
 #. Checkboxes
 #. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
 msgid "Speak message when no next sentence available in the document"
-msgstr "Puhu ilmoitus, kun asiakirjassa ei ole enempää lauseita"
+msgstr "Puhu ilmoitus, kun asiakirjassa ei ole enempää virkkeitä"
 
 #. Translators: speak formatted text checkbox
 msgid "Speak formatted text"
@@ -55,7 +54,7 @@ msgstr "Puhu muotoiltu teksti"
 #. Reconstruct mode Combo box
 #. Translators: Label for reconstruct mode combo box
 msgid "Reconstruct sentences across multiple paragraphs when"
-msgstr "Muodosta useiden kappaleiden lauseet uudelleen kun"
+msgstr "Muodosta uudelleen useiden kappaleiden virkkeet"
 
 #. Regex-related checkbox
 #. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
@@ -65,7 +64,7 @@ msgstr "Ota huomioon Wikipedia-tyyliset viittaukset"
 #. Regex-related edit boxes
 #. Translators: Label for sentence breakers edit box
 msgid "Sentence breakers"
-msgstr "Lauseen lopetusmerkit"
+msgstr "Virkkeen lopetusmerkit"
 
 #. Translators: Label for skippable punctuation marks edit box
 msgid "Skippable punctuation marks"
@@ -73,7 +72,7 @@ msgstr "Ohitettavat välimerkit"
 
 #. Translators: Label for full width sentence breakers edit box
 msgid "Full width sentence breakers"
-msgstr "Lauseen täyden leveyden lopetusmerkit"
+msgstr "Virkkeen täyden leveyden lopetusmerkit"
 
 #. Translators: Label for exceptional abbreviations edit box
 #, python-format
@@ -86,18 +85,18 @@ msgid "Capital letters with no spaces in language %s"
 msgstr "Isot kirjaimet ilman välilyöntejä kielellä %s"
 
 #. Translators: Label for lower case letters edit box
-#, fuzzy, python-format
+#, python-format
 msgid "Lower case letters with no spaces in language %s"
-msgstr "Isot kirjaimet ilman välilyöntejä kielellä %s"
+msgstr "Pienet kirjaimet ilman välilyöntejä kielellä %s"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
-msgstr "Virkkeen lopetusmerkki"
+msgstr "Lauseen lopetusmerkit"
 
 #. Translators: Label for full width phrase breakers edit box
 msgid "Full width phrase breakers"
-msgstr "Virkkeen täyden leveyden lopetusmerkit"
+msgstr "Lauseen täyden leveyden lopetusmerkit"
 
 #. applicationsBlacklist edit
 #. Translators: Label for blacklisted applications edit box
@@ -110,6 +109,8 @@ msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
 msgstr ""
+"Ota käyttöön kokeellinen Microsoft Wordin ja WordPadin tuki (ohittaa NVDA: n "
+"oletustoiminnallisuuden)"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
@@ -119,44 +120,39 @@ msgstr "SentenceNav"
 msgid "SentenceNav..."
 msgstr "SentenceNav..."
 
-#, fuzzy
 msgid "Move to next sentence."
-msgstr "Ei enempää lauseita"
+msgstr "Siirrä seuraavaan virkkeeseen."
 
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
-msgstr "Ei enempää lauseita"
+msgstr "Ei enempää virkkeitä"
 
-#, fuzzy
 msgid "Move to previous sentence."
-msgstr "Ei enempää edellisiä lauseita"
+msgstr "Siirrä edelliseen virkkeeseen."
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
-msgstr "Ei enempää edellisiä lauseita"
+msgstr "Ei enempää edellisiä virkkeitä"
 
-#, fuzzy
 msgid "Speak current sentence."
-msgstr "Ei enempää lauseita"
+msgstr "Puhu nykyinen virke."
 
-#, fuzzy
 msgid "Move to next phrase."
-msgstr "Ei enempää virkkeitä"
+msgstr "Siirrä seuraavaan lauseeseen."
 
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
-msgstr "Ei enempää virkkeitä"
+msgstr "Ei enempää lauseita"
 
-#, fuzzy
 msgid "Move to previous phrase."
-msgstr "Ei enempää edellisiä virkkeitä"
+msgstr "Siirrä edelliseen lauseeseen."
 
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
-msgstr "Ei enempää edellisiä virkkeitä"
+msgstr "Ei enempää edellisiä lauseita"
 
 msgid "Speak current phrase."
-msgstr ""
+msgstr "Puhu nykyinen lause."
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
@@ -165,6 +161,6 @@ msgid ""
 "SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
 "opposed to by paragraphs or words."
 msgstr ""
-"Lausenavigointi-lisäosa.\n"
-"SentenceNav on lisäosa, jonka avulla tekstiä voi lukea lause kerrallaan "
+"Virkenavigointi-lisäosa.\n"
+"SentenceNav on lisäosa, jonka avulla tekstiä voi lukea virke kerrallaan "
 "kappaleiden tai sanojen sijaan."

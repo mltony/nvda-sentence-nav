@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2019-02-23 00:02+0100\n"
+"PO-Revision-Date: 2021-07-26 11:48+0200\n"
 "Last-Translator: Rémy Ruiz <remyruiz@gmail.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.8.12\n"
+"X-Generator: Poedit 3.0\n"
 
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
@@ -25,11 +25,10 @@ msgstr "Paramètres SentenceNav"
 msgid "Always"
 msgstr "Toujours"
 
-#, fuzzy
 msgid "Only across paragraphs with same indentation and same style level"
 msgstr ""
-"Seulement entre les paragraphes avec la même indentation et le même titre de "
-"niveau"
+"Seulement entre les paragraphes avec la même indentation et le même niveau "
+"de style"
 
 msgid "Never"
 msgstr "Jamais"
@@ -58,7 +57,7 @@ msgstr "Annoncer un texte formaté"
 #. Reconstruct mode Combo box
 #. Translators: Label for reconstruct mode combo box
 msgid "Reconstruct sentences across multiple paragraphs when"
-msgstr "Reconstruisez des phrases sur plusieurs paragraphes lorsque"
+msgstr "Reconstruire des phrases sur plusieurs paragraphes lorsque"
 
 #. Regex-related checkbox
 #. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
@@ -68,7 +67,7 @@ msgstr "Prendre en compte les références de style Wikipedia"
 #. Regex-related edit boxes
 #. Translators: Label for sentence breakers edit box
 msgid "Sentence breakers"
-msgstr "Rupture de phrase"
+msgstr "Caractères de rupture de phrase"
 
 #. Translators: Label for skippable punctuation marks edit box
 msgid "Skippable punctuation marks"
@@ -76,7 +75,7 @@ msgstr "Signes de ponctuation sautables"
 
 #. Translators: Label for full width sentence breakers edit box
 msgid "Full width sentence breakers"
-msgstr "Rupture de phrase en pleine largeur"
+msgstr "Caractères pleine chasse de rupture de phrase"
 
 #. Translators: Label for exceptional abbreviations edit box
 #, python-format
@@ -90,18 +89,18 @@ msgid "Capital letters with no spaces in language %s"
 msgstr "Lettres majuscules sans espaces dans la langue %s"
 
 #. Translators: Label for lower case letters edit box
-#, fuzzy, python-format
+#, python-format
 msgid "Lower case letters with no spaces in language %s"
-msgstr "Lettres majuscules sans espaces dans la langue %s"
+msgstr "Lettres minuscules sans espaces dans la langue %s"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
-msgstr "Rupture de phrase"
+msgstr "Caractères de rupture d'expression"
 
 #. Translators: Label for full width phrase breakers edit box
 msgid "Full width phrase breakers"
-msgstr "Rupture de phrase en pleine largeur"
+msgstr "Caractères pleine chasse de rupture d'expression"
 
 #. applicationsBlacklist edit
 #. Translators: Label for blacklisted applications edit box
@@ -115,6 +114,8 @@ msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
 msgstr ""
+"Activer la prise en charge expérimentale de Microsoft Word et WordPad "
+"(remplace la fonctionnalité par défaut de NVDA)"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
@@ -124,44 +125,39 @@ msgstr "SentenceNav"
 msgid "SentenceNav..."
 msgstr "SentenceNav..."
 
-#, fuzzy
 msgid "Move to next sentence."
-msgstr "Aucune phrase suivante"
+msgstr "Se déplacer à la phrase suivante."
 
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Aucune phrase suivante"
 
-#, fuzzy
 msgid "Move to previous sentence."
-msgstr "Aucune phrase précédente"
+msgstr "Se déplacer à la phrase précédente."
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Aucune phrase précédente"
 
-#, fuzzy
 msgid "Speak current sentence."
-msgstr "Aucune phrase suivante"
+msgstr "Annoncer la phrase courante."
 
-#, fuzzy
 msgid "Move to next phrase."
-msgstr "Aucune phrase suivante"
+msgstr "Se déplacer à l'expression suivante."
 
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
-msgstr "Aucune phrase suivante"
+msgstr "Aucune expression suivante"
 
-#, fuzzy
 msgid "Move to previous phrase."
-msgstr "Aucune phrase précédente"
+msgstr "Se déplacer à l'expression précédente."
 
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
-msgstr "Aucune phrase précédente"
+msgstr "Aucune expression précédente"
 
 msgid "Speak current phrase."
-msgstr ""
+msgstr "Annoncer l'expression courante."
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
@@ -170,6 +166,6 @@ msgid ""
 "SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
 "opposed to by paragraphs or words."
 msgstr ""
-"Module complémentaire de navigation par phrases.\n"
-"SentenceNav est un module complémentaire NVDA qui vous permet de lire du "
-"texte par phrases, par opposition à des paragraphes ou des mots."
+"Extension de navigation par phrases.\n"
+"SentenceNav est une extension NVDA qui vous permet de lire du texte par "
+"phrases, par opposition à par paragraphes ou par mots."
