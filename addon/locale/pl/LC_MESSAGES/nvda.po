@@ -8,101 +8,99 @@ msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2021-07-31 21:39+0300\n"
-"Last-Translator: Florian Ionașcu <florianionascu@hotmail.com>\n"
-"Language-Team: \n"
-"Language: ro\n"
+"PO-Revision-Date: 2021-08-03 15:41+0200\n"
+"Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "X-Generator: Poedit 3.0\n"
 
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
-msgstr "Setări SentenceNav"
+msgstr "Ustawienia SentenceNav"
 
 #. Translators: choices inside reconstruct mode combo box
 msgid "Always"
-msgstr "Mereu"
+msgstr "Zawsze"
 
 msgid "Only across paragraphs with same indentation and same style level"
-msgstr "Doar peste paragrafe cu același nivel de indentare și de stil"
+msgstr "Tylko w akapitach z tym samym wcięciem i tym samym poziomem stylu"
 
 msgid "Never"
-msgstr "Niciodată"
+msgstr "Nigdy"
 
 #. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
-msgstr "Volumul soneriei la trecerea peste bordura paragrafului"
+msgstr "głośność dźwięku podczas przekraczania granicy akapitu"
 
 #. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
-msgstr "Volumul soneriei atunci când nicio propoziție nu este disponibilă"
+msgstr "Głośność dźwięku, gdy nie ma więcej dostępnych zdań"
 
 #. Checkboxes
 #. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
 msgid "Speak message when no next sentence available in the document"
-msgstr ""
-"Rostește mesajul atunci când nicio propoziție succedentă nu este disponibilă "
-"în document"
+msgstr "zgłaszaj, gdy w dokumencie nie ma dostępnego następnego zdania"
 
 #. Translators: speak formatted text checkbox
 msgid "Speak formatted text"
-msgstr "Rostește textul formatat"
+msgstr "Wymawiaj tekst sformatowany"
 
 #. Reconstruct mode Combo box
 #. Translators: Label for reconstruct mode combo box
 msgid "Reconstruct sentences across multiple paragraphs when"
-msgstr "Reconstruiește propoziții peste paragrafe multiple când"
+msgstr "Rekonstrukcja zdań w wielu akapitach, gdy"
 
 #. Regex-related checkbox
 #. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
 msgid "Take Wikipedia-style references into account"
-msgstr "Se ține cont de stilul de referințe al Wikipedia"
+msgstr "uwzględnij odniesienia w stylu Wikipedii"
 
 #. Regex-related edit boxes
 #. Translators: Label for sentence breakers edit box
 msgid "Sentence breakers"
-msgstr "Întreruperi de propoziții"
+msgstr "Łamacze zdań"
 
 #. Translators: Label for skippable punctuation marks edit box
 msgid "Skippable punctuation marks"
-msgstr "Marcaje de punctuație care pot fi omise"
+msgstr "Pomijalne znaki interpunkcyjne"
 
 #. Translators: Label for full width sentence breakers edit box
 msgid "Full width sentence breakers"
-msgstr "Întreruperi de propoziție cu lățime întreagă"
+msgstr "Wyłączniki zdań o pełnej szerokości"
 
 #. Translators: Label for exceptional abbreviations edit box
 #, python-format
 msgid "Exceptional abbreviations, space separated, in language %s"
-msgstr "Abrevieri excepționale, sparate de spațiu, în limba %s"
+msgstr "Wyjątkowe skróty, przestrzeń oddzielona, w języku %s"
 
 #. Translators: Label for capital letters edit box
 #, python-format
 msgid "Capital letters with no spaces in language %s"
-msgstr "Litere mari fără spații în limba %s"
+msgstr "Wielkie litery bez spacji w języku %s"
 
 #. Translators: Label for lower case letters edit box
 #, python-format
 msgid "Lower case letters with no spaces in language %s"
-msgstr "Litere mici fără spații în limba %s"
+msgstr "Małe litery bez spacji w języku %s"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
-msgstr "Întreruperi de frază"
+msgstr "łamacze fraz"
 
 #. Translators: Label for full width phrase breakers edit box
 msgid "Full width phrase breakers"
-msgstr "Întreruperi de frază cu lățime întreagă"
+msgstr "łamacze fraz o pełnej szerokości"
 
 #. applicationsBlacklist edit
 #. Translators: Label for blacklisted applications edit box
 msgid "Disable SentenceNav in applications (comma-separated list)"
-msgstr "Dezactivează SentenceNav în aplicații (listă separată prin virgulă)"
+msgstr "Wyłącz SentenceNav w aplikacjach (lista oddzielona przecinkami)"
 
 #. Enable in MS Word
 #. Translators: Checkbox that enables support for MS Word
@@ -110,8 +108,8 @@ msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
 msgstr ""
-"Activează suportul experimental pentru Microsoft Word și WordPad (rescrie "
-"funcționalitatea implicită a NVDA)"
+"Włącz eksperymentalną obsługę programów Microsoft Word i WordPad (zastępuje "
+"domyślne funkcje NVDA)"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
@@ -122,38 +120,38 @@ msgid "SentenceNav..."
 msgstr "SentenceNav..."
 
 msgid "Move to next sentence."
-msgstr "Mută la propoziția următoare."
+msgstr "Przejście do następnego zdania."
 
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
-msgstr "Nicio propoziție succedentă"
+msgstr "Brak następnego zdania"
 
 msgid "Move to previous sentence."
-msgstr "Mută la propoziția precedentă."
+msgstr "Przejście do poprzedniego zdania."
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
-msgstr "Nicio propoziție precedentă"
+msgstr "Brak poprzedniego zdania"
 
 msgid "Speak current sentence."
-msgstr "Spune propoziția curentă."
+msgstr "Wymawia obecne zdanie."
 
 msgid "Move to next phrase."
-msgstr "Mută la fraza următoare."
+msgstr "Przejście do następnej frazy."
 
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
-msgstr "Nicio frază succedentă"
+msgstr "Brak następnej frazy"
 
 msgid "Move to previous phrase."
-msgstr "Mută la fraza precedentă."
+msgstr "Przejdź do poprzedniej frazy."
 
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
-msgstr "Nicio frază precedentă"
+msgstr "Brak poprzedniej frazy"
 
 msgid "Speak current phrase."
-msgstr "Spune fraza curentă."
+msgstr "Wymawia obecną frazę."
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
@@ -162,6 +160,6 @@ msgid ""
 "SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
 "opposed to by paragraphs or words."
 msgstr ""
-"Supliment de navigare prin propoziții.\n"
-"SentenceNav este un supliment NVDA care vă permite să citiți textul prin "
-"propoziții, spre deosebire de paragrafe sau cuvinte."
+"Dodatek Do nawigacji zdania.\n"
+"SentenceNav to dodatek NVDA, który umożliwia odczytywanie tekstu według "
+"zdań, w przeciwieństwie do akapitów lub słów."

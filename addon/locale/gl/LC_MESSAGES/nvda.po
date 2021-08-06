@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2019-02-26 18:58+0100\n"
-"Last-Translator: Iván Novegil <ivan.novegil.cancelas@gmail.com>\n"
+"PO-Revision-Date: 2021-08-03 18:59+0200\n"
+"Last-Translator: Iván Novegil Cancelas <ivan.novegil.cancelas@gmail.com>\n"
 "Language-Team: \n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 3.0\n"
 
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
@@ -25,10 +25,8 @@ msgstr "Opcións de SentenceNav"
 msgid "Always"
 msgstr "Sempre"
 
-#, fuzzy
 msgid "Only across paragraphs with same indentation and same style level"
-msgstr ""
-"Só a través de parágrafos cos mesmos niveis de sangrado e encabezamento"
+msgstr "Só entre parágrafos cos mesmos niveis de sangrado e estilo"
 
 msgid "Never"
 msgstr "Nunca"
@@ -86,9 +84,9 @@ msgid "Capital letters with no spaces in language %s"
 msgstr "Letras maiúsculas sen espazos no idioma %s"
 
 #. Translators: Label for lower case letters edit box
-#, fuzzy, python-format
+#, python-format
 msgid "Lower case letters with no spaces in language %s"
-msgstr "Letras maiúsculas sen espazos no idioma %s"
+msgstr "Letras minúsculas sen espazos no idioma %s"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
@@ -110,6 +108,8 @@ msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
 msgstr ""
+"Activar soporte experimental para Microsoft Word e WordPad (sobrescribe a "
+"funcionalidade nativa do NVDA)"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
@@ -119,44 +119,39 @@ msgstr "SentenceNav"
 msgid "SentenceNav..."
 msgstr "SentenceNav..."
 
-#, fuzzy
 msgid "Move to next sentence."
-msgstr "Sen seguinte oración"
+msgstr "Moverse á seguinte oración."
 
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Sen seguinte oración"
 
-#, fuzzy
 msgid "Move to previous sentence."
-msgstr "Sen oración anterior"
+msgstr "Moverse á oración anterior."
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Sen oración anterior"
 
-#, fuzzy
 msgid "Speak current sentence."
-msgstr "Sen seguinte oración"
+msgstr "Dicir oración actual."
 
-#, fuzzy
 msgid "Move to next phrase."
-msgstr "Sen seguinte frase"
+msgstr "Moverse á seguinte frase."
 
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Sen seguinte frase"
 
-#, fuzzy
 msgid "Move to previous phrase."
-msgstr "Sen frase anterior"
+msgstr "Moverse á frase anterior."
 
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Sen frase anterior"
 
 msgid "Speak current phrase."
-msgstr ""
+msgstr "Dicir frase actual."
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
