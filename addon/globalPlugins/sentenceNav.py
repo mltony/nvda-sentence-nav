@@ -48,6 +48,16 @@ except AttributeError:
     REASON_CARET = controlTypes.OutputReason.CARET
     
 try:
+    ROLE_COMBOBOX = controlTypes.ROLE_COMBOBOX
+    ROLE_LISTITEM = controlTypes.ROLE_LISTITEM
+    ROLE_BUTTON = controlTypes.ROLE_BUTTON
+except AttributeError:
+    ROLE_COMBOBOX = controlTypes.Role.COMBOBOX
+    ROLE_LISTITEM = controlTypes.Role.LISTITEM
+    ROLE_BUTTON = controlTypes.Role.BUTTON
+
+    
+try:
     from  sayAllHandler import CURSOR_CARET
 except:
     from speech import sayAll
@@ -940,7 +950,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 # increment == 0
                 pass
             return
-        if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM, controlTypes.ROLE_BUTTON]:
+        if focus.role  in [ROLE_COMBOBOX, ROLE_LISTITEM, ROLE_BUTTON]:
             try:
                 # The following line will only succeed in BrowserMode.
                 focus.treeInterceptor.script_collapseOrExpandControl(gesture)
