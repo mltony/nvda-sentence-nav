@@ -14,6 +14,7 @@ import ctypes
 import functools
 import globalPluginHandler
 import gui
+from gui.settingsDialogs import SettingsPanel
 import json
 import NVDAHelper
 from NVDAObjects.window import winword
@@ -115,7 +116,7 @@ def getCurrentLanguage():
 addonHandler.initTranslation()
 initConfiguration()
 
-class SettingsDialog(gui.SettingsDialog):
+class SettingsDialog(SettingsPanel):
     # Translators: Title for the settings dialog
     title = _("SentenceNav settings")
 
@@ -212,7 +213,7 @@ class SettingsDialog(gui.SettingsDialog):
         # Finally, ensure that focus is on the first item
         self.paragraphChimeVolumeSlider.SetFocus()
 
-    def onOk(self, evt):
+    def onSave(self):
         config.conf["sentencenav"]["paragraphChimeVolume"] = self.paragraphChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceChimeVolume"] = self.noNextSentenceChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceMessage"] = self.noNextSentenceMessageCheckbox.Value
@@ -232,7 +233,6 @@ class SettingsDialog(gui.SettingsDialog):
 
         regexCache.clear()
         phraseRegex = None
-        super(SettingsDialog, self).onOk(evt)
 
 
 def sign(x):
@@ -573,20 +573,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.createMenu()
 
     def createMenu(self):
-        def _popupMenu(evt):
-            gui.mainFrame._popupSettingsDialog(SettingsDialog)
-        self.prefsMenuItem = gui.mainFrame.sysTrayIcon.preferencesMenu.Append(wx.ID_ANY, _("SentenceNav..."))
-        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, _popupMenu, self.prefsMenuItem)
+        gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(SettingsDialog)
 
     def terminate(self):
-        prefMenu = gui.mainFrame.sysTrayIcon.preferencesMenu
-        try:
-            if wx.version().startswith("4"):
-                prefMenu.Remove(self.prefsMenuItem)
-            else:
-                prefMenu.RemoveItem(self.prefsMenuItem)
-        except:
-            pass
+        gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(SettingsDialog)
 
     @functools.lru_cache(maxsize=100)
     def splitParagraphIntoSentences(text, regex):
