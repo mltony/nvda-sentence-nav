@@ -14,6 +14,7 @@ import ctypes
 import functools
 import globalPluginHandler
 import gui
+from gui.settingsDialogs import SettingsPanel
 import json
 import NVDAHelper
 from NVDAObjects.window import winword
@@ -31,7 +32,7 @@ import wx
 
 debug = False
 if debug:
-    f = open("C:\\Users\\tony\\Dropbox\\1.txt", "w", encoding="utf-8")
+    f = open("C:\\Users\\tony\\Dropbox\\3.txt", "w", encoding="utf-8")
 def mylog(s):
     if debug:
         print(str(s), file=f)
@@ -45,6 +46,16 @@ try:
     REASON_CARET = controlTypes.REASON_CARET
 except AttributeError:
     REASON_CARET = controlTypes.OutputReason.CARET
+    
+try:
+    ROLE_COMBOBOX = controlTypes.ROLE_COMBOBOX
+    ROLE_LISTITEM = controlTypes.ROLE_LISTITEM
+    ROLE_BUTTON = controlTypes.ROLE_BUTTON
+except AttributeError:
+    ROLE_COMBOBOX = controlTypes.Role.COMBOBOX
+    ROLE_LISTITEM = controlTypes.Role.LISTITEM
+    ROLE_BUTTON = controlTypes.Role.BUTTON
+
     
 try:
     from  sayAllHandler import CURSOR_CARET
@@ -115,7 +126,7 @@ def getCurrentLanguage():
 addonHandler.initTranslation()
 initConfiguration()
 
-class SettingsDialog(gui.SettingsDialog):
+class SettingsDialog(SettingsPanel):
     # Translators: Title for the settings dialog
     title = _("SentenceNav settings")
 
@@ -212,7 +223,7 @@ class SettingsDialog(gui.SettingsDialog):
         # Finally, ensure that focus is on the first item
         self.paragraphChimeVolumeSlider.SetFocus()
 
-    def onOk(self, evt):
+    def onSave(self):
         config.conf["sentencenav"]["paragraphChimeVolume"] = self.paragraphChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceChimeVolume"] = self.noNextSentenceChimeVolumeSlider.Value
         config.conf["sentencenav"]["noNextSentenceMessage"] = self.noNextSentenceMessageCheckbox.Value
@@ -232,7 +243,6 @@ class SettingsDialog(gui.SettingsDialog):
 
         regexCache.clear()
         phraseRegex = None
-        super(SettingsDialog, self).onOk(evt)
 
 
 def sign(x):
@@ -301,6 +311,8 @@ class Context:
         """
             Adds another adjacent paragraph to either beginning or end.
         """
+        mylog(f"addParagraph({index}, textInfo)")
+        mylog(f"textInfo={textInfo.text}")
         if index >= 0:
             self.textInfos.insert(index, textInfo)
             self.texts.insert(index, preprocessNewLines(textInfo.text))
@@ -309,6 +321,7 @@ class Context:
             self.texts.append(preprocessNewLines(textInfo.text))
         if (index >= 0) and (self.current >= index):
             self.current += 1
+        mylog(f"now current={self.current} total={len(self.textInfos)}={len(self.texts)}")
 
     def makeTextInfo(self, paragraphInfo, offset):
         """
@@ -570,20 +583,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self.createMenu()
 
     def createMenu(self):
-        def _popupMenu(evt):
-            gui.mainFrame._popupSettingsDialog(SettingsDialog)
-        self.prefsMenuItem = gui.mainFrame.sysTrayIcon.preferencesMenu.Append(wx.ID_ANY, _("SentenceNav..."))
-        gui.mainFrame.sysTrayIcon.Bind(wx.EVT_MENU, _popupMenu, self.prefsMenuItem)
+        gui.settingsDialogs.NVDASettingsDialog.categoryClasses.append(SettingsDialog)
 
     def terminate(self):
-        prefMenu = gui.mainFrame.sysTrayIcon.preferencesMenu
-        try:
-            if wx.version().startswith("4"):
-                prefMenu.Remove(self.prefsMenuItem)
-            else:
-                prefMenu.RemoveItem(self.prefsMenuItem)
-        except:
-            pass
+        gui.settingsDialogs.NVDASettingsDialog.categoryClasses.remove(SettingsDialog)
 
     @functools.lru_cache(maxsize=100)
     def splitParagraphIntoSentences(text, regex):
@@ -718,17 +721,21 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         counter = 0
         while True:
             counter += 1
+            mylog(f"expandSentence counter={counter}")
             if counter > 1000:
                 raise RuntimeError("Infinite loop detected.")
             sentenceStr, startTi, startOffset, endTi, endOffset = self.findCurrentSentence(context, regex)
 
             if not context.isTouchingBoundary(direction, startTi, startOffset, endTi, endOffset):
+                mylog("expandSentence: not touching boundary")
                 return (sentenceStr, startTi, startOffset, endTi, endOffset)
             nextTextInfo = self.nextParagraph(context.textInfos[cindex], direction)
             if nextTextInfo is None:
+                mylog("expandSentence: nextTextInfo is None!")
                 return (sentenceStr, startTi, startOffset, endTi, endOffset)
             if compatibilityFunc is not None:
                 if not compatibilityFunc(nextTextInfo, context.textInfos[cindex]):
+                    mylog("expandSentence: Next para not compatible!")
                     return (sentenceStr, startTi, startOffset, endTi, endOffset)
             context.addParagraph(cindex, nextTextInfo)
 
@@ -787,7 +794,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self.chimeCrossParagraphBorder()
             context = Context(paragraph, 0)
             if direction < 0:
-                context.findByOffset(paragraph, len(paragraph.text) - 1)
+                context.findByOffset(paragraph, len(context.texts[0]) - 1)
         else:
             # Next sentence can be found in the same context
             # At least its beginning or ending - that sentence will be expanded.
@@ -943,7 +950,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 # increment == 0
                 pass
             return
-        if focus.role  in [controlTypes.ROLE_COMBOBOX, controlTypes.ROLE_LISTITEM, controlTypes.ROLE_BUTTON]:
+        if focus.role  in [ROLE_COMBOBOX, ROLE_LISTITEM, ROLE_BUTTON]:
             try:
                 # The following line will only succeed in BrowserMode.
                 focus.treeInterceptor.script_collapseOrExpandControl(gesture)
