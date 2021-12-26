@@ -20,7 +20,7 @@ addon_info = {
 	"addon_description" : _("""Sentence Navigation addon.
 SentenceNav is an NVDA add-on that allows you to read text by sentences, as opposed to by paragraphs or words."""),
 	# version
-	"addon_version" : "2.11",
+	"addon_version" : "2.12",
 	# Author(s)
 	"addon_author" : u"Tony Malykh <anton.malykh@gmail.com>",
 	# URL for the add-on documentation support
@@ -30,7 +30,7 @@ SentenceNav is an NVDA add-on that allows you to read text by sentences, as oppo
 	# Minimum NVDA version supported (e.g. "2018.3")
 	"addon_minimumNVDAVersion" : "2019.2.0",
 	# Last NVDA version supported/tested (e.g. "2018.4", ideally more recent than minimum version)
-	"addon_lastTestedNVDAVersion" : "2021.1.0",
+	"addon_lastTestedNVDAVersion" : "2022.1.0",
 	# Add-on update channel (default is stable or None)
 	"addon_updateChannel" : None,
 }
