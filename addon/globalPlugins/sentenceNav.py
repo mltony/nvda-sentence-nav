@@ -240,7 +240,7 @@ class SettingsDialog(SettingsPanel):
         config.conf["sentencenav"]["fullWidthPhraseBreakers"] = self.fullWidthPhraseBreakersEdit.Value
         config.conf["sentencenav"]["applicationsBlacklist"] = self.applicationsBlacklistEdit.Value
         config.conf["sentencenav"]["enableInWord"] = self.enableInWordCheckbox.Value
-
+        global regexCache, phraseRegex
         regexCache.clear()
         phraseRegex = None
 
