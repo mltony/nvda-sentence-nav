@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
-"Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
-"POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2021-08-04 07:41+0800\n"
+"Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
+"POT-Creation-Date: 2022-01-06 12:30+0800\n"
+"PO-Revision-Date: 2022-01-07 10:16+0800\n"
 "Last-Translator: dingpengyu <dingpengyu06@gmail.com>\n"
 "Language-Team: NVDASimplified Chinese team All volunteers <Copyright (C) "
 "2010-2019>\n"
@@ -20,15 +20,14 @@ msgstr ""
 
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
-msgstr "句子导航 设置"
+msgstr "句子导航设置"
 
 #. Translators: choices inside reconstruct mode combo box
 msgid "Always"
 msgstr "总是"
 
-#, fuzzy
 msgid "Only across paragraphs with same indentation and same style level"
-msgstr "仅适用于具有相同缩进和相同标题级别的段落"
+msgstr "仅具有相同缩进和相同标题级别的段落"
 
 msgid "Never"
 msgstr "从不"
@@ -36,17 +35,17 @@ msgstr "从不"
 #. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
 msgid "Volume of chime when crossing paragraph border"
-msgstr "跨越段落边界时的提示音量"
+msgstr "段落跳转时的提示音量"
 
 #. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
 msgid "Volume of chime when no more sentences available"
-msgstr "没有更多句子时的提示音量"
+msgstr "没有句子时的提示音量"
 
 #. Checkboxes
 #. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
 msgid "Speak message when no next sentence available in the document"
-msgstr "当文档中没有下一个句子时读出消息"
+msgstr "当文档中没有上 / 下一个句子时给出提示"
 
 #. Translators: speak formatted text checkbox
 msgid "Speak formatted text"
@@ -55,12 +54,12 @@ msgstr "读出格式化文本"
 #. Reconstruct mode Combo box
 #. Translators: Label for reconstruct mode combo box
 msgid "Reconstruct sentences across multiple paragraphs when"
-msgstr "在多个段落重构句子"
+msgstr "跨段落重建句子"
 
 #. Regex-related checkbox
 #. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
 msgid "Take Wikipedia-style references into account"
-msgstr "引用维基百科的风格"
+msgstr "考虑到维基百科风格的引用参考"
 
 #. Regex-related edit boxes
 #. Translators: Label for sentence breakers edit box
@@ -73,83 +72,76 @@ msgstr "可跳过的标点符号"
 
 #. Translators: Label for full width sentence breakers edit box
 msgid "Full width sentence breakers"
-msgstr "全宽句末标点符号"
+msgstr "全角断句符号"
 
 #. Translators: Label for exceptional abbreviations edit box
 #, python-format
 msgid "Exceptional abbreviations, space separated, in language %s"
-msgstr "特殊缩写，空格分隔，语言 %s"
+msgstr "在语言 %s 中的特殊缩写，用半角空格分隔"
 
 #. Translators: Label for capital letters edit box
 #, python-format
 msgid "Capital letters with no spaces in language %s"
-msgstr "大写字母，没有语言空格 %s"
+msgstr "在语言 %s 中不含空格的大写字母"
 
 #. Translators: Label for lower case letters edit box
-#, fuzzy, python-format
+#, python-format
 msgid "Lower case letters with no spaces in language %s"
-msgstr "大写字母，没有语言空格 %s"
+msgstr "在语言 %s 中不含空格的小写字母"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
 msgid "Phrase breakers"
-msgstr "短语段落器"
+msgstr "短语断句符号"
 
 #. Translators: Label for full width phrase breakers edit box
 msgid "Full width phrase breakers"
-msgstr "全宽短语段落器"
+msgstr "全角短语断句符号"
 
 #. applicationsBlacklist edit
 #. Translators: Label for blacklisted applications edit box
 msgid "Disable SentenceNav in applications (comma-separated list)"
-msgstr "在应用程序中禁用句子导航 （以逗号分隔的列表）"
+msgstr "在以下应用程序中禁用句子导航 （以半角逗号分隔）"
 
 #. Enable in MS Word
 #. Translators: Checkbox that enables support for MS Word
 msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
-msgstr "启用对 Microsoft Word和WordPad 的实验性支持（覆盖默认的 NVDA 功能）。"
+msgstr ""
+"启用对 Microsoft Word和WordPad 的实验性支持（覆盖 NVDA 默认的句子导航）"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
 msgid "SentenceNav"
 msgstr "句子导航"
 
-msgid "SentenceNav..."
-msgstr "句子导航..."
-
-#, fuzzy
 msgid "Move to next sentence."
-msgstr "没有下一句话"
+msgstr "跳转到下一个句子"
 
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
-msgstr "没有下一句话"
+msgstr "没有下一个句子"
 
-#, fuzzy
 msgid "Move to previous sentence."
-msgstr "没有上一句话"
+msgstr "跳转到上一个句子"
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
-msgstr "没有上一句话"
+msgstr "没有上一个句子"
 
-#, fuzzy
 msgid "Speak current sentence."
-msgstr "没有下一句话"
+msgstr "读出当前句子"
 
-#, fuzzy
 msgid "Move to next phrase."
-msgstr "没有下一个短语"
+msgstr "跳转到下一个短语"
 
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "没有下一个短语"
 
-#, fuzzy
 msgid "Move to previous phrase."
-msgstr "没有上一个短语"
+msgstr "跳转到上一个短语"
 
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
@@ -165,5 +157,8 @@ msgid ""
 "SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
 "opposed to by paragraphs or words."
 msgstr ""
-"句子导航插件。 SentenceNav是一个NVDA插件，允许您按句子阅读文本，而不是段落或"
+"SentenceNav 是一个 NVDA 的插件，可以让您以句子为单位阅读文本，而不是按段落或"
 "单词。"
+
+#~ msgid "SentenceNav..."
+#~ msgstr "句子导航..."
