@@ -124,11 +124,14 @@ def getCurrentLanguage():
     return s[:2]
 
 addonHandler.initTranslation()
+
+ADDON_SUMMARY = addonHandler.getCodeAddon().manifest["summary"]
+
 initConfiguration()
 
 class SettingsDialog(SettingsPanel):
     # Translators: Title for the settings dialog
-    title = _("SentenceNav settings")
+    title = ADDON_SUMMARY
 
     reconstructOptions = ["always", "sameIndent", "never"]
     # Translators: choices inside reconstruct mode combo box
@@ -240,7 +243,7 @@ class SettingsDialog(SettingsPanel):
         config.conf["sentencenav"]["fullWidthPhraseBreakers"] = self.fullWidthPhraseBreakersEdit.Value
         config.conf["sentencenav"]["applicationsBlacklist"] = self.applicationsBlacklistEdit.Value
         config.conf["sentencenav"]["enableInWord"] = self.enableInWordCheckbox.Value
-        global regexCache, phraseRegex
+
         regexCache.clear()
         phraseRegex = None
 
@@ -576,7 +579,7 @@ def getPhraseRegex():
     return result
 
 class GlobalPlugin(globalPluginHandler.GlobalPlugin):
-    scriptCategory = _("SentenceNav")
+    scriptCategory = ADDON_SUMMARY
 
     def __init__(self, *args, **kwargs):
         super(GlobalPlugin, self).__init__(*args, **kwargs)
