@@ -4,7 +4,7 @@ on:
   push:
     tags: ["*"]
     # To build on main/master branch, uncomment the following line:
-    # branches: [ main , master ]
+    branches: [ main , master ]
 
   pull_request:
     branches: [ main, master ]
