@@ -1,0 +1,125 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Ukrainian translate of SentenceNav-addon\n"
+"POT-Creation-Date: 2022-07-04 15:52+0300\n"
+"PO-Revision-Date: 2022-07-06 00:17+0300\n"
+"Last-Translator: \n"
+"Language-Team: Ivan Shtefuriak ip0877@gmail.com\n"
+"Language: uk_UA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: Poedit 3.1\n"
+"X-Poedit-Basepath: .\n"
+
+msgid "SentenceNav settings"
+msgstr "Налаштування Навігації по реченнях"
+
+msgid "Always"
+msgstr "Завжди"
+
+msgid "Only across paragraphs with same indentation and same style level"
+msgstr "Лише між абзацами з однаковим відступом і однаковим рівнем стилю"
+
+msgid "Never"
+msgstr "Ніколи"
+
+msgid "Volume of chime when crossing paragraph border"
+msgstr "Гучність сигналу під час перетину межі абзацу"
+
+msgid "Volume of chime when no more sentences available"
+msgstr "Гучність сигналу, коли більше немає доступних речень"
+
+msgid "Speak message when no next sentence available in the document"
+msgstr "Сповістити, якщо в документі немає наступного речення"
+
+msgid "Speak formatted text"
+msgstr "Промовити форматований текст"
+
+msgid "Reconstruct sentences across multiple paragraphs when"
+msgstr "Реконструювати речення в кількох абзацах, коли"
+
+msgid "Take Wikipedia-style references into account"
+msgstr "Враховувати посилання у стилі Вікіпедії"
+
+msgid "Sentence breakers"
+msgstr "Розриви речення"
+
+msgid "Skippable punctuation marks"
+msgstr "Розділові знаки, які можна пропустити"
+
+msgid "Full width sentence breakers"
+msgstr "Роздільники речень для азіатських мов"
+
+#, python-format
+msgid "Exceptional abbreviations, space separated, in language %s"
+msgstr "Ігнорувати наступні мовні скорочення %s"
+
+#, python-format
+msgid "Capital letters with no spaces in language %s"
+msgstr "Великі літери без пробілів у мові %s"
+
+#, python-format
+msgid "Lower case letters with no spaces in language %s"
+msgstr "Малі літери без пробілів у мові %s"
+
+msgid "Phrase breakers"
+msgstr "Розриви фраз"
+
+msgid "Full width phrase breakers"
+msgstr "Роздільники фраз для азіатських мов"
+
+msgid "Disable SentenceNav in applications (comma-separated list)"
+msgstr ""
+"Вимкнути «Навігацію по реченнях» у програмах (список, розділений комами)"
+
+msgid ""
+"Enable experimental support for Microsoft Word and WordPad (overrides "
+"default NVDA functionality)"
+msgstr ""
+"Увімкнути експериментальну підтримку Microsoft Word і WordPad (замінює "
+"стандартну функціональність NVDA)"
+
+msgid "SentenceNav"
+msgstr "Навігація по реченнях"
+
+msgid "Move to next sentence."
+msgstr "Перейти до наступного речення."
+
+msgid "No next sentence"
+msgstr "Немає наступного речення"
+
+msgid "Move to previous sentence."
+msgstr "Перейти до попереднього речення."
+
+msgid "No previous sentence"
+msgstr "Немає попереднього речення"
+
+msgid "Speak current sentence."
+msgstr "Вимовити поточне речення."
+
+msgid "Move to next phrase."
+msgstr "Перейти до наступної фрази."
+
+msgid "No next phrase"
+msgstr "Немає наступної фрази"
+
+msgid "Move to previous phrase."
+msgstr "Перейти до попередньої фрази."
+
+msgid "No previous phrase"
+msgstr "Немає попередньої фрази"
+
+msgid "Speak current phrase."
+msgstr "Вимовити поточну фразу."
+
+msgid ""
+"Sentence Navigation addon.\n"
+"SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
+"opposed to by paragraphs or words."
+msgstr ""
+"Додаток для навігації по реченнях.\n"
+"SentenceNav — це додаток для NVDA, який дозволяє читати текст по реченнях, а "
+"не по абзацах чи словах."

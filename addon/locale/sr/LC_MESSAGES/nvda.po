@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2019-04-22 19:57+0100\n"
+"PO-Revision-Date: 2022-04-08 19:46+0100\n"
 "Last-Translator: Nikola Jović <wwenikola123@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: sr\n"
@@ -25,9 +25,8 @@ msgstr "Podešavanja navigacije kroz rečenice"
 msgid "Always"
 msgstr "Uvek"
 
-#, fuzzy
 msgid "Only across paragraphs with same indentation and same style level"
-msgstr "Samo po pasusima sa istim uvlačenjem ili istim nivoima naslova"
+msgstr "Samo kroz pasuse sa istim uvlačenjem i istim nivoom stila"
 
 msgid "Never"
 msgstr "Nikada"
@@ -85,9 +84,9 @@ msgid "Capital letters with no spaces in language %s"
 msgstr "Velika slova bez razmaka na jeziku %s"
 
 #. Translators: Label for lower case letters edit box
-#, fuzzy, python-format
+#, python-format
 msgid "Lower case letters with no spaces in language %s"
-msgstr "Velika slova bez razmaka na jeziku %s"
+msgstr "Mala slova bez razmaka na jeziku %s"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
@@ -110,6 +109,8 @@ msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
 msgstr ""
+"Omogući eksperimentalnu podršku za Microsoft Word i WordPad (menja "
+"podrazumevano ponašanje programa NVDA)"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
@@ -119,44 +120,39 @@ msgstr "Navigacija kroz rečenice"
 msgid "SentenceNav..."
 msgstr "Navigacija kroz rečenice..."
 
-#, fuzzy
 msgid "Move to next sentence."
-msgstr "Nema sledeće rečenice"
+msgstr "Premesti se na sledeću rečenicu."
 
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Nema sledeće rečenice"
 
-#, fuzzy
 msgid "Move to previous sentence."
-msgstr "Nema prethodne rečenice"
+msgstr "Premesti se na prethodnu rečenicu."
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Nema prethodne rečenice"
 
-#, fuzzy
 msgid "Speak current sentence."
-msgstr "Nema sledeće rečenice"
+msgstr "Izgovori trenutnu rečenicu."
 
-#, fuzzy
 msgid "Move to next phrase."
-msgstr "Nema sledeće fraze"
+msgstr "Premesti se na sledeću frazu."
 
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Nema sledeće fraze"
 
-#, fuzzy
 msgid "Move to previous phrase."
-msgstr "Nema prethodne fraze"
+msgstr "Premesti se na prethodnu frazu."
 
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Nema prethodne fraze"
 
 msgid "Speak current phrase."
-msgstr ""
+msgstr "Izgovori trenutnu frazu."
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
