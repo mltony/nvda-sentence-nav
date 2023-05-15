@@ -369,9 +369,8 @@ class Context:
         # If the end of sentence is at the very end of the content,
         # textInfos created by setEndPoint is bugged, so do it other way in that case.
         if endOffset == len(startTi.text):
-            # This is expand(), defined in textInfos\offsets.py, but only to the end.
-            _, start._endOffset = start._getUnitOffsets(
-                textInfos.UNIT_PARAGRAPH, start._startOffset)
+            start.move(textInfos.UNIT_CHARACTER, endOffset -
+                       startOffset, endPoint='end')
         else:
             start.setEndPoint(end, "endToEnd")
             
