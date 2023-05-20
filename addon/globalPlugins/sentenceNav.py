@@ -365,7 +365,15 @@ class Context:
         """
         start = self.makeTextInfo(startTi, startOffset)
         end = self.makeTextInfo(endTi, endOffset)
-        start.setEndPoint(end, "endToEnd")
+
+        # If the end of sentence is at the very end of the content,
+        # textInfos created by setEndPoint is bugged, so do it other way in that case.
+        if endOffset == len(startTi.text):
+            start.move(textInfos.UNIT_CHARACTER, endOffset -
+                       startOffset, endPoint='end')
+        else:
+            start.setEndPoint(end, "endToEnd")
+            
         return start
 
     def isTouchingBoundary(self,direction, startTi, startOffset, endTi, endOffset):
