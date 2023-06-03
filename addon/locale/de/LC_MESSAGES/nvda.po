@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: SentenceNav 2.0\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2021-11-07 19:38+0100\n"
+"PO-Revision-Date: 2023-05-07 09:59+0200\n"
 "Last-Translator: Bernd Dorer <mail@bdorer.de>\n"
 "Language-Team: \n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.0\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
@@ -72,7 +72,7 @@ msgstr "Zu überspringende Satzzeichen"
 
 #. Translators: Label for full width sentence breakers edit box
 msgid "Full width sentence breakers"
-msgstr ""
+msgstr "Satz-Pause in voller Breite"
 
 #. Translators: Label for exceptional abbreviations edit box
 #, python-format
@@ -98,7 +98,7 @@ msgstr "Phrasen-Stopps"
 
 #. Translators: Label for full width phrase breakers edit box
 msgid "Full width phrase breakers"
-msgstr ""
+msgstr "Satz-Pause in voller Breite"
 
 #. applicationsBlacklist edit
 #. Translators: Label for blacklisted applications edit box
