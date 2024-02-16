@@ -19,92 +19,112 @@ msgstr ""
 "X-Generator: Poedit 2.4.3\n"
 
 #. Translators: Title for the settings dialog
+#: addon\globalPlugins\sentenceNav.py:131
 msgid "SentenceNav settings"
 msgstr "句子导航设置"
 
 #. Translators: choices inside reconstruct mode combo box
+#: addon\globalPlugins\sentenceNav.py:135
 msgid "Always"
 msgstr "总是"
 
+#: addon\globalPlugins\sentenceNav.py:135
 msgid "Only across paragraphs with same indentation and same style level"
 msgstr "仅具有相同缩进和相同标题级别的段落"
 
+#: addon\globalPlugins\sentenceNav.py:135
 msgid "Never"
 msgstr "从不"
 
 #. paragraphChimeVolumeSlider
 #. Translators: Paragraph crossing chime volume
+#: addon\globalPlugins\sentenceNav.py:144
 msgid "Volume of chime when crossing paragraph border"
 msgstr "段落跳转时的提示音量"
 
 #. noNextSentenceChimeVolumeSlider
 #. Translators: End of document chime volume
+#: addon\globalPlugins\sentenceNav.py:150
 msgid "Volume of chime when no more sentences available"
 msgstr "没有句子时的提示音量"
 
 #. Checkboxes
 #. Translators: Checkbox that controls spoken message when no next or previous sentence is available in the document
+#: addon\globalPlugins\sentenceNav.py:156
 msgid "Speak message when no next sentence available in the document"
 msgstr "当文档中没有上 / 下一个句子时给出提示"
 
 #. Translators: speak formatted text checkbox
+#: addon\globalPlugins\sentenceNav.py:160
 msgid "Speak formatted text"
 msgstr "读出格式化文本"
 
 #. Reconstruct mode Combo box
 #. Translators: Label for reconstruct mode combo box
+#: addon\globalPlugins\sentenceNav.py:166
 msgid "Reconstruct sentences across multiple paragraphs when"
 msgstr "跨段落重建句子"
 
 #. Regex-related checkbox
 #. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
+#: addon\globalPlugins\sentenceNav.py:173
 msgid "Take Wikipedia-style references into account"
 msgstr "考虑到维基百科风格的引用参考"
 
 #. Regex-related edit boxes
 #. Translators: Label for sentence breakers edit box
+#: addon\globalPlugins\sentenceNav.py:179
 msgid "Sentence breakers"
 msgstr "断句符号"
 
 #. Translators: Label for skippable punctuation marks edit box
+#: addon\globalPlugins\sentenceNav.py:182
 msgid "Skippable punctuation marks"
 msgstr "可跳过的标点符号"
 
 #. Translators: Label for full width sentence breakers edit box
+#: addon\globalPlugins\sentenceNav.py:185
 msgid "Full width sentence breakers"
 msgstr "全角断句符号"
 
 #. Translators: Label for exceptional abbreviations edit box
+#: addon\globalPlugins\sentenceNav.py:191
 #, python-format
 msgid "Exceptional abbreviations, space separated, in language %s"
 msgstr "在语言 %s 中的特殊缩写，用半角空格分隔"
 
 #. Translators: Label for capital letters edit box
+#: addon\globalPlugins\sentenceNav.py:195
 #, python-format
 msgid "Capital letters with no spaces in language %s"
 msgstr "在语言 %s 中不含空格的大写字母"
 
 #. Translators: Label for lower case letters edit box
+#: addon\globalPlugins\sentenceNav.py:199
 #, python-format
 msgid "Lower case letters with no spaces in language %s"
 msgstr "在语言 %s 中不含空格的小写字母"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
+#: addon\globalPlugins\sentenceNav.py:205
 msgid "Phrase breakers"
 msgstr "短语断句符号"
 
 #. Translators: Label for full width phrase breakers edit box
+#: addon\globalPlugins\sentenceNav.py:208
 msgid "Full width phrase breakers"
 msgstr "全角短语断句符号"
 
 #. applicationsBlacklist edit
 #. Translators: Label for blacklisted applications edit box
+#: addon\globalPlugins\sentenceNav.py:212
 msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr "在以下应用程序中禁用句子导航 （以半角逗号分隔）"
 
 #. Enable in MS Word
 #. Translators: Checkbox that enables support for MS Word
+#: addon\globalPlugins\sentenceNav.py:216
 msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
@@ -113,45 +133,57 @@ msgstr ""
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
+#: addon\globalPlugins\sentenceNav.py:579 buildVars.py:17
 msgid "SentenceNav"
 msgstr "句子导航"
 
+#: addon\globalPlugins\sentenceNav.py:835
 msgid "Move to next sentence."
 msgstr "跳转到下一个句子"
 
 #. Translators: message when no next sentence available in the document
+#: addon\globalPlugins\sentenceNav.py:850
 msgid "No next sentence"
 msgstr "没有下一个句子"
 
+#: addon\globalPlugins\sentenceNav.py:854
 msgid "Move to previous sentence."
 msgstr "跳转到上一个句子"
 
 #. Translators: message when no previous sentence available in the document
+#: addon\globalPlugins\sentenceNav.py:868
 msgid "No previous sentence"
 msgstr "没有上一个句子"
 
+#: addon\globalPlugins\sentenceNav.py:871
 msgid "Speak current sentence."
 msgstr "读出当前句子"
 
+#: addon\globalPlugins\sentenceNav.py:878
 msgid "Move to next phrase."
 msgstr "跳转到下一个短语"
 
 #. Translators: message when no next phrase available in the document
+#: addon\globalPlugins\sentenceNav.py:885
 msgid "No next phrase"
 msgstr "没有下一个短语"
 
+#: addon\globalPlugins\sentenceNav.py:888
 msgid "Move to previous phrase."
 msgstr "跳转到上一个短语"
 
 #. Translators: message when no previous phrase available in the document
+#: addon\globalPlugins\sentenceNav.py:895
 msgid "No previous phrase"
 msgstr "没有上一个短语"
 
+#: addon\globalPlugins\sentenceNav.py:898
 msgid "Speak current phrase."
 msgstr "读出当前短语"
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
+#: buildVars.py:20
 msgid ""
 "Sentence Navigation addon.\n"
 "SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
