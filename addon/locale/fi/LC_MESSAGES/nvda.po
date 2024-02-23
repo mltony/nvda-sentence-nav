@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: SentenceNav\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2022-05-30 18:15+0200\n"
+"PO-Revision-Date: 2024-02-22 23:47+0200\n"
 "Last-Translator: Jani Kinnunen <janikinnunen340@gmail.com>\n"
 "Language-Team: Jani Kinnunen <jani.kinnunen@wippies.fi>\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.11\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.2\n"
 
 #. Translators: Title for the settings dialog
 msgid "SentenceNav settings"
@@ -54,7 +54,7 @@ msgstr "Puhu muotoiltu teksti"
 #. Reconstruct mode Combo box
 #. Translators: Label for reconstruct mode combo box
 msgid "Reconstruct sentences across multiple paragraphs when"
-msgstr "Muodosta uudelleen useiden kappaleiden lauseet"
+msgstr "Muodosta uudelleen useisiin kappaleisiin jakautuvat lauseet"
 
 #. Regex-related checkbox
 #. Translators: Checkbox that controls whether we should take wiki references into account when parsing sentences
@@ -162,6 +162,6 @@ msgid ""
 "SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
 "opposed to by paragraphs or words."
 msgstr ""
-"Lausenavigoinnin lisäosa.\n"
+"Lausenavigointilisäosa.\n"
 "Lausenavigointi on lisäosa, jonka avulla tekstiä voi lukea lause kerrallaan "
 "kappaleiden tai sanojen sijaan."
