@@ -1,105 +1,86 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Ukrainian translate of SentenceNav-addon\n"
-"Report-Msgid-Bugs-To: 'nvda-translations@groups.io'\n"
-"POT-Creation-Date: 2023-04-25 19:32+0300\n"
-"PO-Revision-Date: 2023-04-25 19:33+0300\n"
+"POT-Creation-Date: 2022-07-04 15:52+0300\n"
+"PO-Revision-Date: 2022-07-06 00:17+0300\n"
 "Last-Translator: \n"
 "Language-Team: Ivan Shtefuriak ip0877@gmail.com\n"
 "Language: uk_UA\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
-"X-Generator: Poedit 3.2.2\n"
-"X-Poedit-Basepath: ../../../..\n"
-"X-Poedit-SearchPath-0: addon/globalPlugins\n"
-"X-Poedit-SearchPath-1: buildVars.py\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"X-Generator: Poedit 3.1\n"
+"X-Poedit-Basepath: .\n"
 
-#: addon/globalPlugins/sentenceNav.py:138
+#: addon/globalPlugins/sentenceNav.py:131
+msgid "SentenceNav settings"
+msgstr "Налаштування Навігації по реченнях"
+
+#: addon/globalPlugins/sentenceNav.py:135
 msgid "Always"
 msgstr "Завжди"
 
-#: addon/globalPlugins/sentenceNav.py:138
+#: addon/globalPlugins/sentenceNav.py:135
 msgid "Only across paragraphs with same indentation and same style level"
 msgstr "Лише між абзацами з однаковим відступом і однаковим рівнем стилю"
 
-#: addon/globalPlugins/sentenceNav.py:138
+#: addon/globalPlugins/sentenceNav.py:135
 msgid "Never"
 msgstr "Ніколи"
 
-#: addon/globalPlugins/sentenceNav.py:147
+#: addon/globalPlugins/sentenceNav.py:144
 msgid "Volume of chime when crossing paragraph border"
 msgstr "Гучність сигналу під час перетину межі абзацу"
 
-#: addon/globalPlugins/sentenceNav.py:153
+#: addon/globalPlugins/sentenceNav.py:150
 msgid "Volume of chime when no more sentences available"
 msgstr "Гучність сигналу, коли більше немає доступних речень"
 
-#: addon/globalPlugins/sentenceNav.py:159
+#: addon/globalPlugins/sentenceNav.py:156
 msgid "Speak message when no next sentence available in the document"
 msgstr "Сповістити, якщо в документі немає наступного речення"
 
-#: addon/globalPlugins/sentenceNav.py:163
+#: addon/globalPlugins/sentenceNav.py:160
 msgid "Speak formatted text"
 msgstr "Промовити форматований текст"
 
-#: addon/globalPlugins/sentenceNav.py:169
+#: addon/globalPlugins/sentenceNav.py:166
 msgid "Reconstruct sentences across multiple paragraphs when"
 msgstr "Реконструювати речення в кількох абзацах, коли"
 
-#: addon/globalPlugins/sentenceNav.py:176
+#: addon/globalPlugins/sentenceNav.py:173
 msgid "Take Wikipedia-style references into account"
 msgstr "Враховувати посилання у стилі Вікіпедії"
 
-#: addon/globalPlugins/sentenceNav.py:182
+#: addon/globalPlugins/sentenceNav.py:179
 msgid "Sentence breakers"
 msgstr "Розриви речення"
 
-#: addon/globalPlugins/sentenceNav.py:185
+#: addon/globalPlugins/sentenceNav.py:182
 msgid "Skippable punctuation marks"
 msgstr "Розділові знаки, які можна пропустити"
 
-#: addon/globalPlugins/sentenceNav.py:188
+#: addon/globalPlugins/sentenceNav.py:185
 msgid "Full width sentence breakers"
 msgstr "Роздільники речень для азіатських мов"
 
-#: addon/globalPlugins/sentenceNav.py:194
-
+#: addon/globalPlugins/sentenceNav.py:191
 #, python-format
 msgid "Exceptional abbreviations, space separated, in language %s"
 msgstr "Ігнорувати наступні мовні скорочення %s"
 
-<<<<<<< HEAD
-#: addon/globalPlugins/sentenceNav.py:198
-=======
 #: addon/globalPlugins/sentenceNav.py:195
->>>>>>> stable
 #, python-format
 msgid "Capital letters with no spaces in language %s"
 msgstr "Великі літери без пробілів у мові %s"
 
-<<<<<<< HEAD
-#: addon/globalPlugins/sentenceNav.py:202
-=======
 #: addon/globalPlugins/sentenceNav.py:199
->>>>>>> stable
 #, python-format
 msgid "Lower case letters with no spaces in language %s"
 msgstr "Малі літери без пробілів у мові %s"
 
-<<<<<<< HEAD
-#: addon/globalPlugins/sentenceNav.py:208
-msgid "Phrase breakers"
-msgstr "Розриви фраз"
-
-#: addon/globalPlugins/sentenceNav.py:211
-msgid "Full width phrase breakers"
-msgstr "Роздільники фраз для азіатських мов"
-
-#: addon/globalPlugins/sentenceNav.py:215
-=======
 #: addon/globalPlugins/sentenceNav.py:205
 msgid "Phrase breakers"
 msgstr "Розриви фраз"
@@ -109,16 +90,11 @@ msgid "Full width phrase breakers"
 msgstr "Роздільники фраз для азіатських мов"
 
 #: addon/globalPlugins/sentenceNav.py:212
->>>>>>> stable
 msgid "Disable SentenceNav in applications (comma-separated list)"
 msgstr ""
 "Вимкнути «Навігацію по реченнях» у програмах (список, розділений комами)"
 
-<<<<<<< HEAD
-#: addon/globalPlugins/sentenceNav.py:219
-=======
 #: addon/globalPlugins/sentenceNav.py:216
->>>>>>> stable
 msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
@@ -126,53 +102,6 @@ msgstr ""
 "Увімкнути експериментальну підтримку Microsoft Word і WordPad (замінює "
 "стандартну функціональність NVDA)"
 
-<<<<<<< HEAD
-#: addon/globalPlugins/sentenceNav.py:838
-msgid "Move to next sentence."
-msgstr "Перейти до наступного речення."
-
-#: addon/globalPlugins/sentenceNav.py:853
-msgid "No next sentence"
-msgstr "Немає наступного речення"
-
-#: addon/globalPlugins/sentenceNav.py:857
-msgid "Move to previous sentence."
-msgstr "Перейти до попереднього речення."
-
-#: addon/globalPlugins/sentenceNav.py:871
-msgid "No previous sentence"
-msgstr "Немає попереднього речення"
-
-#: addon/globalPlugins/sentenceNav.py:874
-msgid "Speak current sentence."
-msgstr "Вимовити поточне речення."
-
-#: addon/globalPlugins/sentenceNav.py:881
-msgid "Move to next phrase."
-msgstr "Перейти до наступної фрази."
-
-#: addon/globalPlugins/sentenceNav.py:888
-msgid "No next phrase"
-msgstr "Немає наступної фрази"
-
-#: addon/globalPlugins/sentenceNav.py:891
-msgid "Move to previous phrase."
-msgstr "Перейти до попередньої фрази."
-
-#: addon/globalPlugins/sentenceNav.py:898
-msgid "No previous phrase"
-msgstr "Немає попередньої фрази"
-
-#: addon/globalPlugins/sentenceNav.py:901
-msgid "Speak current phrase."
-msgstr "Вимовити поточну фразу."
-
-#: buildVars.py:23
-msgid "SentenceNav"
-msgstr "Навігація по реченнях"
-
-#: buildVars.py:26
-=======
 #: addon/globalPlugins/sentenceNav.py:579 buildVars.py:17
 msgid "SentenceNav"
 msgstr "Навігація по реченнях"
@@ -218,7 +147,6 @@ msgid "Speak current phrase."
 msgstr "Вимовити поточну фразу."
 
 #: buildVars.py:20
->>>>>>> stable
 msgid ""
 "Sentence Navigation addon.\n"
 "SentenceNav is an NVDA add-on that allows you to read text by sentences, as "
@@ -227,6 +155,3 @@ msgstr ""
 "Додаток для навігації по реченнях.\n"
 "SentenceNav — це додаток для NVDA, який дозволяє читати текст по реченнях, а "
 "не по абзацах чи словах."
-
-#~ msgid "SentenceNav settings"
-#~ msgstr "Налаштування Навігації по реченнях"
