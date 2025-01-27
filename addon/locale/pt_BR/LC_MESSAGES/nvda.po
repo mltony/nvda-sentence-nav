@@ -1,23 +1,24 @@
 # Brazilian Portuguese translation of SentenceNav add-on.
-# Copyright (C) 2021 NVDA Contributors.
+# Copyright (C) 2021-2025 NVDA Contributors.
 # This file is distributed under the same license as the NVDA package.
 # Ângelo Abrantes <ampa4374@gmail.com>, 2018-2020.
 # Tiago Melo Casal <tcasal@intervox.nce.ufrj.br>, 2021.
+# Josevan Barbosa Fernandes <josevanfernandes@yahoo.com.br>, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: SentenceNav\n"
 "Report-Msgid-Bugs-To: nvda-translations@groups.io\n"
 "POT-Creation-Date: 2018-11-23 19:02+1000\n"
-"PO-Revision-Date: 2021-07-03 16:15-0300\n"
-"Last-Translator: Tiago Melo Casal <tcasal@intervox.nce.ufrj.br>\n"
+"PO-Revision-Date: 2025-01-23 12:45-0300\n"
+"Last-Translator: Josevan Fernandes <josevanfernandes@yahoo.com.br>\n"
 "Language-Team: NVDA Brazilian Portuguese translation team (Equipe de "
 "tradução do NVDA para Português Brasileiro) <clever97@gmail.com>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 1.6.11\n"
+"X-Generator: Poedit 3.5\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #. Translators: Title for the settings dialog
@@ -28,9 +29,8 @@ msgstr "Configurações do SentenceNav"
 msgid "Always"
 msgstr "Sempre"
 
-#, fuzzy
 msgid "Only across paragraphs with same indentation and same style level"
-msgstr "Somente entre parágrafos com o mesmo recuo e mesmo nível de título"
+msgstr "Somente entre parágrafos com o mesmo recuo e o mesmo nível de estilo"
 
 msgid "Never"
 msgstr "Nunca"
@@ -89,9 +89,9 @@ msgid "Capital letters with no spaces in language %s"
 msgstr "Letras maiúsculas, sem espaços, no idioma %s"
 
 #. Translators: Label for lower case letters edit box
-#, fuzzy, python-format
+#, python-format
 msgid "Lower case letters with no spaces in language %s"
-msgstr "Letras maiúsculas, sem espaços, no idioma %s"
+msgstr "Letras minúsculas sem espaços no idioma %s"
 
 #. Phrase regex-related edit boxes
 #. Translators: Label for phrase breakers edit box
@@ -113,6 +113,8 @@ msgid ""
 "Enable experimental support for Microsoft Word and WordPad (overrides "
 "default NVDA functionality)"
 msgstr ""
+"Habilitar o suporte experimental para Microsoft Word e WordPad (substitui a "
+"funcionalidade padrão do NVDA)"
 
 #. Add-on summary, usually the user visible name of the addon.
 #. Translators: Summary for this add-on to be shown on installation and add-on information.
@@ -122,44 +124,39 @@ msgstr "SentenceNav — Navegação por Sentença"
 msgid "SentenceNav..."
 msgstr "SentenceNav..."
 
-#, fuzzy
 msgid "Move to next sentence."
-msgstr "Sem próxima sentença"
+msgstr "Passe para a próxima frase."
 
 #. Translators: message when no next sentence available in the document
 msgid "No next sentence"
 msgstr "Sem próxima sentença"
 
-#, fuzzy
 msgid "Move to previous sentence."
-msgstr "Sem sentença anterior"
+msgstr "Mover para a frase anterior."
 
 #. Translators: message when no previous sentence available in the document
 msgid "No previous sentence"
 msgstr "Sem sentença anterior"
 
-#, fuzzy
 msgid "Speak current sentence."
-msgstr "Sem próxima sentença"
+msgstr "Fale a frase atual."
 
-#, fuzzy
 msgid "Move to next phrase."
-msgstr "Sem próxima frase"
+msgstr "Passe para a próxima frase."
 
 #. Translators: message when no next phrase available in the document
 msgid "No next phrase"
 msgstr "Sem próxima frase"
 
-#, fuzzy
 msgid "Move to previous phrase."
-msgstr "Sem frase anterior"
+msgstr "Ir para a frase anterior."
 
 #. Translators: message when no previous phrase available in the document
 msgid "No previous phrase"
 msgstr "Sem frase anterior"
 
 msgid "Speak current phrase."
-msgstr ""
+msgstr "Fale a frase atual."
 
 #. Add-on description
 #. Translators: Long description to be shown for this add-on on add-on information from add-ons manager
