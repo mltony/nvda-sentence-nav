@@ -798,8 +798,26 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     raise RuntimeError("Infinite loop detected.")
                 paragraph = self.nextParagraph(paragraph, direction)
                 if paragraph is None:
-                    self.chimeNoNextSentence(errorMsg)
-                    return (None, None)
+                    # if there are no more paragraphs, check if we are in a document with page turns
+                    focus = api.getFocusObject()
+                    if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
+                        focus = focus.treeInterceptor
+                    if isinstance(focus, textInfos.DocumentWithPageTurns):
+                        try:
+                            focus.turnPage(previous=direction < 0)
+                        except RuntimeError:
+                            # reached the start/end of the document
+                            self.chimeNoNextSentence(errorMsg)
+                            return (None, None)
+                        else:
+                            # the page was turned successfully
+                            # get textinfo for first paragraph if moving forwards
+                            # or last paragraph if moving backwards
+                            paragraph = focus.makeTextInfo(textInfos.POSITION_FIRST if direction >0 else textInfos.POSITION_LAST)
+                            paragraph.expand(textInfos.UNIT_PARAGRAPH)
+                    else:
+                        self.chimeNoNextSentence(errorMsg)
+                        return (None, None)
                 if not speech.isBlank(paragraph.text):
                     break
             self.chimeCrossParagraphBorder()
