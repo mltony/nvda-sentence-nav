@@ -802,7 +802,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                     focus = api.getFocusObject()
                     if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
                         focus = focus.treeInterceptor
-                    if isinstance(focus, textInfos.DocumentWithPageTurns):
+                    # tested to work correctly in Kindle for PC
+                    # the other app that has DocumentWithPageTurns implemented is Adobe Digital Editions
+                    # However, that app seems to work poorly with SentenceNav in general
+                    if isinstance(focus, textInfos.DocumentWithPageTurns) and 'kindle' in str(type(focus)):
                         try:
                             focus.turnPage(previous=direction < 0)
                         except RuntimeError:
