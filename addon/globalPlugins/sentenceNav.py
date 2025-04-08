@@ -694,6 +694,10 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         """
             Advance to the next or previous paragraph depending on direction.
             Some hacks need to be performed to work around certain TextInfo implementation.
+
+            If shouldTurnPageIfNecessary=True, the returned paragraph might not be usable
+            in the same context as the input paragraph because if the page is turned, the
+            original paragraph is no longer readable.
         """
         mylog(f"nextParagraph direction={direction}")
         ti = textInfo.copy()
