@@ -710,8 +710,6 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 if shouldTurnPageIfNecessary:
                     # if there are no more paragraphs, check if we are in a document with page turns
                     focus = textInfo.obj
-                    if hasattr(focus, "treeInterceptor") and focus.treeInterceptor is not None and hasattr(focus.treeInterceptor, "makeTextInfo"):
-                        focus = focus.treeInterceptor
                     # tested to work correctly in Kindle for PC
                     # the other app that has DocumentWithPageTurns implemented is Adobe Digital Editions
                     # However, that app seems to work poorly with SentenceNav in general
