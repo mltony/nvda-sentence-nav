@@ -709,7 +709,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 mylog(f"nextParagraph result == 0")
                 if shouldTurnPageIfNecessary:
                     # if there are no more paragraphs, check if we are in a document with page turns
-                    focus = api.getFocusObject()
+                    focus = textInfo.obj
                     if hasattr(focus, "treeInterceptor") and focus.treeInterceptor is not None and hasattr(focus.treeInterceptor, "makeTextInfo"):
                         focus = focus.treeInterceptor
                     # tested to work correctly in Kindle for PC
