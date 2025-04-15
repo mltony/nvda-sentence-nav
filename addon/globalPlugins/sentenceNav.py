@@ -690,10 +690,14 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         t2offset = boundaries[j] - parStartIndices[t2i]
         return (sentenceStr, t1, t1offset, t2, t2offset)
 
-    def nextParagraph(self, textInfo, direction):
+    def nextParagraph(self, textInfo, direction, shouldTurnPageIfNecessary=False):
         """
             Advance to the next or previous paragraph depending on direction.
             Some hacks need to be performed to work around certain TextInfo implementation.
+
+            If shouldTurnPageIfNecessary=True, the returned paragraph might not be usable
+            in the same context as the input paragraph because if the page is turned, the
+            original paragraph is no longer readable.
         """
         mylog(f"nextParagraph direction={direction}")
         ti = textInfo.copy()
@@ -703,6 +707,25 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             result = ti.move(textInfos.UNIT_PARAGRAPH, direction)
             if result == 0:
                 mylog(f"nextParagraph result == 0")
+                if shouldTurnPageIfNecessary:
+                    # if there are no more paragraphs, check if we are in a document with page turns
+                    focus = textInfo.obj
+                    # tested to work correctly in Kindle for PC
+                    # the other app that has DocumentWithPageTurns implemented is Adobe Digital Editions
+                    # However, that app seems to work poorly with SentenceNav in general
+                    if isinstance(focus, textInfos.DocumentWithPageTurns) and 'kindle' in str(type(focus)):
+                        try:
+                            focus.turnPage(previous=direction < 0)
+                        except RuntimeError:
+                            # reached the start/end of the document
+                            return None
+                        else:
+                            # the page was turned successfully
+                            # get textinfo for first paragraph if moving forwards
+                            # or last paragraph if moving backwards
+                            paragraph = focus.makeTextInfo(textInfos.POSITION_FIRST if direction >0 else textInfos.POSITION_LAST)
+                            paragraph.expand(textInfos.UNIT_PARAGRAPH)
+                            return paragraph
                 return None
             ti.expand(textInfos.UNIT_PARAGRAPH)
             if sign(ti.compareEndPoints(textInfo, "startToStart")) == sign(direction):
@@ -796,7 +819,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 counter += 1
                 if counter > 1000:
                     raise RuntimeError("Infinite loop detected.")
-                paragraph = self.nextParagraph(paragraph, direction)
+                paragraph = self.nextParagraph(paragraph, direction, shouldTurnPageIfNecessary=True)
                 if paragraph is None:
                     self.chimeNoNextSentence(errorMsg)
                     return (None, None)
@@ -968,7 +991,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             except AttributeError:
                 gesture.send()
             return
-        if hasattr(focus, "treeInterceptor") and hasattr(focus.treeInterceptor, "makeTextInfo"):
+        if hasattr(focus, "treeInterceptor") and focus.treeInterceptor is not None and hasattr(focus.treeInterceptor, "makeTextInfo"):
             focus = focus.treeInterceptor
         try:
             caretInfo = focus.makeTextInfo(textInfos.POSITION_CARET)
