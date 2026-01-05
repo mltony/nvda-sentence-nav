@@ -882,7 +882,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         regex = getRegex(getCurrentLanguage())
         # Translators: message when no next sentence available in the document
         errorMsg = _("No next sentence")
-        self.move(gesture, regex, 1, errorMsg)
+        self.move(gesture, regex, 1, errorMsg, canUseNativeScript=True)
 
 
     @script(description=_("Move to previous sentence."), gestures=['kb:Alt+UpArrow'],
@@ -900,7 +900,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         regex = getRegex(getCurrentLanguage())
         # Translators: message when no previous sentence available in the document
         errorMsg = _("No previous sentence")
-        self.move(gesture, regex, -1, errorMsg)
+        self.move(gesture, regex, -1, errorMsg, canUseNativeScript=True)
 
     @script(description=_("Speak current sentence."), gestures=['kb:NVDA+Alt+S'])
     def script_currentSentence(self, gesture):
@@ -966,9 +966,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         result = [formatField.get(fieldName, None) for fieldName in self.styleFields]
         return tuple(result)
 
-    def move(self, gesture, regex, increment, errorMsg):
+    def move(self, gesture, regex, increment, errorMsg, canUseNativeScript=False):
         focus = api.getFocusObject()
-        if not getConfig("enableInWord") and  (
+        if canUseNativeScript and not getConfig("enableInWord") and  (
             isinstance(focus, winword.WordDocument)
             or (
                 "Dynamic_IAccessibleRichEdit" in str(type(focus))
