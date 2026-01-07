@@ -74,12 +74,14 @@ def initConfiguration():
     capitalLetters = """
 {
     "en": "A-Z",
+    "fr": "A-ZÀÈÌÒÙÁÉÍÓÚÝÂÊÎÔÛÄËÏÖÜŸŒÆ",
     "ru": "А-Я"
 }
 """.replace("\n", " ")
     lowerCaseLetters = """
 {
     "en": "a-z",
+    "fr": "a-zàèìòùáéíóúýâêîôûäëïöüÿœæ",
     "ru": "а-я"
 }
 """.replace("\n", " ")
